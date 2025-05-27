@@ -1,8 +1,9 @@
 
-import { Bell, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DarkModeToggle from './DarkModeToggle';
 import UserDropdown from './UserDropdown';
+import LanguageSelector from './LanguageSelector';
+import NotificationSettings from './NotificationSettings';
 
 const DashboardHeader = () => {
   return (
@@ -13,12 +14,8 @@ const DashboardHeader = () => {
       
       <div className="flex items-center space-x-3">
         <DarkModeToggle />
-        <Button variant="ghost" size="icon">
-          <Bell className="w-5 h-5" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Globe className="w-5 h-5" />
-        </Button>
+        <LanguageSelector />
+        <NotificationSettings />
         <UserDropdown />
       </div>
     </header>

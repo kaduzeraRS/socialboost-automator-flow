@@ -11,7 +11,7 @@ const PricingSection = () => {
       features: [
         "2 contas Instagram/TikTok",
         "100 posts agendados",
-        "500 interações/dia",
+        "5.000 interações/15 dias",
         "Suporte básico"
       ],
       popular: false
@@ -23,7 +23,7 @@ const PricingSection = () => {
       features: [
         "5 contas Instagram/TikTok",
         "500 posts agendados",
-        "2.000 interações/dia",
+        "10.000 interações/mês",
         "Analytics avançados",
         "Suporte prioritário"
       ],
@@ -31,13 +31,13 @@ const PricingSection = () => {
     },
     {
       name: "Trimestral",
-      price: "R$ 89",
+      price: "R$ 147",
       period: "mês",
-      originalPrice: "R$ 99",
+      originalPrice: "R$ 49",
       features: [
         "10 contas Instagram/TikTok",
         "1.500 posts agendados",
-        "5.000 interações/dia",
+        "15.000 interações/mês",
         "Analytics avançados",
         "Suporte VIP",
         "API access"
@@ -46,13 +46,13 @@ const PricingSection = () => {
     },
     {
       name: "Anual",
-      price: "R$ 69",
-      period: "mês",
-      originalPrice: "R$ 89",
+      price: "R$ 549,90",
+      period: "ano",
+      originalPrice: "R$ 588",
       features: [
         "Contas ilimitadas",
         "Posts ilimitados",
-        "10.000 interações/dia",
+        "20.000 interações/mês",
         "Tudo do plano anterior",
         "Gerente dedicado",
         "White label"

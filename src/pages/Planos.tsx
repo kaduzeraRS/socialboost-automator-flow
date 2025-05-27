@@ -1,3 +1,4 @@
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,7 @@ const Planos = () => {
       features: [
         '2 contas Instagram/TikTok',
         '100 posts agendados',
-        '500 interações/dia',
+        '5.000 interações/15 dias',
         'Suporte básico'
       ],
       icon: Clock,
@@ -35,7 +36,7 @@ const Planos = () => {
       features: [
         '5 contas Instagram/TikTok',
         '500 posts agendados',
-        '2.000 interações/dia',
+        '10.000 interações/mês',
         'Analytics avançados',
         'Suporte prioritário'
       ],
@@ -45,14 +46,14 @@ const Planos = () => {
     },
     {
       name: 'Trimestral',
-      price: 'R$ 89',
+      price: 'R$ 147',
       period: '/mês',
-      originalPrice: 'R$ 99',
+      originalPrice: 'R$ 49',
       description: 'Para crescimento acelerado',
       features: [
         '10 contas Instagram/TikTok',
         '1.500 posts agendados',
-        '5.000 interações/dia',
+        '15.000 interações/mês',
         'Analytics avançados',
         'Suporte VIP',
         'API access'
@@ -63,14 +64,14 @@ const Planos = () => {
     },
     {
       name: 'Anual',
-      price: 'R$ 69',
-      period: '/mês',
-      originalPrice: 'R$ 89',
+      price: 'R$ 549,90',
+      period: '/ano',
+      originalPrice: 'R$ 588',
       description: 'Para profissionais',
       features: [
         'Contas ilimitadas',
         'Posts ilimitados',
-        '10.000 interações/dia',
+        '20.000 interações/mês',
         'Tudo do plano anterior',
         'Gerente dedicado',
         'White label'
@@ -82,46 +83,11 @@ const Planos = () => {
   ];
 
   const interactionPackages = [
-    { amount: 100, price: 'R$ 1,90' },
-    { amount: 200, price: 'R$ 2,90' },
-    { amount: 500, price: 'R$ 5,90' },
-    { amount: 1000, price: 'R$ 9,90' }
+    { amount: 1000, price: 'R$ 5,90' },
+    { amount: 2500, price: 'R$ 9,90' },
+    { amount: 5000, price: 'R$ 14,90' },
+    { amount: 10000, price: 'R$ 19,90' }
   ];
-
-  const faqs = [
-    {
-      question: 'Posso cancelar a qualquer momento?',
-      answer: 'Sim, você pode cancelar sua assinatura a qualquer momento sem taxas de cancelamento.'
-    },
-    {
-      question: 'Como funciona o período de teste?',
-      answer: 'Oferecemos 3 dias gratuitos para você testar todos os recursos do plano escolhido após o cadastro do e-mail.'
-    },
-    {
-      question: 'Posso alterar meu plano depois?',
-      answer: 'Sim, você pode fazer upgrade ou downgrade do seu plano a qualquer momento.'
-    },
-    {
-      question: 'O que acontece se eu usar a mesma conta em emails diferentes?',
-      answer: 'Nosso sistema detecta contas duplicadas para evitar múltiplos períodos de teste gratuito.'
-    },
-    {
-      question: 'Como funcionam as interações extras?',
-      answer: 'Você pode comprar pacotes de interações adicionais que são válidos por 30 dias após a compra.'
-    }
-  ];
-
-  const handleCancelSubscription = () => {
-    console.log('Cancelar assinatura');
-  };
-
-  const handleUpgradePlan = (planName: string) => {
-    console.log('Upgrade para:', planName);
-  };
-
-  const handlePurchaseInteractions = (amount: number, price: string) => {
-    console.log('Comprar', amount, 'interações por', price);
-  };
 
   return (
     <DashboardLayout>
@@ -176,7 +142,7 @@ const Planos = () => {
                 variant="outline" 
                 size="sm"
                 className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs h-8 px-2"
-                onClick={handleCancelSubscription}
+                onClick={() => console.log('Cancelar assinatura')}
               >
                 Cancelar
               </Button>
@@ -262,7 +228,7 @@ const Planos = () => {
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Plus className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground">+{pkg.amount}</h3>
+                  <h3 className="text-xl font-bold text-foreground">+{pkg.amount.toLocaleString()}</h3>
                   <p className="text-sm text-muted-foreground mb-4">Interações</p>
                   <div className="text-lg font-bold text-purple-primary mb-4">{pkg.price}</div>
                   <Button 
