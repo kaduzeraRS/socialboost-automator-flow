@@ -75,10 +75,10 @@ const Planos = () => {
   ];
 
   const interactionPackages = [
-    { amount: 100, price: 'R$ 4,90' },
-    { amount: 200, price: 'R$ 8,90' },
-    { amount: 500, price: 'R$ 19,90' },
-    { amount: 1000, price: 'R$ 34,90' }
+    { amount: 100, price: 'R$ 2,90' },
+    { amount: 200, price: 'R$ 4,90' },
+    { amount: 500, price: 'R$ 9,90' },
+    { amount: 1000, price: 'R$ 17,90' }
   ];
 
   const faqs = [
@@ -120,16 +120,16 @@ const Planos = () => {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Planos e Assinatura</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-2">Gerencie sua assinatura e faça upgrades</p>
+          <h1 className="text-3xl font-bold">Planos e Assinatura</h1>
+          <p className="text-muted-foreground mt-2">Gerencie sua assinatura e faça upgrades</p>
         </div>
 
         {/* Current Subscription Status */}
-        <Card className="border-purple-500 bg-white dark:bg-gray-800">
+        <Card className="border-purple-500">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Star className="w-6 h-6 text-purple-600" />
-              <span className="text-gray-900 dark:text-white">Sua Assinatura Atual</span>
+              <span>Sua Assinatura Atual</span>
               <Badge className="bg-purple-600 text-white">Ativo</Badge>
             </CardTitle>
           </CardHeader>
@@ -137,27 +137,27 @@ const Planos = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">{currentPlan}</div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Plano Atual</p>
+                <p className="text-sm text-muted-foreground">Plano Atual</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{daysRemaining} dias</div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Restantes</p>
+                <div className="text-2xl font-bold">{daysRemaining} dias</div>
+                <p className="text-sm text-muted-foreground">Restantes</p>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{renewalDate}</div>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Próxima Renovação</p>
+                <div className="text-2xl font-bold">{renewalDate}</div>
+                <p className="text-sm text-muted-foreground">Próxima Renovação</p>
               </div>
             </div>
             
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-700 dark:text-gray-300">Período de assinatura</span>
-                <span className="text-gray-700 dark:text-gray-300">{Math.round((daysRemaining / 30) * 100)}% restante</span>
+                <span className="text-muted-foreground">Período de assinatura</span>
+                <span className="text-muted-foreground">{Math.round((daysRemaining / 30) * 100)}% restante</span>
               </div>
               <Progress value={(daysRemaining / 30) * 100} className="h-2" />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-start">
               <Button 
                 className="bg-purple-600 hover:bg-purple-700 text-white"
                 onClick={() => console.log('Gerenciar assinatura')}
@@ -168,7 +168,7 @@ const Planos = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs px-3 py-1"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs px-2 py-1 h-7"
                 onClick={handleCancelSubscription}
               >
                 Cancelar Assinatura
@@ -179,13 +179,13 @@ const Planos = () => {
 
         {/* Upgrade Plans */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Fazer Upgrade</h2>
+          <h2 className="text-2xl font-bold mb-6">Fazer Upgrade</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan) => {
               const isCurrentPlan = plan.name === currentPlan;
               
               return (
-                <Card key={plan.name} className={`relative bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 ${plan.popular ? 'ring-2 ring-purple-500' : ''} ${isCurrentPlan ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : ''}`}>
+                <Card key={plan.name} className={`relative ${plan.popular ? 'ring-2 ring-purple-500' : ''} ${isCurrentPlan ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : ''}`}>
                   {plan.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-purple-600 text-white px-4 py-1">
@@ -202,14 +202,14 @@ const Planos = () => {
                   )}
                   
                   <CardHeader className="text-center pb-4">
-                    <CardTitle className="text-2xl text-gray-900 dark:text-white">{plan.name}</CardTitle>
-                    <p className="text-gray-600 dark:text-gray-300">{plan.description}</p>
+                    <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                    <p className="text-muted-foreground">{plan.description}</p>
                     <div className="flex items-baseline justify-center mt-4">
-                      <span className="text-4xl font-bold text-gray-900 dark:text-white">{plan.price}</span>
-                      <span className="text-gray-600 dark:text-gray-300 ml-1">{plan.period}</span>
+                      <span className="text-4xl font-bold">{plan.price}</span>
+                      <span className="text-muted-foreground ml-1">{plan.period}</span>
                     </div>
                     {plan.originalPrice && (
-                      <div className="text-sm text-gray-500 dark:text-gray-400 line-through">
+                      <div className="text-sm text-muted-foreground line-through">
                         {plan.originalPrice}/{plan.period}
                       </div>
                     )}
@@ -220,7 +220,7 @@ const Planos = () => {
                       {plan.features.map((feature, index) => (
                         <li key={index} className="flex items-center space-x-3">
                           <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                          <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+                          <span className="text-sm">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -247,16 +247,16 @@ const Planos = () => {
 
         {/* Interaction Packages */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Pacotes de Interações</h2>
+          <h2 className="text-2xl font-bold mb-6">Pacotes de Interações</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {interactionPackages.map((pkg, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Plus className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">+{pkg.amount}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Interações</p>
+                  <h3 className="text-xl font-bold">+{pkg.amount}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Interações</p>
                   <div className="text-lg font-bold text-purple-600 mb-4">{pkg.price}</div>
                   <Button 
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white"
@@ -271,18 +271,18 @@ const Planos = () => {
         </div>
 
         {/* FAQ Section */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <HelpCircle className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              <span className="text-gray-900 dark:text-white">Perguntas Frequentes</span>
+              <HelpCircle className="w-6 h-6" />
+              <span>Perguntas Frequentes</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {faqs.map((faq, index) => (
               <div key={index}>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">{faq.question}</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">{faq.answer}</p>
+                <h4 className="font-medium mb-2">{faq.question}</h4>
+                <p className="text-sm text-muted-foreground">{faq.answer}</p>
               </div>
             ))}
           </CardContent>
