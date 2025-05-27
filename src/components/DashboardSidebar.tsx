@@ -10,21 +10,23 @@ import {
   Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const menuItems = [
-  { title: 'Painel', href: '/dashboard', icon: LayoutDashboard },
-  { title: 'Agendamento de Posts', href: '/agendamento', icon: Calendar },
-  { title: 'Aquecimento de Conta', href: '/aquecimento', icon: Flame },
-  { title: 'Contas', href: '/contas', icon: Users },
-  { title: 'Planos de Assinatura', href: '/planos', icon: CreditCard },
-  { title: 'Configurações', href: '/configuracoes', icon: Settings },
-];
-
-// Mock user role - in real app this would come from auth context
-const isAdmin = true; // Change this to false to hide admin menu
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const DashboardSidebar = () => {
   const location = useLocation();
+  const { t } = useLanguage();
+
+  const menuItems = [
+    { title: t('panel'), href: '/dashboard', icon: LayoutDashboard },
+    { title: t('post_scheduling'), href: '/agendamento', icon: Calendar },
+    { title: t('account_warming'), href: '/aquecimento', icon: Flame },
+    { title: t('accounts'), href: '/contas', icon: Users },
+    { title: t('subscription_plans'), href: '/planos', icon: CreditCard },
+    { title: t('settings'), href: '/configuracoes', icon: Settings },
+  ];
+
+  // Mock user role - in real app this would come from auth context
+  const isAdmin = true; // Change this to false to hide admin menu
 
   return (
     <div className="w-64 bg-card border-r border-border h-screen sticky top-0">
@@ -71,7 +73,7 @@ const DashboardSidebar = () => {
             )}
           >
             <Shield className="w-5 h-5" />
-            <span>Admin</span>
+            <span>{t('admin')}</span>
           </Link>
         )}
       </nav>

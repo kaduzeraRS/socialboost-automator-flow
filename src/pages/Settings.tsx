@@ -11,9 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Lock, Bell, Settings as SettingsIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Settings = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState({
     name: 'João Silva',
     email: 'joao@email.com',
@@ -136,16 +138,16 @@ const Settings = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Configurações</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('settings')}</h1>
           <p className="text-muted-foreground">Gerencie sua conta e preferências</p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 bg-muted">
-            <TabsTrigger value="profile" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">Perfil</TabsTrigger>
-            <TabsTrigger value="password" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">Senha</TabsTrigger>
-            <TabsTrigger value="notifications" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">Notificações</TabsTrigger>
-            <TabsTrigger value="preferences" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">Preferências</TabsTrigger>
+            <TabsTrigger value="profile" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">{t('profile')}</TabsTrigger>
+            <TabsTrigger value="password" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">{t('password')}</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">{t('notifications')}</TabsTrigger>
+            <TabsTrigger value="preferences" className="text-foreground data-[state=active]:bg-background data-[state=active]:text-foreground">{t('preferences')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -153,7 +155,7 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <User className="w-5 h-5" />
-                  <span>Informações do Perfil</span>
+                  <span>{t('profile_information')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -172,13 +174,13 @@ const Settings = () => {
                     onClick={handleChangeAvatar}
                     className="border-input hover:bg-accent hover:text-accent-foreground"
                   >
-                    Alterar Avatar
+                    {t('change_avatar')}
                   </Button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name" className="text-foreground">Nome</Label>
+                    <Label htmlFor="name" className="text-foreground">{t('name')}</Label>
                     <Input
                       id="name"
                       value={profile.name}
@@ -187,7 +189,7 @@ const Settings = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email" className="text-foreground">E-mail</Label>
+                    <Label htmlFor="email" className="text-foreground">{t('email')}</Label>
                     <Input
                       id="email"
                       type="email"
@@ -200,7 +202,7 @@ const Settings = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="bio" className="text-foreground">Bio</Label>
+                  <Label htmlFor="bio" className="text-foreground">{t('bio')}</Label>
                   <Input
                     id="bio"
                     value={profile.bio}
@@ -212,7 +214,7 @@ const Settings = () => {
 
                 {/* Post Frequency Section */}
                 <div className="space-y-4">
-                  <Label className="text-foreground">Frequência de Posts</Label>
+                  <Label className="text-foreground">{t('post_frequency')}</Label>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-foreground">Baixa</span>
@@ -230,7 +232,7 @@ const Settings = () => {
                   className="bg-purple-primary hover:bg-purple-hover text-white"
                   onClick={handleSaveProfile}
                 >
-                  Salvar Alterações
+                  {t('save_changes')}
                 </Button>
               </CardContent>
             </Card>
@@ -241,12 +243,12 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Lock className="w-5 h-5" />
-                  <span>Alterar Senha</span>
+                  <span>{t('change_password')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="current-password" className="text-foreground">Senha Atual</Label>
+                  <Label htmlFor="current-password" className="text-foreground">{t('current_password')}</Label>
                   <Input 
                     id="current-password" 
                     type="password" 
@@ -256,7 +258,7 @@ const Settings = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="new-password" className="text-foreground">Nova Senha</Label>
+                  <Label htmlFor="new-password" className="text-foreground">{t('new_password')}</Label>
                   <Input 
                     id="new-password" 
                     type="password" 
@@ -266,7 +268,7 @@ const Settings = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="confirm-password" className="text-foreground">Confirmar Nova Senha</Label>
+                  <Label htmlFor="confirm-password" className="text-foreground">{t('confirm_password')}</Label>
                   <Input 
                     id="confirm-password" 
                     type="password" 
@@ -279,7 +281,7 @@ const Settings = () => {
                   className="bg-purple-primary hover:bg-purple-hover text-white"
                   onClick={handleChangePassword}
                 >
-                  Atualizar Senha
+                  {t('update_password')}
                 </Button>
               </CardContent>
             </Card>
@@ -290,13 +292,13 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Bell className="w-5 h-5" />
-                  <span>Preferências de Notificação</span>
+                  <span>{t('notification_preferences')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">Notificações por E-mail</p>
+                    <p className="font-medium text-foreground">{t('email_notifications')}</p>
                     <p className="text-sm text-muted-foreground">
                       Receba atualizações sobre posts e campanhas
                     </p>
@@ -311,7 +313,7 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">Notificações Push</p>
+                    <p className="font-medium text-foreground">{t('push_notifications')}</p>
                     <p className="text-sm text-muted-foreground">
                       Alertas em tempo real no navegador
                     </p>
@@ -326,7 +328,7 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">Relatórios Semanais</p>
+                    <p className="font-medium text-foreground">{t('weekly_reports')}</p>
                     <p className="text-sm text-muted-foreground">
                       Resumo semanal de performance
                     </p>
@@ -343,7 +345,7 @@ const Settings = () => {
                   className="bg-purple-primary hover:bg-purple-hover text-white"
                   onClick={handleSaveNotifications}
                 >
-                  Salvar Preferências
+                  {t('save_preferences')}
                 </Button>
               </CardContent>
             </Card>
@@ -354,13 +356,13 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <SettingsIcon className="w-5 h-5" />
-                  <span>Preferências Gerais</span>
+                  <span>{t('general_preferences')}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">Modo Escuro</p>
+                    <p className="font-medium text-foreground">{t('dark_mode')}</p>
                     <p className="text-sm text-muted-foreground">
                       Alternar entre tema claro e escuro
                     </p>
@@ -373,7 +375,7 @@ const Settings = () => {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-foreground">Auto-save</p>
+                    <p className="font-medium text-foreground">{t('auto_save')}</p>
                     <p className="text-sm text-muted-foreground">
                       Salvar automaticamente rascunhos de posts
                     </p>
@@ -387,7 +389,7 @@ const Settings = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="timezone" className="text-foreground">Fuso Horário</Label>
+                  <Label htmlFor="timezone" className="text-foreground">{t('timezone')}</Label>
                   <Input
                     id="timezone"
                     value={preferences.timezone}
@@ -400,7 +402,7 @@ const Settings = () => {
                   className="bg-purple-primary hover:bg-purple-hover text-white"
                   onClick={handleSavePreferences}
                 >
-                  Salvar Preferências
+                  {t('save_preferences')}
                 </Button>
               </CardContent>
             </Card>
