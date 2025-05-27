@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,11 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Check, Star, Zap, Calendar, CreditCard, HelpCircle, Plus, Clock } from 'lucide-react';
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Planos = () => {
+  const { t } = useLanguage();
   const [currentPlan] = useState('Mensal'); // Simulate current plan
   const [daysRemaining] = useState(23);
-  const [renewalDate] = useState('2024-02-15');
+  const [renewalDate] = useState('2025-02-15');
 
   const plans = [
     {
@@ -35,7 +36,7 @@ const Planos = () => {
       description: 'Para criadores de conteúdo',
       features: [
         '5 contas Instagram/TikTok',
-        '500 posts agendados',
+        '1.000 posts agendados',
         '10.000 interações/mês',
         'Analytics avançados',
         'Suporte prioritário'
@@ -48,11 +49,11 @@ const Planos = () => {
       name: 'Trimestral',
       price: 'R$ 147',
       period: '/mês',
-      originalPrice: 'R$ 49',
+      originalPrice: 'R$ 199',
       description: 'Para crescimento acelerado',
       features: [
         '10 contas Instagram/TikTok',
-        '1.500 posts agendados',
+        '2.000 posts agendados',
         '15.000 interações/mês',
         'Analytics avançados',
         'Suporte VIP',
@@ -88,6 +89,28 @@ const Planos = () => {
     { amount: 5000, price: 'R$ 14,90' },
     { amount: 10000, price: 'R$ 19,90' }
   ];
+
+  const handleManagePayment = () => {
+    console.log('Gerenciar pagamento');
+    alert('Redirecionando para gerenciamento de pagamento...');
+  };
+
+  const handleCancelSubscription = () => {
+    console.log('Cancelar assinatura');
+    if (confirm('Tem certeza que deseja cancelar sua assinatura?')) {
+      alert('Assinatura cancelada com sucesso!');
+    }
+  };
+
+  const handleUpgradePlan = (planName: string) => {
+    console.log('Upgrade para:', planName);
+    alert(`Iniciando upgrade para o plano ${planName}...`);
+  };
+
+  const handleBuyInteractions = (amount: number, price: string) => {
+    console.log('Comprar', amount, 'interações por', price);
+    alert(`Comprando ${amount.toLocaleString()} interações por ${price}...`);
+  };
 
   return (
     <DashboardLayout>
@@ -133,18 +156,18 @@ const Planos = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 className="bg-purple-primary hover:bg-purple-hover text-white"
-                onClick={() => console.log('Gerenciar assinatura')}
+                onClick={handleManagePayment}
               >
                 <CreditCard className="w-4 h-4 mr-2" />
-                Gerenciar Pagamento
+                {t('manage_payment')}
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
                 className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs h-8 px-2"
-                onClick={() => console.log('Cancelar assinatura')}
+                onClick={handleCancelSubscription}
               >
-                Cancelar
+                {t('cancel')}
               </Button>
             </div>
           </CardContent>
@@ -152,7 +175,7 @@ const Planos = () => {
 
         {/* Upgrade Plans */}
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-6">Fazer Upgrade</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">{t('upgrade')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {plans.map((plan) => {
               const Icon = plan.icon;
@@ -168,7 +191,7 @@ const Planos = () => {
                   {isCurrentPlan && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-purple-primary text-white px-4 py-1">
-                        Seu Plano
+                        {t('your_plan')}
                       </Badge>
                     </div>
                   )}
@@ -180,12 +203,14 @@ const Planos = () => {
                     <CardTitle className="text-2xl text-foreground">{plan.name}</CardTitle>
                     <p className="text-muted-foreground">{plan.description}</p>
                     <div className="flex items-baseline justify-center mt-4">
-                      <span className="text-4xl font-bold text-foreground">{plan.price}</span>
+                      <span className={`font-bold text-foreground ${plan.name === 'Anual' ? 'text-2xl' : 'text-4xl'}`}>
+                        {plan.price}
+                      </span>
                       <span className="text-muted-foreground ml-1">{plan.period}</span>
                     </div>
                     {plan.originalPrice && (
                       <div className="text-sm text-muted-foreground line-through">
-                        {plan.originalPrice}/{plan.period}
+                        {plan.originalPrice}{plan.period}
                       </div>
                     )}
                   </CardHeader>
@@ -207,9 +232,9 @@ const Planos = () => {
                           : 'bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary'
                       }`}
                       disabled={isCurrentPlan}
-                      onClick={() => !isCurrentPlan && console.log('Upgrade para:', plan.name)}
+                      onClick={() => !isCurrentPlan && handleUpgradePlan(plan.name)}
                     >
-                      {isCurrentPlan ? 'Plano Atual' : 'Escolher Plano'}
+                      {isCurrentPlan ? t('current_plan') : t('choose_plan')}
                     </Button>
                   </CardContent>
                 </Card>
@@ -233,7 +258,7 @@ const Planos = () => {
                   <div className="text-lg font-bold text-purple-primary mb-4">{pkg.price}</div>
                   <Button 
                     className="w-full bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary"
-                    onClick={() => console.log('Comprar', pkg.amount, 'interações por', pkg.price)}
+                    onClick={() => handleBuyInteractions(pkg.amount, pkg.price)}
                   >
                     Comprar
                   </Button>

@@ -11,8 +11,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { Bell, BellOff } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const NotificationSettings = () => {
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState({
     posts: true,
     interactions: true,
@@ -26,6 +28,12 @@ const NotificationSettings = () => {
       [type]: enabled
     }));
     console.log(`Notificação ${type} ${enabled ? 'ativada' : 'desativada'}`);
+  };
+
+  const handleViewAllSettings = () => {
+    console.log('Redirecionando para configurações completas');
+    // Aqui você pode implementar navegação para página de configurações
+    window.location.href = '/configuracoes';
   };
 
   const allNotificationsOff = !Object.values(notifications).some(Boolean);
@@ -44,7 +52,7 @@ const NotificationSettings = () => {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 bg-background border border-border shadow-lg">
+      <DropdownMenuContent align="end" className="w-64 bg-background border border-border shadow-lg z-50">
         <DropdownMenuLabel className="text-foreground">
           Configurações de Notificação
         </DropdownMenuLabel>
@@ -52,7 +60,7 @@ const NotificationSettings = () => {
         
         <div className="p-2 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">Posts Agendados</span>
+            <span className="text-sm text-foreground">{t('posts_scheduled')}</span>
             <Switch 
               checked={notifications.posts}
               onCheckedChange={(checked) => handleNotificationToggle('posts', checked)}
@@ -60,7 +68,7 @@ const NotificationSettings = () => {
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">Interações</span>
+            <span className="text-sm text-foreground">{t('interactions')}</span>
             <Switch 
               checked={notifications.interactions}
               onCheckedChange={(checked) => handleNotificationToggle('interactions', checked)}
@@ -68,7 +76,7 @@ const NotificationSettings = () => {
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">Sistema</span>
+            <span className="text-sm text-foreground">{t('system')}</span>
             <Switch 
               checked={notifications.system}
               onCheckedChange={(checked) => handleNotificationToggle('system', checked)}
@@ -76,7 +84,7 @@ const NotificationSettings = () => {
           </div>
           
           <div className="flex items-center justify-between">
-            <span className="text-sm text-foreground">Marketing</span>
+            <span className="text-sm text-foreground">{t('marketing')}</span>
             <Switch 
               checked={notifications.marketing}
               onCheckedChange={(checked) => handleNotificationToggle('marketing', checked)}
@@ -86,10 +94,10 @@ const NotificationSettings = () => {
         
         <DropdownMenuSeparator />
         <DropdownMenuItem 
-          onClick={() => console.log('Abrir configurações completas')}
+          onClick={handleViewAllSettings}
           className="text-center cursor-pointer hover:bg-accent hover:text-accent-foreground"
         >
-          <span className="text-sm text-muted-foreground">Ver todas as configurações</span>
+          <span className="text-sm text-muted-foreground">{t('view_all_settings')}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

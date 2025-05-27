@@ -22,7 +22,7 @@ const PricingSection = () => {
       period: "mês",
       features: [
         "5 contas Instagram/TikTok",
-        "500 posts agendados",
+        "1.000 posts agendados",
         "10.000 interações/mês",
         "Analytics avançados",
         "Suporte prioritário"
@@ -33,10 +33,10 @@ const PricingSection = () => {
       name: "Trimestral",
       price: "R$ 147",
       period: "mês",
-      originalPrice: "R$ 49",
+      originalPrice: "R$ 199",
       features: [
         "10 contas Instagram/TikTok",
-        "1.500 posts agendados",
+        "2.000 posts agendados",
         "15.000 interações/mês",
         "Analytics avançados",
         "Suporte VIP",
@@ -60,6 +60,12 @@ const PricingSection = () => {
       popular: false
     }
   ];
+
+  const handleChoosePlan = (planName: string) => {
+    console.log('Escolher plano:', planName);
+    // Aqui você pode implementar a navegação para checkout ou abrir modal de pagamento
+    alert(`Redirecionando para checkout do plano ${planName}`);
+  };
 
   return (
     <section id="planos" className="py-20 px-4 bg-background">
@@ -93,11 +99,13 @@ const PricingSection = () => {
                 <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
-                    <span className="text-3xl font-bold text-foreground">{plan.price}</span>
+                    <span className={`font-bold text-foreground ${plan.name === 'Anual' ? 'text-2xl' : 'text-3xl'}`}>
+                      {plan.price}
+                    </span>
                     <span className="text-muted-foreground ml-1">/{plan.period}</span>
                   </div>
                   {plan.originalPrice && (
-                    <div className="text-sm text-muted-foreground line-through">
+                    <div className="text-sm text-muted-foreground line-through mt-1">
                       {plan.originalPrice}/{plan.period}
                     </div>
                   )}
@@ -122,6 +130,7 @@ const PricingSection = () => {
                       ? 'bg-purple-primary hover:bg-purple-hover text-white' 
                       : 'bg-foreground hover:bg-foreground/90 text-background'
                   }`}
+                  onClick={() => handleChoosePlan(plan.name)}
                 >
                   {plan.popular ? 'Começar Agora' : 'Escolher Plano'}
                 </Button>

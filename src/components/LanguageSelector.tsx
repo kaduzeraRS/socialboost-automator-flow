@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu,
@@ -8,21 +7,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LanguageSelector = () => {
-  const [currentLanguage, setCurrentLanguage] = useState('pt-BR');
+  const { language, setLanguage } = useLanguage();
 
   const languages = [
-    { code: 'pt-BR', name: 'Português (Brasil)', flag: '🇧🇷' },
-    { code: 'en', name: 'English', flag: '🇺🇸' }
+    { code: 'pt-BR' as const, name: 'Português (Brasil)', flag: '🇧🇷' },
+    { code: 'en' as const, name: 'English', flag: '🇺🇸' }
   ];
 
-  const handleLanguageChange = (languageCode: string) => {
-    setCurrentLanguage(languageCode);
+  const handleLanguageChange = (languageCode: 'pt-BR' | 'en') => {
+    setLanguage(languageCode);
     console.log('Idioma alterado para:', languageCode);
   };
 
-  const currentLang = languages.find(lang => lang.code === currentLanguage);
+  const currentLang = languages.find(lang => lang.code === language);
 
   return (
     <DropdownMenu>
@@ -31,17 +31,17 @@ const LanguageSelector = () => {
           <Globe className="w-5 h-5" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg">
-        {languages.map((language) => (
+      <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg z-50">
+        {languages.map((lang) => (
           <DropdownMenuItem 
-            key={language.code}
-            onClick={() => handleLanguageChange(language.code)}
+            key={lang.code}
+            onClick={() => handleLanguageChange(lang.code)}
             className={`flex items-center space-x-3 cursor-pointer hover:bg-accent hover:text-accent-foreground ${
-              currentLanguage === language.code ? 'bg-accent' : ''
+              language === lang.code ? 'bg-accent' : ''
             }`}
           >
-            <span className="text-lg">{language.flag}</span>
-            <span className="text-sm">{language.name}</span>
+            <span className="text-lg">{lang.flag}</span>
+            <span className="text-sm">{lang.name}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
