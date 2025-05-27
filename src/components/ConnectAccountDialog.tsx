@@ -19,24 +19,82 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       name: 'Instagram',
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
-      description: 'Conecte sua conta do Instagram para agendar posts e analisar métricas'
+      description: 'Conecte sua conta do Instagram para agendar posts e analisar métricas',
+      authUrl: 'https://api.instagram.com/oauth/authorize' // Simulated URL
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
-      description: 'Conecte sua conta do TikTok para gerenciar conteúdo e acompanhar performance'
+      description: 'Conecte sua conta do TikTok para gerenciar conteúdo e acompanhar performance',
+      authUrl: 'https://www.tiktok.com/auth/authorize' // Simulated URL
     }
   ];
 
-  const handleConnect = (platform: string) => {
+  const handleConnect = (platform: { name: string; authUrl: string }) => {
     toast({
-      title: "Conectando conta",
-      description: `Redirecionando para ${platform}...`,
+      title: "Abrindo navegador",
+      description: `Redirecionando para ${platform.name}...`,
     });
-    // Aqui seria implementada a lógica real de conexão
-    console.log(`Connecting to ${platform}`);
-    setIsOpen(false);
+
+    // Open browser window for authentication
+    const authWindow = window.open(
+      platform.authUrl,
+      '_blank',
+      'width=600,height=700,scrollbars=yes,resizable=yes'
+    );
+
+    // Simulate authentication process
+    const checkAuth = setInterval(() => {
+      try {
+        // In a real implementation, you would check if the auth window has been redirected
+        // to your callback URL and extract the auth code/token
+        if (authWindow?.closed) {
+          clearInterval(checkAuth);
+          
+          // Simulate successful authentication and save to cookies
+          const accountData = {
+            platform: platform.name,
+            username: `@usuario_${platform.name.toLowerCase()}`,
+            connected: true,
+            timestamp: new Date().toISOString()
+          };
+
+          // Save to cookies
+          const existingAccounts = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('connected_accounts='))
+            ?.split('=')[1];
+
+          let accounts = [];
+          if (existingAccounts) {
+            try {
+              accounts = JSON.parse(decodeURIComponent(existingAccounts));
+            } catch (e) {
+              accounts = [];
+            }
+          }
+
+          accounts.push(accountData);
+          document.cookie = `connected_accounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=86400`;
+
+          toast({
+            title: "Conta conectada!",
+            description: `Sua conta do ${platform.name} foi conectada com sucesso.`,
+          });
+
+          setIsOpen(false);
+        }
+      } catch (error) {
+        // Handle cross-origin errors gracefully
+        console.log('Checking auth status...');
+      }
+    }, 1000);
+
+    // Clear interval after 5 minutes to prevent infinite checking
+    setTimeout(() => {
+      clearInterval(checkAuth);
+    }, 300000);
   };
 
   return (
@@ -63,7 +121,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                       <p className="text-sm text-muted-foreground mt-2">{platform.description}</p>
                     </div>
                     <Button 
-                      onClick={() => handleConnect(platform.name)}
+                      onClick={() => handleConnect(platform)}
                       className="w-full bg-purple-primary hover:bg-purple-hover"
                     >
                       <Plus className="w-4 h-4 mr-2" />

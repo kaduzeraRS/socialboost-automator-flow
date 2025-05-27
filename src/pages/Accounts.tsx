@@ -1,8 +1,10 @@
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Instagram, 
   Play, 
@@ -17,6 +19,7 @@ import {
   Link2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 import ConnectAccountDialog from '@/components/ConnectAccountDialog';
 import AccountConfigDialog from '@/components/AccountConfigDialog';
 import PostAnalyticsDialog from '@/components/PostAnalyticsDialog';
@@ -25,6 +28,17 @@ import InsightsFilters from '@/components/InsightsFilters';
 
 const Accounts = () => {
   const { toast } = useToast();
+  const [performancePeriod, setPerformancePeriod] = useState('30');
+
+  // Simulate account status checking
+  const checkAccountStatus = (accountId: number) => {
+    // In a real app, this would check the actual connection status
+    const random = Math.random();
+    if (random > 0.8) {
+      return { status: 'Reconectar', color: 'bg-orange-500 hover:bg-orange-600', needsReconnect: true };
+    }
+    return { status: 'Conectado', color: 'bg-green-500 hover:bg-green-600', needsReconnect: false };
+  };
 
   const accounts = [
     {
@@ -32,39 +46,39 @@ const Accounts = () => {
       platform: 'Instagram',
       username: '@minha_conta',
       followers: '12.5K',
-      status: 'Conectado',
       icon: Instagram,
-      color: 'from-purple-500 to-pink-500'
+      color: 'from-purple-500 to-pink-500',
+      ...checkAccountStatus(1)
     },
     {
       id: 2,
       platform: 'TikTok',
       username: '@minha_conta_tt',
       followers: '8.2K',
-      status: 'Conectado',
       icon: Play,
-      color: 'from-black to-gray-800'
+      color: 'from-black to-gray-800',
+      ...checkAccountStatus(2)
     }
   ];
 
   const postsData = [
     {
       id: 1,
-      date: '2024-02-15',
+      date: '2024-02-20',
       time: '18:00',
       platform: 'Instagram',
       caption: 'Post promocional - Black Friday 🔥',
       status: 'Agendado',
-      engagement: '4.2%'
+      isScheduled: true
     },
     {
       id: 2,
-      date: '2024-02-15',
+      date: '2024-02-19',
       time: '14:30',
       platform: 'TikTok',
       caption: 'Vídeo tutorial - Como usar ✨',
       status: 'Agendado',
-      engagement: '6.8%'
+      isScheduled: true
     },
     {
       id: 3,
@@ -73,7 +87,8 @@ const Accounts = () => {
       platform: 'Instagram',
       caption: 'Stories - Bastidores 🎬',
       status: 'Publicado',
-      engagement: '5.1%'
+      engagement: '5.1%',
+      isScheduled: false
     },
     {
       id: 4,
@@ -82,16 +97,61 @@ const Accounts = () => {
       platform: 'TikTok',
       caption: 'Trend dance challenge 💃',
       status: 'Publicado',
-      engagement: '8.3%'
+      engagement: '8.3%',
+      isScheduled: false
     }
   ];
 
-  const handleReconnect = (account: any) => {
+  const handleConnectAccount = () => {
+    // Simulate opening browser for login
     toast({
-      title: "Reconectando conta",
-      description: `Reconectando ${account.username}...`,
+      title: "Abrindo navegador",
+      description: "Redirecionando para autenticação...",
     });
-    console.log('Reconnecting account:', account.id);
+    
+    // Simulate login process
+    setTimeout(() => {
+      // Save to cookies simulation
+      document.cookie = `connected_accounts=${JSON.stringify(accounts)}; path=/`;
+      toast({
+        title: "Conta conectada",
+        description: "Nova conta foi conectada com sucesso!",
+      });
+    }, 2000);
+  };
+
+  const handleAccountAction = (account: any, action: string) => {
+    if (account.needsReconnect && action !== 'reconnect') {
+      toast({
+        title: "Reconexão necessária",
+        description: `A conta ${account.username} precisa ser reconectada antes de ${action}.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    switch (action) {
+      case 'reconnect':
+        toast({
+          title: "Reconectando conta",
+          description: `Reconectando ${account.username}...`,
+        });
+        // Simulate reconnection
+        setTimeout(() => {
+          toast({
+            title: "Conta reconectada",
+            description: `${account.username} foi reconectada com sucesso!`,
+          });
+          // Update account status
+          account.status = 'Conectado';
+          account.color = 'bg-green-500 hover:bg-green-600';
+          account.needsReconnect = false;
+        }, 1500);
+        break;
+      case 'configure':
+        console.log('Configuring account:', account.id);
+        break;
+    }
   };
 
   const handleFiltersChange = (filters: any) => {
@@ -102,6 +162,17 @@ const Accounts = () => {
     });
   };
 
+  const getPerformanceData = (period: string) => {
+    const data = {
+      '7': { views: '45.2K', likes: '3.1K', comments: '428', followers: '+156' },
+      '15': { views: '89.7K', likes: '5.8K', comments: '742', followers: '+298' },
+      '30': { views: '127.5K', likes: '8.2K', comments: '1.1K', followers: '+524' }
+    };
+    return data[period as keyof typeof data] || data['30'];
+  };
+
+  const performanceData = getPerformanceData(performancePeriod);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -111,17 +182,17 @@ const Accounts = () => {
             <p className="text-muted-foreground">Gerencie todas as suas contas de redes sociais em um só lugar</p>
           </div>
           <ConnectAccountDialog>
-            <Button className="bg-purple-primary hover:bg-purple-hover">
+            <Button 
+              className="bg-purple-primary hover:bg-purple-hover"
+              onClick={handleConnectAccount}
+            >
               <Plus className="w-4 h-4 mr-2" />
               Conectar Nova Conta
             </Button>
           </ConnectAccountDialog>
         </div>
 
-        {/* Filtros de Insights */}
-        <InsightsFilters onFiltersChange={handleFiltersChange} />
-
-        {/* Contas Conectadas */}
+        {/* Contas Conectadas - Movido para o topo */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {accounts.map((account) => {
             const Icon = account.icon;
@@ -138,7 +209,7 @@ const Accounts = () => {
                         <p className="text-sm text-muted-foreground">{account.username}</p>
                       </div>
                     </div>
-                    <Badge className="bg-green-500 hover:bg-green-600 text-white">
+                    <Badge className={`${account.color} text-white`}>
                       {account.status}
                     </Badge>
                   </CardTitle>
@@ -150,7 +221,12 @@ const Accounts = () => {
                   </div>
                   <div className="flex space-x-2">
                     <AccountConfigDialog account={account}>
-                      <Button variant="outline" size="sm" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => handleAccountAction(account, 'configure')}
+                      >
                         <Settings className="w-4 h-4 mr-2" />
                         Configurar
                       </Button>
@@ -159,7 +235,7 @@ const Accounts = () => {
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => handleReconnect(account)}
+                      onClick={() => handleAccountAction(account, 'reconnect')}
                     >
                       <Link2 className="w-4 h-4 mr-2" />
                       Reconectar
@@ -171,10 +247,22 @@ const Accounts = () => {
           })}
         </div>
 
-        {/* Performance Geral */}
+        {/* Performance Geral com seletor de período */}
         <Card>
           <CardHeader>
-            <CardTitle>Performance Geral (Últimos 30 dias)</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Performance Geral</CardTitle>
+              <Select value={performancePeriod} onValueChange={setPerformancePeriod}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="7">7 dias</SelectItem>
+                  <SelectItem value="15">15 dias</SelectItem>
+                  <SelectItem value="30">30 dias</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -183,7 +271,7 @@ const Accounts = () => {
                   <Eye className="w-5 h-5 mr-1 text-blue-500" />
                   <span className="text-sm font-medium">Visualizações</span>
                 </div>
-                <p className="text-3xl font-bold">127.5K</p>
+                <p className="text-3xl font-bold">{performanceData.views}</p>
                 <p className="text-sm text-green-600">+23.4%</p>
               </div>
 
@@ -192,7 +280,7 @@ const Accounts = () => {
                   <Heart className="w-5 h-5 mr-1 text-red-500" />
                   <span className="text-sm font-medium">Curtidas</span>
                 </div>
-                <p className="text-3xl font-bold">8.2K</p>
+                <p className="text-3xl font-bold">{performanceData.likes}</p>
                 <p className="text-sm text-green-600">+18.7%</p>
               </div>
 
@@ -201,7 +289,7 @@ const Accounts = () => {
                   <MessageCircle className="w-5 h-5 mr-1 text-green-500" />
                   <span className="text-sm font-medium">Comentários</span>
                 </div>
-                <p className="text-3xl font-bold">1.1K</p>
+                <p className="text-3xl font-bold">{performanceData.comments}</p>
                 <p className="text-sm text-green-600">+31.2%</p>
               </div>
 
@@ -210,12 +298,15 @@ const Accounts = () => {
                   <Users className="w-5 h-5 mr-1 text-purple-500" />
                   <span className="text-sm font-medium">Novos Seguidores</span>
                 </div>
-                <p className="text-3xl font-bold">+524</p>
+                <p className="text-3xl font-bold">{performanceData.followers}</p>
                 <p className="text-sm text-green-600">+12.8%</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Filtros de Insights - Movido para depois da Performance Geral */}
+        <InsightsFilters onFiltersChange={handleFiltersChange} />
 
         {/* Posts Detalhados */}
         <Card>
@@ -255,7 +346,11 @@ const Accounts = () => {
                           </span>
                           <span>{post.time}</span>
                           <span>{post.platform}</span>
-                          <span>Engajamento: {post.engagement}</span>
+                          {post.isScheduled ? (
+                            <span className="text-orange-600 font-medium">Aguardando Postagem</span>
+                          ) : (
+                            <span>Engajamento: {post.engagement}</span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -263,12 +358,14 @@ const Accounts = () => {
                       <Badge variant={post.status === 'Publicado' ? 'default' : 'outline'}>
                         {post.status}
                       </Badge>
-                      <PostAnalyticsDialog post={post}>
-                        <Button variant="ghost" size="sm">
-                          <TrendingUp className="w-4 h-4 mr-1" />
-                          Analisar
-                        </Button>
-                      </PostAnalyticsDialog>
+                      {!post.isScheduled && (
+                        <PostAnalyticsDialog post={post}>
+                          <Button variant="ghost" size="sm">
+                            <TrendingUp className="w-4 h-4 mr-1" />
+                            Analisar
+                          </Button>
+                        </PostAnalyticsDialog>
+                      )}
                       <EditPostDialog post={post}>
                         <Button variant="ghost" size="sm">
                           Editar
