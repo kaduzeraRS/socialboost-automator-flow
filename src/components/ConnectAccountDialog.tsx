@@ -20,14 +20,14 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
       description: 'Conecte sua conta do Instagram para agendar posts e analisar métricas',
-      authUrl: 'https://api.instagram.com/oauth/authorize' // Simulated URL
+      authUrl: 'https://www.instagram.com/accounts/login/'
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
       description: 'Conecte sua conta do TikTok para gerenciar conteúdo e acompanhar performance',
-      authUrl: 'https://www.tiktok.com/auth/authorize' // Simulated URL
+      authUrl: 'https://www.tiktok.com/login'
     }
   ];
 
@@ -57,7 +57,8 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
             platform: platform.name,
             username: `@usuario_${platform.name.toLowerCase()}`,
             connected: true,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}`
           };
 
           // Save to cookies

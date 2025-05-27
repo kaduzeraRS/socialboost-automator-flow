@@ -6,14 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Lock, Bell, Settings as SettingsIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Settings = () => {
   const [profile, setProfile] = useState({
     name: 'João Silva',
     email: 'joao@email.com',
-    bio: 'Social media manager e influenciador digital'
+    bio: 'Social media manager e influenciador digital',
+    avatar: ''
   });
 
   const [notifications, setNotifications] = useState({
@@ -21,6 +24,25 @@ const Settings = () => {
     pushNotifications: true,
     weeklyReports: false
   });
+
+  // Check for connected accounts in cookies
+  useEffect(() => {
+    const accountsCookie = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('connected_accounts='))
+      ?.split('=')[1];
+
+    if (accountsCookie) {
+      try {
+        const accounts = JSON.parse(decodeURIComponent(accountsCookie));
+        if (accounts.length > 0) {
+          setProfile(prev => ({ ...prev, avatar: accounts[0].avatar || '' }));
+        }
+      } catch (e) {
+        console.log('Error parsing accounts cookie');
+      }
+    }
+  }, []);
 
   return (
     <DashboardLayout>
@@ -48,9 +70,15 @@ const Settings = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center space-x-6">
-                  <div className="w-20 h-20 bg-purple-primary rounded-full flex items-center justify-center">
-                    <User className="w-10 h-10 text-white" />
-                  </div>
+                  <Avatar className="w-20 h-20">
+                    {profile.avatar ? (
+                      <AvatarImage src={profile.avatar} alt={profile.name} />
+                    ) : (
+                      <AvatarFallback className="bg-purple-primary text-white text-xl">
+                        <User className="w-10 h-10" />
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
                   <Button variant="outline">Alterar Avatar</Button>
                 </div>
 
@@ -84,6 +112,22 @@ const Settings = () => {
                     onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                     placeholder="Conte um pouco sobre você..."
                   />
+                </div>
+
+                {/* Post Frequency Section */}
+                <div className="space-y-4">
+                  <Label>Frequência de Posts</Label>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm text-black dark:text-white">
+                      <span>Baixa</span>
+                      <span>Moderada</span>
+                      <span>Alta</span>
+                    </div>
+                    <Progress value={65} className="h-3" />
+                    <p className="text-sm text-muted-foreground">
+                      Configure a frequência ideal para seus posts baseada em suas metas
+                    </p>
+                  </div>
                 </div>
 
                 <Button className="bg-purple-primary hover:bg-purple-hover">

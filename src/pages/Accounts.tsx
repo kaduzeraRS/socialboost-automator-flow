@@ -24,7 +24,6 @@ import ConnectAccountDialog from '@/components/ConnectAccountDialog';
 import AccountConfigDialog from '@/components/AccountConfigDialog';
 import PostAnalyticsDialog from '@/components/PostAnalyticsDialog';
 import EditPostDialog from '@/components/EditPostDialog';
-import InsightsFilters from '@/components/InsightsFilters';
 
 const Accounts = () => {
   const { toast } = useToast();
@@ -154,14 +153,6 @@ const Accounts = () => {
     }
   };
 
-  const handleFiltersChange = (filters: any) => {
-    console.log('Filters changed:', filters);
-    toast({
-      title: "Filtros aplicados",
-      description: "Os insights foram atualizados com os novos filtros.",
-    });
-  };
-
   const getPerformanceData = (period: string) => {
     const data = {
       '7': { views: '45.2K', likes: '3.1K', comments: '428', followers: '+156' },
@@ -247,21 +238,33 @@ const Accounts = () => {
           })}
         </div>
 
-        {/* Performance Geral com seletor de período */}
+        {/* Performance Geral com seletor de período e filtros integrados */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Performance Geral</CardTitle>
-              <Select value={performancePeriod} onValueChange={setPerformancePeriod}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7">7 dias</SelectItem>
-                  <SelectItem value="15">15 dias</SelectItem>
-                  <SelectItem value="30">30 dias</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex space-x-4">
+                <Select defaultValue="all">
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filtrar por conta" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as contas</SelectItem>
+                    <SelectItem value="instagram">@minha_conta (Instagram)</SelectItem>
+                    <SelectItem value="tiktok">@minha_conta_tt (TikTok)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={performancePeriod} onValueChange={setPerformancePeriod}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="7">7 dias</SelectItem>
+                    <SelectItem value="15">15 dias</SelectItem>
+                    <SelectItem value="30">30 dias</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -304,9 +307,6 @@ const Accounts = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Filtros de Insights - Movido para depois da Performance Geral */}
-        <InsightsFilters onFiltersChange={handleFiltersChange} />
 
         {/* Posts Detalhados */}
         <Card>
@@ -358,8 +358,8 @@ const Accounts = () => {
                       <Badge variant={post.status === 'Publicado' ? 'default' : 'outline'}>
                         {post.status}
                       </Badge>
-                      {!post.isScheduled && (
-                        <PostAnalyticsDialog post={post}>
+                      {!post.isScheduled && post.engagement && (
+                        <PostAnalyticsDialog post={{ id: post.id, caption: post.caption, platform: post.platform, engagement: post.engagement }}>
                           <Button variant="ghost" size="sm">
                             <TrendingUp className="w-4 h-4 mr-1" />
                             Analisar
