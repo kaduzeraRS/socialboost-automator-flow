@@ -4,8 +4,7 @@ import {
   LayoutDashboard, 
   Calendar, 
   Flame, 
-  Instagram, 
-  Play, 
+  Users, 
   CreditCard, 
   Settings 
 } from 'lucide-react';
@@ -15,8 +14,7 @@ const menuItems = [
   { title: 'Painel', href: '/dashboard', icon: LayoutDashboard },
   { title: 'Agendamento de Posts', href: '/agendamento', icon: Calendar },
   { title: 'Aquecimento de Conta', href: '/aquecimento', icon: Flame },
-  { title: 'Instagram', href: '/instagram', icon: Instagram },
-  { title: 'TikTok', href: '/tiktok', icon: Play },
+  { title: 'Contas', href: '/contas', icon: Users },
   { title: 'Planos de Assinatura', href: '/planos', icon: CreditCard },
   { title: 'Configurações', href: '/configuracoes', icon: Settings },
 ];

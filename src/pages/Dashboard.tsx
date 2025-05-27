@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Calendar, TrendingUp, Instagram, Play, Plus, Zap, Link2, Clock, BarChart3, Eye, Heart, MessageCircle, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   return (
@@ -84,21 +85,29 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              <Button className="bg-purple-primary hover:bg-purple-hover">
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Post
+              <Button asChild className="bg-purple-primary hover:bg-purple-hover">
+                <Link to="/agendamento">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Post
+                </Link>
               </Button>
-              <Button variant="outline">
-                <Zap className="w-4 h-4 mr-2" />
-                Iniciar Aquecimento
+              <Button asChild variant="outline">
+                <Link to="/aquecimento">
+                  <Zap className="w-4 h-4 mr-2" />
+                  Iniciar Aquecimento
+                </Link>
               </Button>
-              <Button variant="secondary" className="bg-gradient-to-br from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600">
-                <Instagram className="w-4 h-4 mr-2" />
-                Conectar Instagram
+              <Button asChild variant="secondary" className="bg-gradient-to-br from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600">
+                <Link to="/contas">
+                  <Instagram className="w-4 h-4 mr-2" />
+                  Conectar Instagram
+                </Link>
               </Button>
-              <Button variant="secondary" className="bg-black text-white hover:bg-gray-800">
-                <Link2 className="w-4 h-4 mr-2" />
-                Conectar TikTok
+              <Button asChild variant="secondary" className="bg-black text-white hover:bg-gray-800">
+                <Link to="/contas">
+                  <Link2 className="w-4 h-4 mr-2" />
+                  Conectar TikTok
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -148,8 +157,10 @@ const Dashboard = () => {
                 <Badge variant="outline">Agendado</Badge>
               </div>
 
-              <Button variant="outline" className="w-full">
-                Ver todos os posts
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/contas">
+                  Ver todos os posts
+                </Link>
               </Button>
             </CardContent>
           </Card>
@@ -215,9 +226,11 @@ const Dashboard = () => {
                 <Progress value={74} className="h-2" />
               </div>
 
-              <Button variant="outline" className="w-full">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Ver relatório completo
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/contas">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Ver relatório completo
+                </Link>
               </Button>
             </CardContent>
           </Card>
