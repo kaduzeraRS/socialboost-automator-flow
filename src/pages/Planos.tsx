@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -83,10 +82,10 @@ const Planos = () => {
   ];
 
   const interactionPackages = [
-    { amount: 100, price: 'R$ 4,90' },
-    { amount: 200, price: 'R$ 8,90' },
-    { amount: 500, price: 'R$ 19,90' },
-    { amount: 1000, price: 'R$ 34,90' }
+    { amount: 100, price: 'R$ 2,90' },
+    { amount: 200, price: 'R$ 4,90' },
+    { amount: 500, price: 'R$ 9,90' },
+    { amount: 1000, price: 'R$ 17,90' }
   ];
 
   const faqs = [
@@ -133,7 +132,7 @@ const Planos = () => {
         </div>
 
         {/* Current Subscription Status */}
-        <Card className="border-purple-primary dark:bg-card bg-white">
+        <Card className="border-purple-primary dark:bg-card bg-white border-2">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Star className="w-6 h-6 text-purple-primary" />
@@ -174,9 +173,9 @@ const Planos = () => {
                 Gerenciar Pagamento
               </Button>
               <Button 
-                variant="ghost" 
+                variant="outline" 
                 size="sm"
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs"
+                className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs h-8 px-3"
                 onClick={handleCancelSubscription}
               >
                 <Calendar className="w-3 h-3 mr-1" />
@@ -197,8 +196,8 @@ const Planos = () => {
               return (
                 <Card 
                   key={plan.name} 
-                  className={`relative transition-all hover:shadow-lg dark:bg-card bg-white border ${
-                    plan.popular ? 'ring-2 ring-purple-primary shadow-lg' : 'border-border'
+                  className={`relative transition-all hover:shadow-lg dark:bg-card bg-white border-2 ${
+                    plan.popular ? 'ring-2 ring-purple-primary shadow-lg border-purple-primary' : 'border-gray-200 dark:border-gray-700'
                   } ${isCurrentPlan ? 'border-purple-primary bg-purple-50 dark:bg-purple-900/20' : ''}`}
                 >
                   {plan.popular && (
@@ -246,10 +245,10 @@ const Planos = () => {
                     <Button 
                       className={`w-full mt-6 ${
                         isCurrentPlan 
-                          ? 'bg-gray-400 text-white cursor-not-allowed dark:bg-gray-600' 
+                          ? 'bg-gray-400 text-white cursor-not-allowed dark:bg-gray-600 border-2' 
                           : plan.popular 
-                            ? 'bg-purple-primary hover:bg-purple-hover text-white' 
-                            : 'bg-foreground hover:bg-foreground/90 text-background'
+                            ? 'bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary' 
+                            : 'bg-gray-800 hover:bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300 border-2 border-gray-800 dark:border-gray-200'
                       }`}
                       disabled={isCurrentPlan}
                       onClick={() => !isCurrentPlan && handleUpgradePlan(plan.name)}
@@ -268,7 +267,7 @@ const Planos = () => {
           <h2 className="text-2xl font-bold text-foreground mb-6">Pacotes de Interações</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {interactionPackages.map((pkg, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow dark:bg-card bg-white">
+              <Card key={index} className="hover:shadow-lg transition-shadow dark:bg-card bg-white border-2 border-gray-200 dark:border-gray-700">
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Plus className="w-6 h-6 text-white" />
@@ -277,7 +276,7 @@ const Planos = () => {
                   <p className="text-sm text-muted-foreground mb-4">Interações</p>
                   <div className="text-lg font-bold text-purple-primary mb-4">{pkg.price}</div>
                   <Button 
-                    className="w-full bg-purple-primary hover:bg-purple-hover text-white"
+                    className="w-full bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary"
                     onClick={() => handlePurchaseInteractions(pkg.amount, pkg.price)}
                   >
                     Comprar
@@ -289,7 +288,7 @@ const Planos = () => {
         </div>
 
         {/* FAQ Section */}
-        <Card className="dark:bg-card bg-white">
+        <Card className="dark:bg-card bg-white border-2 border-gray-200 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2 text-foreground">
               <HelpCircle className="w-6 h-6" />

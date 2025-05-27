@@ -58,6 +58,14 @@ export default {
 				purple: {
 					primary: '#6C5DD3',
 					hover: '#5A4CC7'
+				},
+				// Cores específicas para melhor contraste no modo claro
+				light: {
+					border: '#e5e7eb',
+					background: '#ffffff',
+					foreground: '#1f2937',
+					muted: '#f9fafb',
+					'muted-foreground': '#6b7280'
 				}
 			},
 			borderRadius: {
