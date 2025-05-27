@@ -11,28 +11,64 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { User, Settings, HelpCircle, LogOut } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 const UserDropdown = () => {
   const { t } = useLanguage();
-  const [userEmail] = useState('usuario@example.com'); // Mock user email
+  const { user, profile, signOut, loading } = useAuth();
+  const { toast } = useToast();
 
   const handleEditProfile = () => {
     console.log('Redirecionando para editar perfil');
-    window.location.href = '/configuracoes'; // Navigate to settings page to edit profile
+    window.location.href = '/configuracoes';
   };
 
   const handleSettings = () => {
     console.log('Redirecionando para configurações de notificações');
-    window.location.href = '/configuracoes'; // Navigate to settings page for notifications
+    window.location.href = '/configuracoes';
   };
 
   const handleHelp = () => {
     window.open('https://discord.gg/FmFKuDnJQu', '_blank');
   };
 
-  const handleLogout = () => {
-    console.log('Logout');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso.",
+      });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error during logout:', error);
+      toast({
+        title: "Erro no logout",
+        description: "Ocorreu um erro ao fazer logout. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <Button variant="ghost" size="icon" disabled>
+        <User className="w-5 h-5" />
+      </Button>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Button variant="ghost" size="icon" onClick={() => window.location.href = '/'}>
+        <User className="w-5 h-5" />
+      </Button>
+    );
+  }
+
+  const userEmail = user.email || 'Usuário não identificado';
+  const userName = profile?.full_name || user.user_metadata?.full_name || 'Usuário';
 
   return (
     <DropdownMenu>
@@ -44,10 +80,17 @@ const UserDropdown = () => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{t('my_account')}</p>
+            <p className="text-sm font-medium leading-none">{userName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {userEmail}
             </p>
+            {profile?.role && profile.role !== 'user' && (
+              <p className="text-xs leading-none text-purple-600 font-medium capitalize">
+                {profile.role === 'admin' ? 'Administrador' : 
+                 profile.role === 'agency' ? 'Agência' : 
+                 profile.role === 'moderator' ? 'Moderador' : profile.role}
+              </p>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

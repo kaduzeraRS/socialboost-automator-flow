@@ -6,23 +6,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Instagram, Play, Plus, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 
 interface ConnectAccountDialogProps {
   children: React.ReactNode;
 }
 
-interface ConnectedAccount {
-  platform: string;
-  username: string;
-  connected: boolean;
-  timestamp: string;
-  avatar: string;
-}
-
 const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [connectedAccounts, setConnectedAccounts] = useState<ConnectedAccount[]>([]);
   const { toast } = useToast();
+  const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
 
   const platforms = [
     {
@@ -41,36 +34,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     }
   ];
 
-  // Load connected accounts from cookies
-  useEffect(() => {
-    const loadConnectedAccounts = () => {
-      const accountsCookie = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('connected_accounts='))
-        ?.split('=')[1];
-
-      if (accountsCookie) {
-        try {
-          const accounts = JSON.parse(decodeURIComponent(accountsCookie));
-          setConnectedAccounts(accounts);
-        } catch (e) {
-          setConnectedAccounts([]);
-        }
-      }
-    };
-
-    loadConnectedAccounts();
-    
-    // Listen for storage changes to update connected accounts
-    const handleStorageChange = () => {
-      loadConnectedAccounts();
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  const handleConnect = (platform: { name: string; authUrl: string }) => {
+  const handleConnect = async (platform: { name: string; authUrl: string }) => {
     toast({
       title: "Abrindo navegador",
       description: `Redirecionando para ${platform.name}...`,
@@ -89,46 +53,25 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         if (authWindow?.closed) {
           clearInterval(checkAuth);
           
-          // Simulate successful authentication and save to cookies
-          const accountData = {
-            platform: platform.name,
-            username: `@usuario_${platform.name.toLowerCase()}`,
-            connected: true,
-            timestamp: new Date().toISOString(),
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}`
+          // Simulate successful authentication and save to database
+          const handleSuccessfulAuth = async () => {
+            const accountData = {
+              platform: platform.name.toLowerCase(),
+              username: `@usuario_${platform.name.toLowerCase()}`,
+              account_id: `mock_${Date.now()}`,
+              followers_count: Math.floor(Math.random() * 10000) + 1000,
+              profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}`
+            };
+
+            const result = await connectAccount(accountData);
+            
+            if (result) {
+              // Close dialog after successful connection
+              setIsOpen(false);
+            }
           };
 
-          // Save to cookies
-          const existingAccounts = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('connected_accounts='))
-            ?.split('=')[1];
-
-          let accounts = [];
-          if (existingAccounts) {
-            try {
-              accounts = JSON.parse(decodeURIComponent(existingAccounts));
-            } catch (e) {
-              accounts = [];
-            }
-          }
-
-          // Remove existing account for same platform
-          accounts = accounts.filter((acc: any) => acc.platform !== platform.name);
-          accounts.push(accountData);
-          
-          document.cookie = `connected_accounts=${encodeURIComponent(JSON.stringify(accounts))}; path=/; max-age=86400`;
-
-          // Update state
-          setConnectedAccounts(accounts);
-
-          toast({
-            title: "Conta conectada!",
-            description: `Sua conta do ${platform.name} foi conectada com sucesso.`,
-          });
-
-          // Close dialog after successful connection
-          setIsOpen(false);
+          handleSuccessfulAuth();
         }
       } catch (error) {
         console.log('Checking auth status...');
@@ -141,21 +84,41 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     }, 300000);
   };
 
-  const handleDisconnect = (platform: string) => {
-    const updatedAccounts = connectedAccounts.filter(acc => acc.platform !== platform);
-    
-    document.cookie = `connected_accounts=${encodeURIComponent(JSON.stringify(updatedAccounts))}; path=/; max-age=86400`;
-    setConnectedAccounts(updatedAccounts);
-
-    toast({
-      title: "Conta desconectada",
-      description: `Sua conta do ${platform} foi desconectada.`,
-    });
+  const handleDisconnect = async (accountId: string, platform: string) => {
+    await disconnectAccount(accountId, platform);
   };
 
   const isConnected = (platformName: string) => {
-    return connectedAccounts.some(acc => acc.platform === platformName && acc.connected);
+    return accounts.some(acc => 
+      acc.platform.toLowerCase() === platformName.toLowerCase() && acc.is_active
+    );
   };
+
+  const getConnectedAccount = (platformName: string) => {
+    return accounts.find(acc => 
+      acc.platform.toLowerCase() === platformName.toLowerCase() && acc.is_active
+    );
+  };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Carregando...</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-primary"></div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  const connectedAccounts = accounts.filter(acc => acc.is_active);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -173,18 +136,19 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Contas Conectadas</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {connectedAccounts.map((account, index) => (
-                  <Card key={index} className="border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
+                {connectedAccounts.map((account) => (
+                  <Card key={account.id} className="border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                           <Avatar className="w-10 h-10">
-                            <AvatarImage src={account.avatar} alt={account.username} />
-                            <AvatarFallback>{account.platform[0]}</AvatarFallback>
+                            <AvatarImage src={account.profile_picture_url} alt={account.username} />
+                            <AvatarFallback>{account.platform[0].toUpperCase()}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{account.platform}</p>
+                            <p className="font-medium capitalize">{account.platform}</p>
                             <p className="text-sm text-muted-foreground">{account.username}</p>
+                            <p className="text-xs text-muted-foreground">{account.followers_count} seguidores</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -192,7 +156,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDisconnect(account.platform)}
+                            onClick={() => handleDisconnect(account.id, account.platform)}
                             className="text-red-600 hover:text-red-700"
                           >
                             <X className="w-4 h-4" />

@@ -11,10 +11,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
 
 const DashboardSidebar = () => {
   const location = useLocation();
   const { t } = useLanguage();
+  const { profile, loading } = useAuth();
 
   const menuItems = [
     { title: t('panel'), href: '/dashboard', icon: LayoutDashboard },
@@ -25,8 +27,30 @@ const DashboardSidebar = () => {
     { title: t('settings'), href: '/configuracoes', icon: Settings },
   ];
 
-  // Mock user role - in real app this would come from auth context
-  const isAdmin = true; // Change this to false to hide admin menu
+  // Check if user is admin based on profile data
+  const isAdmin = profile?.role === 'admin';
+
+  if (loading) {
+    return (
+      <div className="w-64 bg-card border-r border-border h-screen sticky top-0">
+        <div className="p-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-primary to-purple-hover flex items-center justify-center">
+              <span className="text-white font-bold text-sm">AB</span>
+            </div>
+            <h1 className="text-xl font-bold text-foreground">Adacemy Boost</h1>
+          </div>
+        </div>
+        <div className="px-4 space-y-2">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 bg-gray-200 rounded mb-2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-64 bg-card border-r border-border h-screen sticky top-0">

@@ -24,111 +24,16 @@ import ConnectAccountDialog from '@/components/ConnectAccountDialog';
 import AccountConfigDialog from '@/components/AccountConfigDialog';
 import PostAnalyticsDialog from '@/components/PostAnalyticsDialog';
 import EditPostDialog from '@/components/EditPostDialog';
+import { useSocialAccounts } from '@/hooks/useSocialAccounts';
+import { useScheduledPosts } from '@/hooks/useScheduledPosts';
 
 const Accounts = () => {
   const { toast } = useToast();
   const [performancePeriod, setPerformancePeriod] = useState('30');
+  const { accounts, loading: accountsLoading, refetch: refetchAccounts } = useSocialAccounts();
+  const { posts, loading: postsLoading } = useScheduledPosts();
 
-  // Simulate account status checking
-  const checkAccountStatus = (accountId: number) => {
-    // In a real app, this would check the actual connection status
-    const random = Math.random();
-    if (random > 0.8) {
-      return { status: 'Reconectar', color: 'bg-orange-500 hover:bg-orange-600', needsReconnect: true };
-    }
-    return { status: 'Conectado', color: 'bg-green-500 hover:bg-green-600', needsReconnect: false };
-  };
-
-  const accounts = [
-    {
-      id: 1,
-      platform: 'Instagram',
-      username: '@minha_conta',
-      followers: '12.5K',
-      icon: Instagram,
-      color: 'from-purple-500 to-pink-500',
-      ...checkAccountStatus(1)
-    },
-    {
-      id: 2,
-      platform: 'TikTok',
-      username: '@minha_conta_tt',
-      followers: '8.2K',
-      icon: Play,
-      color: 'from-black to-gray-800',
-      ...checkAccountStatus(2)
-    }
-  ];
-
-  const postsData = [
-    {
-      id: 1,
-      date: '2024-02-20',
-      time: '18:00',
-      platform: 'Instagram',
-      caption: 'Post promocional - Black Friday 🔥',
-      status: 'Agendado',
-      isScheduled: true
-    },
-    {
-      id: 2,
-      date: '2024-02-19',
-      time: '14:30',
-      platform: 'TikTok',
-      caption: 'Vídeo tutorial - Como usar ✨',
-      status: 'Agendado',
-      isScheduled: true
-    },
-    {
-      id: 3,
-      date: '2024-02-14',
-      time: '20:00',
-      platform: 'Instagram',
-      caption: 'Stories - Bastidores 🎬',
-      status: 'Publicado',
-      engagement: '5.1%',
-      isScheduled: false
-    },
-    {
-      id: 4,
-      date: '2024-02-14',
-      time: '16:45',
-      platform: 'TikTok',
-      caption: 'Trend dance challenge 💃',
-      status: 'Publicado',
-      engagement: '8.3%',
-      isScheduled: false
-    }
-  ];
-
-  const handleConnectAccount = () => {
-    // Simulate opening browser for login
-    toast({
-      title: "Abrindo navegador",
-      description: "Redirecionando para autenticação...",
-    });
-    
-    // Simulate login process
-    setTimeout(() => {
-      // Save to cookies simulation
-      document.cookie = `connected_accounts=${JSON.stringify(accounts)}; path=/`;
-      toast({
-        title: "Conta conectada",
-        description: "Nova conta foi conectada com sucesso!",
-      });
-    }, 2000);
-  };
-
-  const handleAccountAction = (account: any, action: string) => {
-    if (account.needsReconnect && action !== 'reconnect') {
-      toast({
-        title: "Reconexão necessária",
-        description: `A conta ${account.username} precisa ser reconectada antes de ${action}.`,
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const handleAccountAction = async (account: any, action: string) => {
     switch (action) {
       case 'reconnect':
         toast({
@@ -141,10 +46,7 @@ const Accounts = () => {
             title: "Conta reconectada",
             description: `${account.username} foi reconectada com sucesso!`,
           });
-          // Update account status
-          account.status = 'Conectado';
-          account.color = 'bg-green-500 hover:bg-green-600';
-          account.needsReconnect = false;
+          refetchAccounts();
         }, 1500);
         break;
       case 'configure':
@@ -164,6 +66,49 @@ const Accounts = () => {
 
   const performanceData = getPerformanceData(performancePeriod);
 
+  const getPlatformIcon = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        return Instagram;
+      case 'tiktok':
+        return Play;
+      default:
+        return Users;
+    }
+  };
+
+  const getPlatformColor = (platform: string) => {
+    switch (platform.toLowerCase()) {
+      case 'instagram':
+        return 'from-purple-500 to-pink-500';
+      case 'tiktok':
+        return 'from-black to-gray-800';
+      default:
+        return 'from-blue-500 to-blue-600';
+    }
+  };
+
+  const getAccountStatus = (account: any) => {
+    // Simulate random status for demo
+    const random = Math.random();
+    if (random > 0.8) {
+      return { status: 'Reconectar', color: 'bg-orange-500 hover:bg-orange-600', needsReconnect: true };
+    }
+    return { status: 'Conectado', color: 'bg-green-500 hover:bg-green-600', needsReconnect: false };
+  };
+
+  if (accountsLoading || postsLoading) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div className="flex justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-primary"></div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -173,72 +118,89 @@ const Accounts = () => {
             <p className="text-muted-foreground">Gerencie todas as suas contas de redes sociais em um só lugar</p>
           </div>
           <ConnectAccountDialog>
-            <Button 
-              className="bg-purple-primary hover:bg-purple-hover"
-              onClick={handleConnectAccount}
-            >
+            <Button className="bg-purple-primary hover:bg-purple-hover">
               <Plus className="w-4 h-4 mr-2" />
               Conectar Nova Conta
             </Button>
           </ConnectAccountDialog>
         </div>
 
-        {/* Contas Conectadas - Movido para o topo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {accounts.map((account) => {
-            const Icon = account.icon;
-            return (
-              <Card key={account.id}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-12 h-12 bg-gradient-to-br ${account.color} rounded-lg flex items-center justify-center`}>
-                        <Icon className="w-6 h-6 text-white" />
+        {/* Contas Conectadas */}
+        {accounts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {accounts.map((account) => {
+              const Icon = getPlatformIcon(account.platform);
+              const color = getPlatformColor(account.platform);
+              const statusData = getAccountStatus(account);
+              
+              return (
+                <Card key={account.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-12 h-12 bg-gradient-to-br ${color} rounded-lg flex items-center justify-center`}>
+                          <Icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold capitalize">{account.platform}</h3>
+                          <p className="text-sm text-muted-foreground">{account.username}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-semibold">{account.platform}</h3>
-                        <p className="text-sm text-muted-foreground">{account.username}</p>
-                      </div>
+                      <Badge className={`${statusData.color} text-white`}>
+                        {statusData.status}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Seguidores</span>
+                      <span className="font-semibold">{account.followers_count.toLocaleString()}</span>
                     </div>
-                    <Badge className={`${account.color} text-white`}>
-                      {account.status}
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Seguidores</span>
-                    <span className="font-semibold">{account.followers}</span>
-                  </div>
-                  <div className="flex space-x-2">
-                    <AccountConfigDialog account={account}>
+                    <div className="flex space-x-2">
+                      <AccountConfigDialog account={account}>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1"
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Configurar
+                        </Button>
+                      </AccountConfigDialog>
                       <Button 
                         variant="outline" 
                         size="sm" 
                         className="flex-1"
-                        onClick={() => handleAccountAction(account, 'configure')}
+                        onClick={() => handleAccountAction(account, 'reconnect')}
                       >
-                        <Settings className="w-4 h-4 mr-2" />
-                        Configurar
+                        <Link2 className="w-4 h-4 mr-2" />
+                        Reconectar
                       </Button>
-                    </AccountConfigDialog>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="flex-1"
-                      onClick={() => handleAccountAction(account, 'reconnect')}
-                    >
-                      <Link2 className="w-4 h-4 mr-2" />
-                      Reconectar
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="text-center py-8">
+              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nenhuma conta conectada</h3>
+              <p className="text-muted-foreground mb-4">
+                Conecte suas contas de redes sociais para começar a gerenciar seus posts
+              </p>
+              <ConnectAccountDialog>
+                <Button className="bg-purple-primary hover:bg-purple-hover">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Conectar Primeira Conta
+                </Button>
+              </ConnectAccountDialog>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Performance Geral com seletor de período e filtros integrados */}
+        {/* Performance Geral */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -250,8 +212,11 @@ const Accounts = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todas as contas</SelectItem>
-                    <SelectItem value="instagram">@minha_conta (Instagram)</SelectItem>
-                    <SelectItem value="tiktok">@minha_conta_tt (TikTok)</SelectItem>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.username} ({account.platform})
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Select value={performancePeriod} onValueChange={setPerformancePeriod}>
@@ -319,100 +284,125 @@ const Accounts = () => {
                 <TabsTrigger value="todos">Todos</TabsTrigger>
                 <TabsTrigger value="agendados">Agendados</TabsTrigger>
                 <TabsTrigger value="publicados">Publicados</TabsTrigger>
-                <TabsTrigger value="instagram">Instagram</TabsTrigger>
-                <TabsTrigger value="tiktok">TikTok</TabsTrigger>
+                <TabsTrigger value="rascunhos">Rascunhos</TabsTrigger>
               </TabsList>
               
               <TabsContent value="todos" className="space-y-4">
-                {postsData.map((post) => (
-                  <div
-                    key={post.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                        {post.platform === 'Instagram' ? (
-                          <Instagram className="w-6 h-6 text-purple-500" />
-                        ) : (
-                          <Play className="w-6 h-6 text-black dark:text-white" />
-                        )}
-                      </div>
-                      <div>
-                        <h4 className="font-medium">{post.caption}</h4>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
-                          <span className="flex items-center space-x-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>{post.date}</span>
-                          </span>
-                          <span>{post.time}</span>
-                          <span>{post.platform}</span>
-                          {post.isScheduled ? (
-                            <span className="text-orange-600 font-medium">Aguardando Postagem</span>
-                          ) : (
-                            <span>Engajamento: {post.engagement}</span>
+                {posts.length > 0 ? (
+                  posts.map((post) => {
+                    const Icon = getPlatformIcon(post.platform);
+                    const isScheduled = post.status === 'scheduled' || post.status === 'draft';
+                    
+                    return (
+                      <div
+                        key={post.id}
+                        className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                            <Icon className="w-6 h-6 text-purple-500" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium">{post.title || post.content.substring(0, 50) + '...'}</h4>
+                            <div className="flex items-center space-x-4 text-sm text-muted-foreground mt-1">
+                              <span className="flex items-center space-x-1">
+                                <Calendar className="w-3 h-3" />
+                                <span>{new Date(post.scheduled_for).toLocaleDateString()}</span>
+                              </span>
+                              <span>{new Date(post.scheduled_for).toLocaleTimeString()}</span>
+                              <span className="capitalize">{post.platform}</span>
+                              <Badge variant={post.status === 'published' ? 'default' : 'outline'}>
+                                {post.status === 'draft' ? 'Rascunho' :
+                                 post.status === 'scheduled' ? 'Agendado' :
+                                 post.status === 'published' ? 'Publicado' :
+                                 post.status === 'failed' ? 'Falhou' : post.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {!isScheduled && (
+                            <PostAnalyticsDialog post={post}>
+                              <Button variant="ghost" size="sm">
+                                <TrendingUp className="w-4 h-4 mr-1" />
+                                Analisar
+                              </Button>
+                            </PostAnalyticsDialog>
                           )}
+                          <EditPostDialog post={post}>
+                            <Button variant="ghost" size="sm">
+                              Editar
+                            </Button>
+                          </EditPostDialog>
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={post.status === 'Publicado' ? 'default' : 'outline'}>
-                        {post.status}
-                      </Badge>
-                      {!post.isScheduled && post.engagement && (
-                        <PostAnalyticsDialog post={{ id: post.id, caption: post.caption, platform: post.platform, engagement: post.engagement }}>
-                          <Button variant="ghost" size="sm">
-                            <TrendingUp className="w-4 h-4 mr-1" />
-                            Analisar
-                          </Button>
-                        </PostAnalyticsDialog>
-                      )}
-                      <EditPostDialog post={post}>
-                        <Button variant="ghost" size="sm">
-                          Editar
-                        </Button>
-                      </EditPostDialog>
-                    </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Nenhum post encontrado</h3>
+                    <p className="text-muted-foreground">
+                      Você ainda não tem posts agendados ou publicados.
+                    </p>
                   </div>
-                ))}
+                )}
               </TabsContent>
 
               <TabsContent value="agendados">
                 <div className="space-y-4">
-                  {postsData.filter(post => post.status === 'Agendado').map((post) => (
-                    <div key={post.id} className="p-4 border rounded-lg">
-                      <p>{post.caption} - {post.platform}</p>
+                  {posts.filter(post => post.status === 'scheduled').length > 0 ? (
+                    posts.filter(post => post.status === 'scheduled').map((post) => (
+                      <div key={post.id} className="p-4 border rounded-lg">
+                        <p className="font-medium">{post.title || post.content.substring(0, 100) + '...'}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {post.platform} • {new Date(post.scheduled_for).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">Nenhum post agendado.</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </TabsContent>
 
               <TabsContent value="publicados">
                 <div className="space-y-4">
-                  {postsData.filter(post => post.status === 'Publicado').map((post) => (
-                    <div key={post.id} className="p-4 border rounded-lg">
-                      <p>{post.caption} - {post.platform}</p>
+                  {posts.filter(post => post.status === 'published').length > 0 ? (
+                    posts.filter(post => post.status === 'published').map((post) => (
+                      <div key={post.id} className="p-4 border rounded-lg">
+                        <p className="font-medium">{post.title || post.content.substring(0, 100) + '...'}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {post.platform} • Publicado em {new Date(post.scheduled_for).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">Nenhum post publicado.</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </TabsContent>
 
-              <TabsContent value="instagram">
+              <TabsContent value="rascunhos">
                 <div className="space-y-4">
-                  {postsData.filter(post => post.platform === 'Instagram').map((post) => (
-                    <div key={post.id} className="p-4 border rounded-lg">
-                      <p>{post.caption}</p>
+                  {posts.filter(post => post.status === 'draft').length > 0 ? (
+                    posts.filter(post => post.status === 'draft').map((post) => (
+                      <div key={post.id} className="p-4 border rounded-lg">
+                        <p className="font-medium">{post.title || post.content.substring(0, 100) + '...'}</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {post.platform} • Criado em {new Date(post.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">Nenhum rascunho salvo.</p>
                     </div>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="tiktok">
-                <div className="space-y-4">
-                  {postsData.filter(post => post.platform === 'TikTok').map((post) => (
-                    <div key={post.id} className="p-4 border rounded-lg">
-                      <p>{post.caption}</p>
-                    </div>
-                  ))}
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
