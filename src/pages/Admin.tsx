@@ -76,8 +76,8 @@ const Admin = () => {
     <DashboardLayout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Painel Admin</h1>
-          <p className="text-gray-600 dark:text-gray-300 mt-2">Gerenciamento do sistema e usuários</p>
+          <h1 className="text-3xl font-bold">Painel Admin</h1>
+          <p className="text-muted-foreground mt-2">Gerenciamento do sistema e usuários</p>
         </div>
 
         {/* System Stats */}
@@ -85,12 +85,12 @@ const Admin = () => {
           {systemStats.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <Card key={index} className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+              <Card key={index}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{stat.label}</p>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                      <p className="text-2xl font-bold">{stat.value}</p>
                     </div>
                     <Icon className={`w-8 h-8 ${stat.color}`} />
                   </div>
@@ -101,15 +101,15 @@ const Admin = () => {
         </div>
 
         {/* System Controls */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Settings className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              <span className="text-gray-900 dark:text-white">Controles do Sistema</span>
+              <Settings className="w-6 h-6" />
+              <span>Controles do Sistema</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
               <div className="flex items-center space-x-3">
                 {automationEnabled ? (
                   <Play className="w-5 h-5 text-green-500" />
@@ -117,8 +117,8 @@ const Admin = () => {
                   <Pause className="w-5 h-5 text-red-500" />
                 )}
                 <div>
-                  <h3 className="font-medium text-gray-900 dark:text-white">Automação Geral</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <h3 className="font-medium">Automação Geral</h3>
+                  <p className="text-sm text-muted-foreground">
                     {automationEnabled ? 'Sistema funcionando normalmente' : 'Sistema pausado para manutenção'}
                   </p>
                 </div>
@@ -134,7 +134,7 @@ const Admin = () => {
                 <Database className="w-4 h-4 mr-2" />
                 Backup Database
               </Button>
-              <Button className="bg-yellow-600 hover:bg-yellow-700 text-white">
+              <Button className="bg-orange-600 hover:bg-orange-700 text-white">
                 <AlertTriangle className="w-4 h-4 mr-2" />
                 Modo Manutenção
               </Button>
@@ -147,29 +147,29 @@ const Admin = () => {
         </Card>
 
         {/* User Management */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Users className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              <span className="text-gray-900 dark:text-white">Gerenciamento de Usuários</span>
+              <Users className="w-6 h-6" />
+              <span>Gerenciamento de Usuários</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {users.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div key={user.id} className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div className="flex items-center space-x-4">
                     <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-medium">
                       {user.name[0]}
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">{user.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">{user.email}</p>
+                      <h3 className="font-medium">{user.name}</h3>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
                       <div className="flex items-center space-x-4 mt-1">
-                        <Badge className={`${user.status === 'Ativo' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'}`}>
+                        <Badge className={`${user.status === 'Ativo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                           {user.status}
                         </Badge>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-muted-foreground">
                           Plano: {user.plan} • {user.accounts} contas • {user.lastActivity}
                         </span>
                       </div>
@@ -182,7 +182,7 @@ const Admin = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => handlePauseUser(user.id)}
-                        className="text-yellow-600 hover:text-yellow-700 border-yellow-300 hover:border-yellow-400"
+                        className="text-orange-600 hover:text-orange-700 border-orange-300 hover:border-orange-400"
                       >
                         <Pause className="w-4 h-4 mr-1" />
                         Pausar
@@ -215,9 +215,9 @@ const Admin = () => {
         </Card>
 
         {/* Quick Actions */}
-        <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">Ações Rápidas</CardTitle>
+            <CardTitle>Ações Rápidas</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
