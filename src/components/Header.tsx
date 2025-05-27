@@ -9,9 +9,9 @@ const Header = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-primary to-purple-hover flex items-center justify-center">
-            <span className="text-white font-bold text-sm">SB</span>
+            <span className="text-white font-bold text-sm">AB</span>
           </div>
-          <h1 className="text-xl font-bold text-foreground">SocialBoost</h1>
+          <h1 className="text-xl font-bold text-foreground">Adacemy Boost</h1>
         </Link>
         
         <nav className="hidden md:flex items-center space-x-6">
@@ -21,7 +21,7 @@ const Header = () => {
           <a href="#planos" className="text-muted-foreground hover:text-foreground transition-colors">
             Planos
           </a>
-          <a href="#contato" className="text-muted-foreground hover:text-foreground transition-colors">
+          <a href="https://discord.gg/FmFKuDnJQu" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors">
             Contato
           </a>
         </nav>

@@ -31,9 +31,9 @@ const PricingSection = () => {
     },
     {
       name: "Trimestral",
-      price: "R$ 39",
+      price: "R$ 89",
       period: "mês",
-      originalPrice: "R$ 49",
+      originalPrice: "R$ 99",
       features: [
         "10 contas Instagram/TikTok",
         "1.500 posts agendados",
@@ -46,9 +46,9 @@ const PricingSection = () => {
     },
     {
       name: "Anual",
-      price: "R$ 29",
+      price: "R$ 69",
       period: "mês",
-      originalPrice: "R$ 49",
+      originalPrice: "R$ 89",
       features: [
         "Contas ilimitadas",
         "Posts ilimitados",
@@ -132,7 +132,7 @@ const PricingSection = () => {
 
         <div className="text-center mt-12">
           <p className="text-muted-foreground mb-4">
-            Todos os planos incluem 7 dias de teste grátis
+            Todos os planos incluem 3 dias de teste grátis
           </p>
           <div className="inline-flex items-center space-x-4 text-sm text-muted-foreground">
             <span className="flex items-center">

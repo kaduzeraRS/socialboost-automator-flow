@@ -31,7 +31,7 @@ const HeroSection = () => {
           </div>
 
           <p className="text-sm text-muted-foreground">
-            ✨ Teste grátis por 7 dias • Sem cartão de crédito
+            ✨ Teste grátis por 3 dias • Sem cartão de crédito
           </p>
         </div>
 

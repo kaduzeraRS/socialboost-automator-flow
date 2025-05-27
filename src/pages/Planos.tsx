@@ -41,13 +41,13 @@ const Planos = () => {
       ],
       icon: Star,
       color: 'from-purple-500 to-pink-500',
-      popular: true
+      popular: false
     },
     {
       name: 'Trimestral',
-      price: 'R$ 39',
+      price: 'R$ 89',
       period: '/mês',
-      originalPrice: 'R$ 49',
+      originalPrice: 'R$ 99',
       description: 'Para crescimento acelerado',
       features: [
         '10 contas Instagram/TikTok',
@@ -63,9 +63,9 @@ const Planos = () => {
     },
     {
       name: 'Anual',
-      price: 'R$ 29',
+      price: 'R$ 69',
       period: '/mês',
-      originalPrice: 'R$ 49',
+      originalPrice: 'R$ 89',
       description: 'Para profissionais',
       features: [
         'Contas ilimitadas',
@@ -82,10 +82,10 @@ const Planos = () => {
   ];
 
   const interactionPackages = [
-    { amount: 100, price: 'R$ 2,90' },
-    { amount: 200, price: 'R$ 4,90' },
-    { amount: 500, price: 'R$ 9,90' },
-    { amount: 1000, price: 'R$ 17,90' }
+    { amount: 100, price: 'R$ 1,90' },
+    { amount: 200, price: 'R$ 2,90' },
+    { amount: 500, price: 'R$ 5,90' },
+    { amount: 1000, price: 'R$ 9,90' }
   ];
 
   const faqs = [
@@ -175,10 +175,9 @@ const Planos = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs h-8 px-3"
+                className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs h-8 px-2"
                 onClick={handleCancelSubscription}
               >
-                <Calendar className="w-3 h-3 mr-1" />
                 Cancelar
               </Button>
             </div>
@@ -197,19 +196,12 @@ const Planos = () => {
                 <Card 
                   key={plan.name} 
                   className={`relative transition-all hover:shadow-lg dark:bg-card bg-white border-2 ${
-                    plan.popular ? 'ring-2 ring-purple-primary shadow-lg border-purple-primary' : 'border-gray-200 dark:border-gray-700'
-                  } ${isCurrentPlan ? 'border-purple-primary bg-purple-50 dark:bg-purple-900/20' : ''}`}
+                    isCurrentPlan ? 'ring-2 ring-purple-primary shadow-lg border-purple-primary bg-purple-50 dark:bg-purple-900/20' : 'border-gray-200 dark:border-gray-700'
+                  }`}
                 >
-                  {plan.popular && (
+                  {isCurrentPlan && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-purple-primary text-white px-4 py-1">
-                        Mais Popular
-                      </Badge>
-                    </div>
-                  )}
-                  {isCurrentPlan && (
-                    <div className="absolute -top-4 right-4">
-                      <Badge className="bg-green-500 text-white px-3 py-1">
                         Seu Plano
                       </Badge>
                     </div>
@@ -246,14 +238,12 @@ const Planos = () => {
                       className={`w-full mt-6 ${
                         isCurrentPlan 
                           ? 'bg-gray-400 text-white cursor-not-allowed dark:bg-gray-600 border-2' 
-                          : plan.popular 
-                            ? 'bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary' 
-                            : 'bg-gray-800 hover:bg-gray-700 text-white dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300 border-2 border-gray-800 dark:border-gray-200'
+                          : 'bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary'
                       }`}
                       disabled={isCurrentPlan}
-                      onClick={() => !isCurrentPlan && handleUpgradePlan(plan.name)}
+                      onClick={() => !isCurrentPlan && console.log('Upgrade para:', plan.name)}
                     >
-                      {isCurrentPlan ? 'Plano Atual' : plan.popular ? 'Começar Agora' : 'Escolher Plano'}
+                      {isCurrentPlan ? 'Plano Atual' : 'Escolher Plano'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -277,7 +267,7 @@ const Planos = () => {
                   <div className="text-lg font-bold text-purple-primary mb-4">{pkg.price}</div>
                   <Button 
                     className="w-full bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary"
-                    onClick={() => handlePurchaseInteractions(pkg.amount, pkg.price)}
+                    onClick={() => console.log('Comprar', pkg.amount, 'interações por', pkg.price)}
                   >
                     Comprar
                   </Button>
@@ -296,12 +286,26 @@ const Planos = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {faqs.map((faq, index) => (
-              <div key={index}>
-                <h4 className="font-medium text-foreground mb-2">{faq.question}</h4>
-                <p className="text-sm text-muted-foreground">{faq.answer}</p>
-              </div>
-            ))}
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Posso cancelar a qualquer momento?</h4>
+              <p className="text-sm text-muted-foreground">Sim, você pode cancelar sua assinatura a qualquer momento sem taxas de cancelamento.</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Como funciona o período de teste?</h4>
+              <p className="text-sm text-muted-foreground">Oferecemos 3 dias gratuitos para você testar todos os recursos do plano escolhido após o cadastro do e-mail.</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Posso alterar meu plano depois?</h4>
+              <p className="text-sm text-muted-foreground">Sim, você pode fazer upgrade ou downgrade do seu plano a qualquer momento.</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-2">O que acontece se eu usar a mesma conta em emails diferentes?</h4>
+              <p className="text-sm text-muted-foreground">Nosso sistema detecta contas duplicadas para evitar múltiplos períodos de teste gratuito.</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-foreground mb-2">Como funcionam as interações extras?</h4>
+              <p className="text-sm text-muted-foreground">Você pode comprar pacotes de interações adicionais que são válidos por 30 dias após a compra.</p>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -1,7 +1,8 @@
 
-import { Bell, Globe, User } from 'lucide-react';
+import { Bell, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import DarkModeToggle from './DarkModeToggle';
+import UserDropdown from './UserDropdown';
 
 const DashboardHeader = () => {
   return (
@@ -18,9 +19,7 @@ const DashboardHeader = () => {
         <Button variant="ghost" size="icon">
           <Globe className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <User className="w-5 h-5" />
-        </Button>
+        <UserDropdown />
       </div>
     </header>
   );

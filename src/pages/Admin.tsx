@@ -18,7 +18,13 @@ import {
   Ban,
   CheckCircle,
   XCircle,
-  Eye
+  Eye,
+  Edit,
+  Database,
+  Server,
+  UserX,
+  UserCheck,
+  Crown
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -36,7 +42,8 @@ const Admin = () => {
       accounts: 3,
       interactions: 1500,
       automationActive: true,
-      lastActivity: '2 horas atrás'
+      lastActivity: '2 horas atrás',
+      role: 'user'
     },
     {
       id: 2,
@@ -47,7 +54,8 @@ const Admin = () => {
       accounts: 8,
       interactions: 5200,
       automationActive: false,
-      lastActivity: '1 dia atrás'
+      lastActivity: '1 dia atrás',
+      role: 'admin'
     },
     {
       id: 3,
@@ -58,7 +66,8 @@ const Admin = () => {
       accounts: 1,
       interactions: 200,
       automationActive: false,
-      lastActivity: '5 dias atrás'
+      lastActivity: '5 dias atrás',
+      role: 'user'
     }
   ];
 
@@ -79,6 +88,14 @@ const Admin = () => {
 
   const viewUserDetails = (userId: number) => {
     console.log('View user details:', userId);
+  };
+
+  const editUser = (userId: number) => {
+    console.log('Edit user:', userId);
+  };
+
+  const toggleUserRole = (userId: number) => {
+    console.log('Toggle user role:', userId);
   };
 
   const filteredUsers = users.filter(user => 
@@ -178,6 +195,7 @@ const Admin = () => {
                     <th className="text-left py-3 px-4 font-medium text-foreground">Usuário</th>
                     <th className="text-left py-3 px-4 font-medium text-foreground">Plano</th>
                     <th className="text-left py-3 px-4 font-medium text-foreground">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-foreground">Função</th>
                     <th className="text-left py-3 px-4 font-medium text-foreground">Contas</th>
                     <th className="text-left py-3 px-4 font-medium text-foreground">Automação</th>
                     <th className="text-left py-3 px-4 font-medium text-foreground">Última Atividade</th>
@@ -208,6 +226,17 @@ const Admin = () => {
                         >
                           {user.status}
                         </Badge>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center">
+                          {user.role === 'admin' && <Crown className="w-4 h-4 mr-1 text-yellow-500" />}
+                          <Badge 
+                            variant={user.role === 'admin' ? "default" : "outline"}
+                            className={user.role === 'admin' ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" : ""}
+                          >
+                            {user.role === 'admin' ? 'Admin' : 'Usuário'}
+                          </Badge>
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-foreground">
                         {user.accounts} contas
@@ -247,6 +276,21 @@ const Admin = () => {
                           <Button
                             size="sm"
                             variant="ghost"
+                            onClick={() => editUser(user.id)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => toggleUserRole(user.id)}
+                            className="text-yellow-500 hover:text-yellow-600"
+                          >
+                            {user.role === 'admin' ? <UserX className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => suspendUser(user.id)}
                             className="text-red-500 hover:text-red-600"
                           >
@@ -262,16 +306,17 @@ const Admin = () => {
           </CardContent>
         </Card>
 
-        {/* System Configuration */}
-        <Card className="dark:bg-card bg-white">
-          <CardHeader>
-            <CardTitle className="flex items-center text-foreground">
-              <Settings className="w-6 h-6 mr-2" />
-              Configurações do Sistema
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* System Management */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* System Configuration */}
+          <Card className="dark:bg-card bg-white">
+            <CardHeader>
+              <CardTitle className="flex items-center text-foreground">
+                <Settings className="w-6 h-6 mr-2" />
+                Configurações do Sistema
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="max-interactions">Limite de Interações por Dia</Label>
                 <Input
@@ -296,15 +341,56 @@ const Admin = () => {
                   Ativar Modo de Manutenção
                 </Button>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="backup">Backup do Sistema</Label>
-                <Button className="w-full bg-purple-primary hover:bg-purple-hover text-white">
-                  Executar Backup Completo
-                </Button>
+            </CardContent>
+          </Card>
+
+          {/* Hosting & Database Management */}
+          <Card className="dark:bg-card bg-white">
+            <CardHeader>
+              <CardTitle className="flex items-center text-foreground">
+                <Server className="w-6 h-6 mr-2" />
+                Hospedagem & Banco de Dados
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-foreground">Hostinger</h4>
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Online
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">Status do servidor de hospedagem</p>
+                  <Button size="sm" variant="outline" className="w-full">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Monitorar Servidor
+                  </Button>
+                </div>
+
+                <div className="p-4 border rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-medium text-foreground">Supabase</h4>
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Conectado
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">Banco de dados principal</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button size="sm" variant="outline">
+                      <Database className="w-4 h-4 mr-2" />
+                      Backup
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <Activity className="w-4 h-4 mr-2" />
+                      Status
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );

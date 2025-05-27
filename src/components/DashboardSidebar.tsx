@@ -18,8 +18,10 @@ const menuItems = [
   { title: 'Contas', href: '/contas', icon: Users },
   { title: 'Planos de Assinatura', href: '/planos', icon: CreditCard },
   { title: 'Configurações', href: '/configuracoes', icon: Settings },
-  { title: 'Admin', href: '/admin', icon: Shield },
 ];
+
+// Mock user role - in real app this would come from auth context
+const isAdmin = true; // Change this to false to hide admin menu
 
 const DashboardSidebar = () => {
   const location = useLocation();
@@ -29,9 +31,9 @@ const DashboardSidebar = () => {
       <div className="p-6">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-primary to-purple-hover flex items-center justify-center">
-            <span className="text-white font-bold text-sm">SB</span>
+            <span className="text-white font-bold text-sm">AB</span>
           </div>
-          <h1 className="text-xl font-bold text-foreground">SocialBoost</h1>
+          <h1 className="text-xl font-bold text-foreground">Adacemy Boost</h1>
         </div>
       </div>
       
@@ -56,6 +58,22 @@ const DashboardSidebar = () => {
             </Link>
           );
         })}
+        
+        {/* Admin menu item - only show for admins */}
+        {isAdmin && (
+          <Link
+            to="/admin"
+            className={cn(
+              "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              location.pathname === "/admin"
+                ? "bg-purple-primary text-white" 
+                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            )}
+          >
+            <Shield className="w-5 h-5" />
+            <span>Admin</span>
+          </Link>
+        )}
       </nav>
     </div>
   );
