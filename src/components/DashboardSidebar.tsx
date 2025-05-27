@@ -6,7 +6,8 @@ import {
   Flame, 
   Users, 
   CreditCard, 
-  Settings 
+  Settings,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,6 +18,7 @@ const menuItems = [
   { title: 'Contas', href: '/contas', icon: Users },
   { title: 'Planos de Assinatura', href: '/planos', icon: CreditCard },
   { title: 'Configurações', href: '/configuracoes', icon: Settings },
+  { title: 'Admin', href: '/admin', icon: Shield },
 ];
 
 const DashboardSidebar = () => {

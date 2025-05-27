@@ -62,7 +62,7 @@ const PricingSection = () => {
   ];
 
   return (
-    <section id="planos" className="py-20 px-4">
+    <section id="planos" className="py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -77,18 +77,20 @@ const PricingSection = () => {
           {plans.map((plan, index) => (
             <Card 
               key={index}
-              className={`relative ${plan.popular ? 'border-2 border-blue-500 scale-105' : 'border-border'} transition-all duration-300 hover:shadow-lg`}
+              className={`relative transition-all duration-300 hover:shadow-lg dark:bg-card bg-white ${
+                plan.popular ? 'border-2 border-purple-primary scale-105 shadow-lg' : 'border-border'
+              }`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-purple-primary text-white px-3 py-1 rounded-full text-sm font-medium">
                     Mais Popular
                   </span>
                 </div>
               )}
               
               <CardHeader className="text-center">
-                <CardTitle className="text-lg font-semibold">{plan.name}</CardTitle>
+                <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
                     <span className="text-3xl font-bold text-foreground">{plan.price}</span>
@@ -106,16 +108,20 @@ const PricingSection = () => {
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center text-sm">
-                      <svg className="w-4 h-4 text-success mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      {feature}
+                      <span className="text-foreground">{feature}</span>
                     </li>
                   ))}
                 </ul>
 
                 <Button 
-                  className={`w-full ${plan.popular ? 'bg-blue-500 hover:bg-blue-600' : 'bg-purple-primary hover:bg-purple-hover'}`}
+                  className={`w-full ${
+                    plan.popular 
+                      ? 'bg-purple-primary hover:bg-purple-hover text-white' 
+                      : 'bg-foreground hover:bg-foreground/90 text-background'
+                  }`}
                 >
                   {plan.popular ? 'Começar Agora' : 'Escolher Plano'}
                 </Button>
@@ -130,13 +136,13 @@ const PricingSection = () => {
           </p>
           <div className="inline-flex items-center space-x-4 text-sm text-muted-foreground">
             <span className="flex items-center">
-              <svg className="w-4 h-4 text-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               Sem taxa de setup
             </span>
             <span className="flex items-center">
-              <svg className="w-4 h-4 text-success mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               Cancele quando quiser
