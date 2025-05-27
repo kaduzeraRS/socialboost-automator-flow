@@ -10,6 +10,33 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        {/* Ações Rápidas */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Ações Rápidas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4">
+              <Button className="bg-purple-primary hover:bg-purple-hover">
+                <Plus className="w-4 h-4 mr-2" />
+                Novo Post
+              </Button>
+              <Button variant="outline">
+                <Zap className="w-4 h-4 mr-2" />
+                Iniciar Aquecimento
+              </Button>
+              <Button variant="secondary" className="bg-gradient-to-br from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600">
+                <Instagram className="w-4 h-4 mr-2" />
+                Conectar Instagram
+              </Button>
+              <Button variant="secondary" className="bg-black text-white hover:bg-gray-800">
+                <Link2 className="w-4 h-4 mr-2" />
+                Conectar TikTok
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Status da Assinatura - Novo Design */}
         <Card className="bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700 text-white">
           <CardHeader>
@@ -195,29 +222,6 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Ações Rápidas */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Ações Rápidas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <Button className="bg-purple-primary hover:bg-purple-hover">
-                <Plus className="w-4 h-4 mr-2" />
-                Novo Post
-              </Button>
-              <Button variant="outline">
-                <Zap className="w-4 h-4 mr-2" />
-                Iniciar Aquecimento
-              </Button>
-              <Button variant="secondary" className="bg-black text-white hover:bg-gray-800">
-                <Link2 className="w-4 h-4 mr-2" />
-                Conectar TikTok
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );
