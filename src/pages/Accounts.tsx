@@ -1,9 +1,7 @@
-
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Instagram, 
@@ -18,8 +16,16 @@ import {
   Plus,
   Link2
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import ConnectAccountDialog from '@/components/ConnectAccountDialog';
+import AccountConfigDialog from '@/components/AccountConfigDialog';
+import PostAnalyticsDialog from '@/components/PostAnalyticsDialog';
+import EditPostDialog from '@/components/EditPostDialog';
+import InsightsFilters from '@/components/InsightsFilters';
 
 const Accounts = () => {
+  const { toast } = useToast();
+
   const accounts = [
     {
       id: 1,
@@ -80,6 +86,22 @@ const Accounts = () => {
     }
   ];
 
+  const handleReconnect = (account: any) => {
+    toast({
+      title: "Reconectando conta",
+      description: `Reconectando ${account.username}...`,
+    });
+    console.log('Reconnecting account:', account.id);
+  };
+
+  const handleFiltersChange = (filters: any) => {
+    console.log('Filters changed:', filters);
+    toast({
+      title: "Filtros aplicados",
+      description: "Os insights foram atualizados com os novos filtros.",
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -88,11 +110,16 @@ const Accounts = () => {
             <h1 className="text-3xl font-bold text-foreground">Contas Conectadas</h1>
             <p className="text-muted-foreground">Gerencie todas as suas contas de redes sociais em um só lugar</p>
           </div>
-          <Button className="bg-purple-primary hover:bg-purple-hover">
-            <Plus className="w-4 h-4 mr-2" />
-            Conectar Nova Conta
-          </Button>
+          <ConnectAccountDialog>
+            <Button className="bg-purple-primary hover:bg-purple-hover">
+              <Plus className="w-4 h-4 mr-2" />
+              Conectar Nova Conta
+            </Button>
+          </ConnectAccountDialog>
         </div>
+
+        {/* Filtros de Insights */}
+        <InsightsFilters onFiltersChange={handleFiltersChange} />
 
         {/* Contas Conectadas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -122,11 +149,18 @@ const Accounts = () => {
                     <span className="font-semibold">{account.followers}</span>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Configurar
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <AccountConfigDialog account={account}>
+                      <Button variant="outline" size="sm" className="flex-1">
+                        <Settings className="w-4 h-4 mr-2" />
+                        Configurar
+                      </Button>
+                    </AccountConfigDialog>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleReconnect(account)}
+                    >
                       <Link2 className="w-4 h-4 mr-2" />
                       Reconectar
                     </Button>
@@ -229,13 +263,17 @@ const Accounts = () => {
                       <Badge variant={post.status === 'Publicado' ? 'default' : 'outline'}>
                         {post.status}
                       </Badge>
-                      <Button variant="ghost" size="sm">
-                        <TrendingUp className="w-4 h-4 mr-1" />
-                        Analisar
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        Editar
-                      </Button>
+                      <PostAnalyticsDialog post={post}>
+                        <Button variant="ghost" size="sm">
+                          <TrendingUp className="w-4 h-4 mr-1" />
+                          Analisar
+                        </Button>
+                      </PostAnalyticsDialog>
+                      <EditPostDialog post={post}>
+                        <Button variant="ghost" size="sm">
+                          Editar
+                        </Button>
+                      </EditPostDialog>
                     </div>
                   </div>
                 ))}

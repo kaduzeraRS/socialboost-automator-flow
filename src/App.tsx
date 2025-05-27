@@ -10,6 +10,7 @@ import AccountWarming from "./pages/AccountWarming";
 import Scheduling from "./pages/Scheduling";
 import Accounts from "./pages/Accounts";
 import Settings from "./pages/Settings";
+import Planos from "./pages/Planos";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/aquecimento" element={<AccountWarming />} />
           <Route path="/agendamento" element={<Scheduling />} />
           <Route path="/contas" element={<Accounts />} />
+          <Route path="/planos" element={<Planos />} />
           <Route path="/configuracoes" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
