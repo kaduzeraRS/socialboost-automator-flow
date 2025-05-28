@@ -57,6 +57,8 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
         return;
       }
 
+      console.log('Tentando registrar usuário:', { email, fullName });
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -86,19 +88,30 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
         return;
       }
 
-      console.log('Register successful:', data);
+      console.log('Register response:', data);
 
-      if (data.user && !data.session) {
-        toast({
-          title: "Cadastro realizado!",
-          description: "Verifique seu email para confirmar a conta antes de fazer login.",
-        });
-      } else {
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Você foi automaticamente conectado.",
-        });
-        onSuccess();
+      // Se o usuário foi criado com sucesso
+      if (data.user) {
+        // Se há uma sessão ativa (login automático), redirecionar
+        if (data.session) {
+          console.log('Usuário registrado e logado automaticamente');
+          toast({
+            title: "Conta criada com sucesso!",
+            description: "Você foi automaticamente conectado. Redirecionando...",
+          });
+          
+          // Pequeno delay para mostrar o toast antes de redirecionar
+          setTimeout(() => {
+            onSuccess();
+          }, 1000);
+        } else {
+          // Se não há sessão (precisa confirmar email)
+          console.log('Usuário registrado, aguardando confirmação de email');
+          toast({
+            title: "Cadastro realizado!",
+            description: "Verifique seu email para confirmar a conta antes de fazer login.",
+          });
+        }
       }
 
     } catch (error) {

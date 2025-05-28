@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -97,10 +98,12 @@ const PricingSection = () => {
                 <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
-                    <span className={`font-bold text-foreground ${plan.name === 'Anual' ? 'text-2xl' : 'text-3xl'}`}>
+                    <span className={`font-bold text-foreground ${
+                      plan.name === 'Trimestral' ? 'text-2xl' : 'text-3xl'
+                    }`}>
                       {plan.price}
                     </span>
-                    <span className="text-muted-foreground ml-1">/{plan.period}</span>
+                    <span className="text-muted-foreground ml-1 text-sm">/{plan.period}</span>
                   </div>
                   {plan.originalPrice && (
                     <div className="text-sm text-muted-foreground mt-1">

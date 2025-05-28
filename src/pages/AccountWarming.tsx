@@ -2,24 +2,56 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { User, Heart, MessageCircle, UserPlus, Target, BarChart3, UserMinus, Play, Pause, Square } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Heart, MessageCircle, UserPlus, UserMinus, Play, Pause, Square } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
-import { useTargetProfiles } from '@/hooks/useTargetProfiles';
 import { useWarmingCampaigns } from '@/hooks/useWarmingCampaigns';
-import TargetProfileDialog from '@/components/TargetProfileDialog';
+import TargetProfileInput from '@/components/TargetProfileInput';
 import UnfollowDialog from '@/components/UnfollowDialog';
+
+// Mock data para perfis alvos
+const mockTargetProfiles = [
+  {
+    id: '1',
+    username: 'cristiano',
+    platform: 'instagram',
+    profilePicture: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
+    followers: 615000000,
+    following: 543,
+    posts: 3456,
+    url: 'https://instagram.com/cristiano'
+  },
+  {
+    id: '2',
+    username: 'therock',
+    platform: 'instagram',
+    profilePicture: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
+    followers: 389000000,
+    following: 721,
+    posts: 7899,
+    url: 'https://instagram.com/therock'
+  },
+  {
+    id: '3',
+    username: 'charlidamelio',
+    platform: 'tiktok',
+    profilePicture: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150',
+    followers: 151000000,
+    following: 1234,
+    posts: 2876,
+    url: 'https://tiktok.com/@charlidamelio'
+  }
+];
 
 const AccountWarming = () => {
   const [selectedAccount, setSelectedAccount] = useState('');
   const [selectedTargetProfiles, setSelectedTargetProfiles] = useState<string[]>([]);
+  const [targetProfiles, setTargetProfiles] = useState(mockTargetProfiles);
   const [followEnabled, setFollowEnabled] = useState(true);
   const [likeEnabled, setLikeEnabled] = useState(true);
   const [commentEnabled, setCommentEnabled] = useState(false);
@@ -29,7 +61,6 @@ const AccountWarming = () => {
   const [isWarmingActive, setIsWarmingActive] = useState(false);
 
   const { accounts } = useSocialAccounts();
-  const { targetProfiles, analyzeProfile, removeTargetProfile, refetch: refetchProfiles } = useTargetProfiles(selectedAccount);
   const { campaigns, createCampaign, updateCampaign } = useWarmingCampaigns();
 
   const activeCampaign = campaigns.find(c => c.social_account_id === selectedAccount && c.status === 'active');
@@ -43,6 +74,34 @@ const AccountWarming = () => {
   useEffect(() => {
     setIsWarmingActive(!!activeCampaign);
   }, [activeCampaign]);
+
+  const handleAddTarget = (profileData: { platform: string; username: string; url: string }) => {
+    const newProfile = {
+      id: Date.now().toString(),
+      username: profileData.username,
+      platform: profileData.platform,
+      profilePicture: `https://images.unsplash.com/photo-${Math.floor(Math.random() * 1000000000000)}?w=150`,
+      followers: Math.floor(Math.random() * 1000000) + 10000,
+      following: Math.floor(Math.random() * 10000) + 100,
+      posts: Math.floor(Math.random() * 5000) + 50,
+      url: profileData.url
+    };
+    
+    setTargetProfiles(prev => [newProfile, ...prev]);
+  };
+
+  const handleRemoveTarget = (id: string) => {
+    setTargetProfiles(prev => prev.filter(profile => profile.id !== id));
+    setSelectedTargetProfiles(prev => prev.filter(profileId => profileId !== id));
+  };
+
+  const handleToggleProfile = (id: string) => {
+    setSelectedTargetProfiles(prev => 
+      prev.includes(id) 
+        ? prev.filter(profileId => profileId !== id)
+        : [...prev, id]
+    );
+  };
 
   const handleStartWarming = async () => {
     if (!selectedAccount || selectedTargetProfiles.length === 0) return;
@@ -85,9 +144,6 @@ const AccountWarming = () => {
     setIsWarmingActive(false);
   };
 
-  const selectedAccountData = accounts.find(acc => acc.id === selectedAccount);
-  const accountTargetProfiles = targetProfiles.filter(tp => tp.social_account_id === selectedAccount);
-
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -125,103 +181,13 @@ const AccountWarming = () => {
             </Card>
 
             {/* Perfis Alvo */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Target className="w-5 h-5" />
-                    <span>Perfis Alvo</span>
-                  </div>
-                  <TargetProfileDialog 
-                    socialAccounts={accounts}
-                    onProfileAdded={refetchProfiles}
-                  />
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {accountTargetProfiles.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">
-                    Nenhum perfil alvo adicionado. Adicione perfis para começar o aquecimento.
-                  </p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {accountTargetProfiles.map((profile) => (
-                      <div key={profile.id} className="border rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-medium">{profile.username}</h4>
-                            <p className="text-sm text-muted-foreground capitalize">{profile.platform}</p>
-                          </div>
-                          <Badge variant={profile.is_active ? "default" : "secondary"}>
-                            {profile.is_active ? "Ativo" : "Inativo"}
-                          </Badge>
-                        </div>
-                        
-                        {profile.last_analyzed_at && (
-                          <div className="text-xs text-muted-foreground grid grid-cols-3 gap-2">
-                            <span>Seguidores: {profile.followers_count}</span>
-                            <span>Seguindo: {profile.following_count}</span>
-                            <span>Posts: {profile.posts_count}</span>
-                          </div>
-                        )}
-
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => analyzeProfile(profile.id)}
-                            className="flex-1"
-                          >
-                            <BarChart3 className="w-4 h-4 mr-1" />
-                            Analisar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => removeTargetProfile(profile.id)}
-                          >
-                            Remover
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Seleção de Perfis para Aquecimento */}
-            {accountTargetProfiles.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Selecionar Perfis para Aquecimento</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {accountTargetProfiles.map((profile) => (
-                      <div key={profile.id} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={profile.id}
-                          checked={selectedTargetProfiles.includes(profile.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedTargetProfiles([...selectedTargetProfiles, profile.id]);
-                            } else {
-                              setSelectedTargetProfiles(selectedTargetProfiles.filter(id => id !== profile.id));
-                            }
-                          }}
-                          className="rounded"
-                        />
-                        <label htmlFor={profile.id} className="flex-1">
-                          {profile.username} ({profile.platform})
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            <TargetProfileInput 
+              onAddTarget={handleAddTarget}
+              targetProfiles={targetProfiles}
+              onRemoveTarget={handleRemoveTarget}
+              selectedProfiles={selectedTargetProfiles}
+              onToggleProfile={handleToggleProfile}
+            />
 
             {/* Configurações de Aquecimento */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
