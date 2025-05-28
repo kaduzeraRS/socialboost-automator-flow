@@ -7,12 +7,12 @@ import PricingFooter from './pricing/PricingFooter';
 const PricingSection = () => {
   const { user } = useAuth();
   
-  // Fix: Properly type the currentPlan to allow all plan types
-  const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = "Mensal";
+  // Fix: Use a variable that can change to any plan type
+  const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = user ? "Mensal" : null;
 
   const plans = [
     {
-      name: "Quinzenal",
+      name: "Quinzenal" as const,
       price: "R$ 29,90",
       period: "15 dias",
       features: [
@@ -29,7 +29,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Quinzenal"
     },
     {
-      name: "Mensal",
+      name: "Mensal" as const,
       price: "R$ 49,90",
       period: "mês",
       features: [
@@ -48,7 +48,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Mensal"
     },
     {
-      name: "Trimestral",
+      name: "Trimestral" as const,
       price: "R$ 149,90",
       period: "3 meses",
       originalPrice: "R$ 49,90/mês",
@@ -70,7 +70,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Trimestral"
     },
     {
-      name: "Anual",
+      name: "Anual" as const,
       price: "R$ 549,90",
       period: "ano",
       originalPrice: "R$ 45,90/mês",
