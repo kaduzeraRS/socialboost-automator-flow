@@ -11,7 +11,6 @@ const HomePricingSection = () => {
   const handleChoosePlan = (planName: string) => {
     console.log('Escolher plano:', planName);
     if (!user) {
-      // Redirecionar para auth se não estiver logado
       window.location.href = '/auth';
       return;
     }
@@ -125,6 +124,14 @@ const HomePricingSection = () => {
                       {plan.max_interactions_per_period.toLocaleString()} interações/{plan.billing_period}
                     </span>
                   </li>
+                  {plan.advanced_analytics && (
+                    <li className="flex items-center text-sm">
+                      <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-foreground">Analytics avançados</span>
+                    </li>
+                  )}
                   {plan.basic_support && (
                     <li className="flex items-center text-sm">
                       <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,22 +156,6 @@ const HomePricingSection = () => {
                       <span className="text-foreground">Suporte VIP</span>
                     </li>
                   )}
-                  {plan.advanced_analytics && (
-                    <li className="flex items-center text-sm">
-                      <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-foreground">Analytics avançados</span>
-                    </li>
-                  )}
-                  {plan.api_access && (
-                    <li className="flex items-center text-sm">
-                      <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-foreground">API access</span>
-                    </li>
-                  )}
                   {plan.white_label && (
                     <li className="flex items-center text-sm">
                       <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,6 +170,14 @@ const HomePricingSection = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       <span className="text-foreground">Gerente dedicado</span>
+                    </li>
+                  )}
+                  {plan.strategic_consulting && (
+                    <li className="flex items-center text-sm">
+                      <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-foreground">Consultoria estratégica</span>
                     </li>
                   )}
                 </ul>

@@ -60,7 +60,7 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
     }
 
     setIsLogging(true);
-    setAuthStatus('Iniciando login via navegador visível...');
+    setAuthStatus('Conectando ao Instagram...');
 
     try {
       const authService = new InstagramAuthService();
@@ -75,9 +75,14 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
         password: credentials.password,
         onStatusChange: setAuthStatus,
         on2FARequired: (callback) => {
+          // Only show 2FA if actually required by Instagram
           setShow2FA(true);
           setTwoFactorCallback(() => callback);
           setAuthStatus('Autenticação de dois fatores detectada...');
+          toast({
+            title: "2FA Necessário",
+            description: "Instagram requer autenticação de dois fatores.",
+          });
         }
       });
 
