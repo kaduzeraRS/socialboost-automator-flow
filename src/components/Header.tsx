@@ -28,12 +28,14 @@ const Header = () => {
 
         <div className="flex items-center space-x-3">
           <DarkModeToggle />
-          <Button variant="ghost" className="hidden md:inline-flex">
-            Entrar
-          </Button>
-          <Link to="/dashboard">
+          <Link to="/auth">
+            <Button variant="ghost" className="hidden md:inline-flex">
+              Entrar
+            </Button>
+          </Link>
+          <Link to="/auth?mode=register">
             <Button className="bg-purple-primary hover:bg-purple-hover">
-              Dashboard
+              Registrar
             </Button>
           </Link>
         </div>

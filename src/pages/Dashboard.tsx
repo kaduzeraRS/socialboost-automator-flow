@@ -4,14 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, TrendingUp, Instagram, Play, Plus, Zap, Link2, Clock, BarChart3, Eye, Heart, MessageCircle, Users } from 'lucide-react';
+import { Calendar, TrendingUp, Instagram, Play, Plus, Zap, Link2, Clock, BarChart3, Eye, Heart, MessageCircle, Users, Share2, UserPlus, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Status da Assinatura - Novo Design */}
+        {/* Status da Assinatura */}
         <Card className="bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700 text-white">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
@@ -31,49 +31,49 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Métricas */}
+        {/* Métricas Unificadas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Posts Agendados</CardTitle>
+              <CardTitle className="text-sm font-medium">Posts Total</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-muted-foreground">+2 desde ontem</p>
+              <div className="text-2xl font-bold">168</div>
+              <p className="text-xs text-muted-foreground">12 agendados + 156 publicados</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Posts Publicados</CardTitle>
+              <CardTitle className="text-sm font-medium">Engajamento</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">156</div>
-              <p className="text-xs text-muted-foreground">+12% este mês</p>
+              <div className="text-2xl font-bold">4.2%</div>
+              <p className="text-xs text-muted-foreground">+0.5% este mês</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Estatísticas IG</CardTitle>
-              <Instagram className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Alcance Total</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">2.3K</div>
-              <p className="text-xs text-muted-foreground">seguidores ganhos</p>
+              <div className="text-2xl font-bold">43.2K</div>
+              <p className="text-xs text-muted-foreground">+18% esta semana</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Estatísticas TikTok</CardTitle>
-              <Play className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Novos Seguidores</CardTitle>
+              <UserPlus className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1.8K</div>
-              <p className="text-xs text-muted-foreground">visualizações</p>
+              <div className="text-2xl font-bold">+327</div>
+              <p className="text-xs text-muted-foreground">esta semana</p>
             </CardContent>
           </Card>
         </div>
@@ -113,7 +113,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Próximos Posts e Performance */}
+        {/* Próximos Posts e Estatísticas Detalhadas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Card de Próximos Posts */}
           <Card>
@@ -158,19 +158,19 @@ const Dashboard = () => {
               </div>
 
               <Button asChild variant="outline" className="w-full">
-                <Link to="/contas">
+                <Link to="/agendamento">
                   Ver todos os posts
                 </Link>
               </Button>
             </CardContent>
           </Card>
 
-          {/* Card de Performance */}
+          {/* Card de Estatísticas Detalhadas do Instagram */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <BarChart3 className="w-5 h-5 mr-2" />
-                Performance (Últimos 7 dias)
+                <Instagram className="w-5 h-5 mr-2 text-purple-500" />
+                Instagram - Últimos 7 dias
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -204,37 +204,106 @@ const Dashboard = () => {
 
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-2">
-                    <Users className="w-4 h-4 mr-1 text-purple-500" />
-                    <span className="text-sm font-medium">Seguidores</span>
+                    <Share2 className="w-4 h-4 mr-1 text-orange-500" />
+                    <span className="text-sm font-medium">Shares</span>
                   </div>
-                  <p className="text-2xl font-bold">+127</p>
-                  <p className="text-xs text-green-600">+8.3%</p>
+                  <p className="text-2xl font-bold">89</p>
+                  <p className="text-xs text-green-600">+12.3%</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span>Taxa de Engajamento</span>
-                  <span className="font-medium">4.2%</span>
+                  <span>Seguidores: +127</span>
+                  <span className="font-medium text-green-600">+8.3%</span>
                 </div>
-                <Progress value={42} className="h-2" />
+                <Progress value={83} className="h-2" />
                 
                 <div className="flex justify-between text-sm">
-                  <span>Alcance</span>
-                  <span className="font-medium">18.5K</span>
+                  <span>Alcance: 18.5K</span>
+                  <span className="font-medium text-blue-600">+15.2%</span>
                 </div>
                 <Progress value={74} className="h-2" />
               </div>
+            </CardContent>
+          </Card>
+        </div>
 
+        {/* Estatísticas do TikTok */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Play className="w-5 h-5 mr-2" />
+              TikTok - Últimos 7 dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Eye className="w-4 h-4 mr-1 text-blue-500" />
+                  <span className="text-sm font-medium">Views</span>
+                </div>
+                <p className="text-xl font-bold">89.3K</p>
+                <p className="text-xs text-green-600">+45.2%</p>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Heart className="w-4 h-4 mr-1 text-red-500" />
+                  <span className="text-sm font-medium">Likes</span>
+                </div>
+                <p className="text-xl font-bold">3.2K</p>
+                <p className="text-xs text-green-600">+28.7%</p>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <MessageCircle className="w-4 h-4 mr-1 text-green-500" />
+                  <span className="text-sm font-medium">Comentários</span>
+                </div>
+                <p className="text-xl font-bold">412</p>
+                <p className="text-xs text-green-600">+52.1%</p>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Share2 className="w-4 h-4 mr-1 text-orange-500" />
+                  <span className="text-sm font-medium">Shares</span>
+                </div>
+                <p className="text-xl font-bold">234</p>
+                <p className="text-xs text-green-600">+67.3%</p>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Users className="w-4 h-4 mr-1 text-purple-500" />
+                  <span className="text-sm font-medium">Seguidores</span>
+                </div>
+                <p className="text-xl font-bold">+89</p>
+                <p className="text-xs text-green-600">+12.8%</p>
+              </div>
+
+              <div className="text-center">
+                <div className="flex items-center justify-center mb-2">
+                  <Activity className="w-4 h-4 mr-1 text-indigo-500" />
+                  <span className="text-sm font-medium">Engajamento</span>
+                </div>
+                <p className="text-xl font-bold">5.7%</p>
+                <p className="text-xs text-green-600">+1.2%</p>
+              </div>
+            </div>
+
+            <div className="mt-6">
               <Button asChild variant="outline" className="w-full">
                 <Link to="/contas">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Ver relatório completo
                 </Link>
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );

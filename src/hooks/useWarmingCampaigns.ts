@@ -7,16 +7,17 @@ interface WarmingCampaign {
   id: string;
   name: string;
   description?: string;
-  warming_type: string;
+  warming_type: 'likes' | 'comments' | 'views' | 'followers' | 'shares';
   target_amount: number;
   current_amount: number;
   daily_limit?: number;
-  status: string;
+  status: 'active' | 'paused' | 'completed' | 'failed';
   start_date: string;
   end_date?: string;
   is_active: boolean;
   settings?: any;
   social_account_id: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +59,7 @@ export const useWarmingCampaigns = () => {
     social_account_id: string;
     name: string;
     description?: string;
-    warming_type: string;
+    warming_type: 'likes' | 'comments' | 'views' | 'followers' | 'shares';
     target_amount: number;
     daily_limit?: number;
     start_date: string;
@@ -81,8 +82,8 @@ export const useWarmingCampaigns = () => {
         .from('warming_campaigns')
         .insert([{
           user_id: user.id,
-          ...campaignData,
-          status: 'active'
+          status: 'active' as const,
+          ...campaignData
         }])
         .select()
         .single();
@@ -91,7 +92,7 @@ export const useWarmingCampaigns = () => {
         console.error('Error creating campaign:', error);
         toast({
           title: "Erro ao criar campanha",
-          description: "Não foi possível criar a campanha de aquecimento.",
+          description: "Não foi possível criar a campanha. Tente novamente.",
           variant: "destructive"
         });
         return null;
@@ -102,7 +103,7 @@ export const useWarmingCampaigns = () => {
         description: "Sua campanha de aquecimento foi criada com sucesso.",
       });
 
-      await fetchCampaigns(); // Refresh the list
+      await fetchCampaigns();
       return data;
     } catch (error) {
       console.error('Error in createCampaign:', error);
@@ -110,7 +111,7 @@ export const useWarmingCampaigns = () => {
     }
   };
 
-  const updateCampaign = async (campaignId: string, updates: Partial<WarmingCampaign>) => {
+  const updateCampaign = async (campaignId: string, updates: Partial<Omit<WarmingCampaign, 'id' | 'created_at' | 'updated_at'>>) => {
     try {
       const { error } = await supabase
         .from('warming_campaigns')
@@ -132,18 +133,10 @@ export const useWarmingCampaigns = () => {
         description: "A campanha foi atualizada com sucesso.",
       });
 
-      await fetchCampaigns(); // Refresh the list
+      await fetchCampaigns();
     } catch (error) {
       console.error('Error in updateCampaign:', error);
     }
-  };
-
-  const pauseCampaign = async (campaignId: string) => {
-    await updateCampaign(campaignId, { status: 'paused' });
-  };
-
-  const resumeCampaign = async (campaignId: string) => {
-    await updateCampaign(campaignId, { status: 'active' });
   };
 
   const deleteCampaign = async (campaignId: string) => {
@@ -168,7 +161,7 @@ export const useWarmingCampaigns = () => {
         description: "A campanha foi excluída com sucesso.",
       });
 
-      await fetchCampaigns(); // Refresh the list
+      await fetchCampaigns();
     } catch (error) {
       console.error('Error in deleteCampaign:', error);
     }
@@ -183,8 +176,6 @@ export const useWarmingCampaigns = () => {
     loading,
     createCampaign,
     updateCampaign,
-    pauseCampaign,
-    resumeCampaign,
     deleteCampaign,
     refetch: fetchCampaigns
   };

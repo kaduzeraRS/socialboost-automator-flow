@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -6,7 +5,7 @@ const PricingSection = () => {
   const plans = [
     {
       name: "Quinzenal",
-      price: "R$ 29",
+      price: "R$ 29,90",
       period: "15 dias",
       features: [
         "2 contas Instagram/TikTok",
@@ -18,7 +17,7 @@ const PricingSection = () => {
     },
     {
       name: "Mensal",
-      price: "R$ 49",
+      price: "R$ 49,90",
       period: "mês",
       features: [
         "5 contas Instagram/TikTok",
@@ -31,9 +30,9 @@ const PricingSection = () => {
     },
     {
       name: "Trimestral",
-      price: "R$ 147",
-      period: "mês",
-      originalPrice: "R$ 199",
+      price: "R$ 149,90",
+      period: "3 meses",
+      originalPrice: "R$ 49,90/mês",
       features: [
         "10 contas Instagram/TikTok",
         "2.000 posts agendados",
@@ -63,7 +62,6 @@ const PricingSection = () => {
 
   const handleChoosePlan = (planName: string) => {
     console.log('Escolher plano:', planName);
-    // Aqui você pode implementar a navegação para checkout ou abrir modal de pagamento
     alert(`Redirecionando para checkout do plano ${planName}`);
   };
 
@@ -105,8 +103,8 @@ const PricingSection = () => {
                     <span className="text-muted-foreground ml-1">/{plan.period}</span>
                   </div>
                   {plan.originalPrice && (
-                    <div className="text-sm text-muted-foreground line-through mt-1">
-                      {plan.originalPrice}/{plan.period}
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {plan.originalPrice}
                     </div>
                   )}
                 </div>

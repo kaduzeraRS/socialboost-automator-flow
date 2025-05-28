@@ -10,7 +10,7 @@ interface ScheduledPost {
   media_urls?: string[];
   hashtags?: string[];
   scheduled_for: string;
-  status: string;
+  status: 'draft' | 'scheduled' | 'published' | 'failed' | 'cancelled';
   platform: string;
   social_account_id: string;
   created_at: string;
@@ -76,7 +76,7 @@ export const useScheduledPosts = () => {
         .insert([{
           user_id: user.id,
           ...postData,
-          status: 'draft'
+          status: 'draft' as const
         }])
         .select()
         .single();
@@ -96,7 +96,7 @@ export const useScheduledPosts = () => {
         description: "Seu post foi agendado com sucesso.",
       });
 
-      await fetchPosts(); // Refresh the list
+      await fetchPosts();
       return data;
     } catch (error) {
       console.error('Error in createPost:', error);
@@ -104,7 +104,7 @@ export const useScheduledPosts = () => {
     }
   };
 
-  const updatePost = async (postId: string, updates: Partial<ScheduledPost>) => {
+  const updatePost = async (postId: string, updates: Partial<Omit<ScheduledPost, 'id' | 'created_at' | 'updated_at'>>) => {
     try {
       const { error } = await supabase
         .from('scheduled_posts')
@@ -126,7 +126,7 @@ export const useScheduledPosts = () => {
         description: "O post foi atualizado com sucesso.",
       });
 
-      await fetchPosts(); // Refresh the list
+      await fetchPosts();
     } catch (error) {
       console.error('Error in updatePost:', error);
     }
@@ -154,7 +154,7 @@ export const useScheduledPosts = () => {
         description: "O post foi excluído com sucesso.",
       });
 
-      await fetchPosts(); // Refresh the list
+      await fetchPosts();
     } catch (error) {
       console.error('Error in deletePost:', error);
     }
