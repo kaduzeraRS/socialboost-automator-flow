@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { OAuthLoginService } from '@/services/OAuthLoginService';
+import { SocialAuthService } from '@/services/SocialAuthService';
 
 interface ConnectAccountDialogProps {
   children: React.ReactNode;
@@ -44,18 +44,15 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     setAuthStatus('Preparando conexão...');
     
     try {
-      const oauthService = new OAuthLoginService();
+      const authService = new SocialAuthService();
       
       toast({
         title: "Conectando com " + platform.name,
-        description: `Uma nova janela será aberta. Faça login para conectar sua conta.`,
+        description: `Uma janela será aberta. Faça login para conectar sua conta.`,
       });
 
-      const result = await oauthService.authenticateWithPlatform({
+      const result = await authService.authenticateWithPlatform({
         platform: platform.name.toLowerCase(),
-        clientId: '', // Não precisamos mais de client_id real
-        scope: '',
-        authUrl: '',
         onStatusChange: setAuthStatus
       });
 
@@ -101,21 +98,10 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     } catch (error: any) {
       console.error('Erro na conexão:', error);
       
-      let errorMessage = "Ocorreu um erro ao conectar a conta.";
-      let errorTitle = "Erro na conexão";
-      
-      if (error.message === 'Login cancelado pelo usuário') {
-        errorTitle = "Login cancelado";
-        errorMessage = "Você cancelou o login. Tente novamente quando quiser conectar a conta.";
-      } else if (error.message === 'Popup bloqueado pelo navegador') {
-        errorTitle = "Popup bloqueado";
-        errorMessage = "Por favor, permita popups para este site e tente novamente.";
-      }
-      
       toast({
-        title: errorTitle,
-        description: errorMessage,
-        variant: error.message === 'Login cancelado pelo usuário' ? "default" : "destructive"
+        title: "Erro na conexão",
+        description: error.message || "Ocorreu um erro ao conectar a conta.",
+        variant: "destructive"
       });
     } finally {
       setConnectingPlatform(null);

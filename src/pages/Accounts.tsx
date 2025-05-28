@@ -1,3 +1,4 @@
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,13 +10,12 @@ import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useScheduledPosts } from '@/hooks/useScheduledPosts';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useState } from 'react';
+import ConnectAccountDialog from '@/components/ConnectAccountDialog';
 
 const Accounts = () => {
   const { accounts, loading, disconnectAccount } = useSocialAccounts();
   const { posts } = useScheduledPosts();
   const { t } = useLanguage();
-
-  const [connecting, setConnecting] = useState<'instagram' | 'tiktok' | null>(null);
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -40,24 +40,37 @@ const Accounts = () => {
     return { scheduledPosts, publishedPosts };
   };
 
-  const handleConnect = async (platform: 'instagram' | 'tiktok') => {
-    try {
-      setConnecting(platform);
-      const response = await fetch(`/api/automation/connect?platform=${platform}`, {
-        method: 'POST',
-      });
-      if (response.ok) {
-        // Automação terminou, recarregar página
-        window.location.reload();
-      } else {
-        alert('Erro ao conectar a conta');
+  // Função para obter contas incluindo as locais
+  const getAllAccounts = () => {
+    const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
+    const bankAccounts = accounts.filter(acc => acc.is_active);
+    
+    const allAccounts = [...bankAccounts];
+    localAccounts.forEach(localAcc => {
+      const existsInBank = bankAccounts.some(bankAcc => 
+        bankAcc.platform === localAcc.platform && bankAcc.username === localAcc.username
+      );
+      if (!existsInBank) {
+        allAccounts.push(localAcc);
       }
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao conectar a conta');
-    } finally {
-      setConnecting(null);
+    });
+    
+    return allAccounts;
+  };
+
+  const handleDisconnect = async (accountId: string, platform: string) => {
+    // Remover do localStorage
+    const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
+    const filteredAccounts = localAccounts.filter(acc => acc.id !== accountId);
+    localStorage.setItem('connectedAccounts', JSON.stringify(filteredAccounts));
+    
+    // Se não for conta local, remover do banco também
+    if (!accountId.startsWith('local_')) {
+      await disconnectAccount(accountId, platform);
     }
+    
+    // Recarregar a página para atualizar a lista
+    window.location.reload();
   };
 
   if (loading) {
@@ -70,6 +83,8 @@ const Accounts = () => {
     );
   }
 
+  const allAccounts = getAllAccounts();
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -78,24 +93,12 @@ const Accounts = () => {
             <h1 className="text-3xl font-bold text-foreground">{t('connected_accounts')}</h1>
             <p className="text-muted-foreground">{t('manage_accounts')}</p>
           </div>
-          <div className="flex space-x-2">
-            <Button
-              className="bg-purple-primary hover:bg-purple-hover"
-              onClick={() => handleConnect('instagram')}
-              disabled={!!connecting}
-            >
+          <ConnectAccountDialog>
+            <Button className="bg-purple-primary hover:bg-purple-hover">
               <Plus className="w-4 h-4 mr-2" />
-              {connecting === 'instagram' ? 'Conectando...' : 'Conectar Instagram'}
+              Conectar Conta
             </Button>
-            <Button
-              className="bg-purple-primary hover:bg-purple-hover"
-              onClick={() => handleConnect('tiktok')}
-              disabled={!!connecting}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {connecting === 'tiktok' ? 'Conectando...' : 'Conectar TikTok'}
-            </Button>
-          </div>
+          </ConnectAccountDialog>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
@@ -105,19 +108,25 @@ const Accounts = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {accounts.length === 0 ? (
+            {allAccounts.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <Users className="w-12 h-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">{t('add_new_account')}</h3>
                   <p className="text-muted-foreground text-center mb-4">
-                    Nenhuma conta conectada ainda. Use os botões acima para conectar.
+                    Nenhuma conta conectada ainda. Use o botão acima para conectar.
                   </p>
+                  <ConnectAccountDialog>
+                    <Button className="bg-purple-primary hover:bg-purple-hover">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Conectar Primeira Conta
+                    </Button>
+                  </ConnectAccountDialog>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {accounts.map((account) => {
+                {allAccounts.map((account) => {
                   const Icon = getPlatformIcon(account.platform);
                   const stats = getAccountStats(account.id);
                   
@@ -137,8 +146,8 @@ const Accounts = () => {
                               <p className="text-sm text-muted-foreground">{account.username}</p>
                             </div>
                           </div>
-                          <Badge variant={account.is_active ? "default" : "secondary"}>
-                            {account.is_active ? t('connected') : "Inativo"}
+                          <Badge variant={account.is_active !== false ? "default" : "secondary"}>
+                            {account.is_active !== false ? t('connected') : "Inativo"}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -177,7 +186,7 @@ const Accounts = () => {
                           <Button 
                             size="sm" 
                             variant="destructive"
-                            onClick={() => disconnectAccount(account.id, account.platform)}
+                            onClick={() => handleDisconnect(account.id, account.platform)}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -192,7 +201,7 @@ const Accounts = () => {
 
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {accounts.map((account) => {
+              {allAccounts.map((account) => {
                 const stats = getAccountStats(account.id);
                 const Icon = getPlatformIcon(account.platform);
                 
