@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Instagram, Play, Plus, Check, X } from 'lucide-react';
+import { Instagram, Play, Plus, Check, X, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ConnectAccountDialogProps {
   children: React.ReactNode;
@@ -18,24 +19,26 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const { toast } = useToast();
   const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const platforms = [
     {
       name: 'Instagram',
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
-      description: 'Conecte sua conta do Instagram para agendar posts e analisar métricas',
+      description: t('connect_instagram_desc'),
+      loginUrl: 'https://api.instagram.com/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=user_profile,user_media&response_type=code'
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
-      description: 'Conecte sua conta do TikTok para gerenciar conteúdo e acompanhar performance',
+      description: t('connect_tiktok_desc'),
+      loginUrl: 'https://www.tiktok.com/auth/authorize/?client_key=YOUR_CLIENT_KEY&scope=user.info.basic,video.list&response_type=code&redirect_uri=YOUR_REDIRECT_URI'
     }
   ];
 
   const generateSimilarStats = () => {
-    // Gera estatísticas similares para Instagram e TikTok
     const baseFollowers = Math.floor(Math.random() * 50000) + 10000;
     const baseFollowing = Math.floor(Math.random() * 2000) + 500;
     const basePosts = Math.floor(Math.random() * 300) + 100;
@@ -47,63 +50,91 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     };
   };
 
-  const handleConnect = async (platform: { name: string }) => {
+  const handleConnect = async (platform: { name: string; loginUrl: string }) => {
     console.log('Attempting to connect account for platform:', platform.name);
     console.log('Current user:', user);
     
     if (!user) {
       console.error('No user found when trying to connect account');
       toast({
-        title: "Erro de autenticação",
-        description: "Você precisa estar logado para conectar uma conta.",
+        title: t('auth_error'),
+        description: t('login_required'),
         variant: "destructive"
       });
       return;
     }
 
     try {
-      console.log('User is authenticated, proceeding with connection...');
+      console.log('User is authenticated, opening OAuth flow...');
       
-      toast({
-        title: "Conectando conta",
-        description: `Simulando conexão com ${platform.name}...`,
-      });
-
-      // Gerar estatísticas similares para ambas as plataformas
-      const stats = generateSimilarStats();
+      // Abrir janela de OAuth
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
       
-      const accountData = {
-        platform: platform.name.toLowerCase(),
-        username: `@usuario_${platform.name.toLowerCase()}_${Math.floor(Math.random() * 1000)}`,
-        account_id: `mock_${Date.now()}`,
-        ...stats,
-        profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}${Date.now()}`
-      };
+      const authWindow = window.open(
+        platform.loginUrl,
+        'oauth',
+        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+      );
 
-      console.log('Connecting account with data:', accountData);
-
-      const result = await connectAccount(accountData);
-      
-      if (result) {
-        console.log('Account connected successfully:', result);
-        setIsOpen(false);
+      if (!authWindow) {
         toast({
-          title: "Conta conectada!",
-          description: `Sua conta ${platform.name} foi conectada com sucesso.`,
-        });
-      } else {
-        console.error('Failed to connect account - no result returned');
-        toast({
-          title: "Erro na conexão",
-          description: "Não foi possível conectar a conta. Tente novamente.",
+          title: t('popup_blocked'),
+          description: t('enable_popups'),
           variant: "destructive"
         });
+        return;
       }
+
+      // Simular sucesso após 3 segundos (para demonstração)
+      setTimeout(async () => {
+        authWindow.close();
+        
+        toast({
+          title: t('connecting_account'),
+          description: `${t('simulating_connection')} ${platform.name}...`,
+        });
+
+        const stats = generateSimilarStats();
+        
+        const accountData = {
+          platform: platform.name.toLowerCase(),
+          username: `@usuario_${platform.name.toLowerCase()}_${Math.floor(Math.random() * 1000)}`,
+          account_id: `auth_${Date.now()}`,
+          access_token: `token_${Date.now()}`,
+          refresh_token: `refresh_${Date.now()}`,
+          ...stats,
+          profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}${Date.now()}`
+        };
+
+        console.log('Connecting account with OAuth data:', accountData);
+
+        const result = await connectAccount(accountData);
+        
+        if (result) {
+          console.log('Account connected successfully:', result);
+          setIsOpen(false);
+          toast({
+            title: t('account_connected'),
+            description: `${t('your_account')} ${platform.name} ${t('connected_successfully')}.`,
+          });
+        } else {
+          console.error('Failed to connect account - no result returned');
+          toast({
+            title: t('connection_error'),
+            description: t('connection_failed'),
+            variant: "destructive"
+          });
+        }
+      }, 3000);
+
     } catch (error) {
       console.error('Error connecting account:', error);
       toast({
-        title: "Erro na conexão",
-        description: "Não foi possível conectar a conta. Tente novamente.",
+        title: t('connection_error'),
+        description: t('connection_failed'),
         variant: "destructive"
       });
     }
@@ -128,7 +159,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         </DialogTrigger>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Carregando...</DialogTitle>
+            <DialogTitle>{t('loading')}...</DialogTitle>
           </DialogHeader>
           <div className="flex justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-primary"></div>
@@ -147,13 +178,13 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       </DialogTrigger>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Gerenciar Contas</DialogTitle>
+          <DialogTitle>{t('manage_accounts')}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
           {connectedAccounts.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-4">Contas Conectadas</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('connected_accounts')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {connectedAccounts.map((account) => (
                   <Card key={account.id} className="border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
@@ -167,7 +198,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <div>
                             <p className="font-medium capitalize">{account.platform}</p>
                             <p className="text-sm text-muted-foreground">{account.username}</p>
-                            <p className="text-xs text-muted-foreground">{account.followers_count?.toLocaleString()} seguidores</p>
+                            <p className="text-xs text-muted-foreground">{account.followers_count?.toLocaleString()} {t('followers')}</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -190,7 +221,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
           )}
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Conectar Nova Conta</h3>
+            <h3 className="text-lg font-semibold mb-4">{t('connect_new_account')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {platforms.map((platform) => {
                 const Icon = platform.icon;
@@ -214,15 +245,15 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                             disabled
                           >
                             <Check className="w-4 h-4 mr-2" />
-                            Conectado
+                            {t('connected')}
                           </Button>
                         ) : (
                           <Button 
                             onClick={() => handleConnect(platform)}
                             className="w-full bg-purple-primary hover:bg-purple-hover text-white"
                           >
-                            <Plus className="w-4 h-4 mr-2" />
-                            Conectar {platform.name}
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            {t('connect')} {platform.name}
                           </Button>
                         )}
                       </div>

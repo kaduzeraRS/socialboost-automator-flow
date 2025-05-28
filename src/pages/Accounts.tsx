@@ -8,11 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Instagram, Play, Plus, Settings, Trash2, Users, BarChart3 } from 'lucide-react';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useScheduledPosts } from '@/hooks/useScheduledPosts';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ConnectAccountDialog from '@/components/ConnectAccountDialog';
 
 const Accounts = () => {
   const { accounts, loading, disconnectAccount } = useSocialAccounts();
   const { posts } = useScheduledPosts();
+  const { t } = useLanguage();
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -52,20 +54,20 @@ const Accounts = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Contas Conectadas</h1>
-            <p className="text-muted-foreground">Gerencie suas contas de redes sociais</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('connected_accounts')}</h1>
+            <p className="text-muted-foreground">{t('manage_accounts')}</p>
           </div>
           <ConnectAccountDialog>
             <Button className="bg-purple-primary hover:bg-purple-hover">
               <Plus className="w-4 h-4 mr-2" />
-              Conectar Conta
+              {t('add_account')}
             </Button>
           </ConnectAccountDialog>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="overview">{t('dashboard')}</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -74,14 +76,14 @@ const Accounts = () => {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <Users className="w-12 h-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Nenhuma conta conectada</h3>
+                  <h3 className="text-lg font-semibold mb-2">{t('add_new_account')}</h3>
                   <p className="text-muted-foreground text-center mb-4">
-                    Conecte suas contas de redes sociais para começar a gerenciar seu conteúdo
+                    {t('connect_instagram_desc')}
                   </p>
                   <ConnectAccountDialog>
                     <Button className="bg-purple-primary hover:bg-purple-hover">
                       <Plus className="w-4 h-4 mr-2" />
-                      Conectar primeira conta
+                      {t('add_new_account')}
                     </Button>
                   </ConnectAccountDialog>
                 </CardContent>
@@ -109,7 +111,7 @@ const Accounts = () => {
                             </div>
                           </div>
                           <Badge variant={account.is_active ? "default" : "secondary"}>
-                            {account.is_active ? "Ativo" : "Inativo"}
+                            {account.is_active ? t('connected') : "Inativo"}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -117,7 +119,7 @@ const Accounts = () => {
                         <div className="grid grid-cols-3 gap-2 text-sm">
                           <div className="text-center">
                             <p className="font-medium">{account.followers_count || 0}</p>
-                            <p className="text-muted-foreground text-xs">Seguidores</p>
+                            <p className="text-muted-foreground text-xs">{t('followers')}</p>
                           </div>
                           <div className="text-center">
                             <p className="font-medium">{account.following_count || 0}</p>
@@ -180,7 +182,7 @@ const Accounts = () => {
                         <div className="text-center p-4 border rounded">
                           <BarChart3 className="w-8 h-8 mx-auto mb-2 text-blue-500" />
                           <p className="text-2xl font-bold">{account.followers_count || 0}</p>
-                          <p className="text-sm text-muted-foreground">Seguidores</p>
+                          <p className="text-sm text-muted-foreground">{t('followers')}</p>
                         </div>
                         <div className="text-center p-4 border rounded">
                           <BarChart3 className="w-8 h-8 mx-auto mb-2 text-green-500" />
@@ -191,7 +193,7 @@ const Accounts = () => {
                       
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span>Taxa de Engajamento</span>
+                          <span>{t('engagement_rate')}</span>
                           <span className="font-medium">4.2%</span>
                         </div>
                         <div className="flex justify-between text-sm">

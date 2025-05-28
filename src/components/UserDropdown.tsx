@@ -25,21 +25,24 @@ const UserDropdown = () => {
   };
 
   const handleSettings = () => {
-    console.log('Redirecionando para configurações de notificações');
-    window.location.href = '/configuracoes';
+    console.log('Redirecionando para aba de notificações');
+    window.location.href = '/configuracoes?tab=notifications';
   };
 
   const handleHelp = () => {
+    console.log('Abrindo comunidade do Discord');
     window.open('https://discord.gg/FmFKuDnJQu', '_blank');
   };
 
   const handleLogout = async () => {
     try {
+      console.log('Iniciando logout...');
       await signOut();
       toast({
         title: "Logout realizado",
         description: "Você foi desconectado com sucesso.",
       });
+      console.log('Logout realizado, redirecionando para home...');
       window.location.href = '/';
     } catch (error) {
       console.error('Error during logout:', error);

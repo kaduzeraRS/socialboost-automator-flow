@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 type Language = 'pt-BR' | 'en';
@@ -26,6 +25,10 @@ const translations = {
     'your_plan': 'Seu Plano',
     'upgrade': 'Fazer Upgrade',
     'manage_subscription': 'Gerenciar Assinatura',
+    'loading': 'Carregando',
+    'followers': 'seguidores',
+    'connected': 'Conectado',
+    'connect': 'Conectar',
     
     // User Dropdown
     'my_account': 'Minha Conta',
@@ -111,11 +114,28 @@ const translations = {
     'add_new_account': 'Adicionar Nova Conta',
     'account_status': 'Status da Conta',
     'last_activity': 'Última Atividade',
+    'manage_accounts': 'Gerenciar Contas',
+    'connect_new_account': 'Conectar Nova Conta',
+    'connect_instagram_desc': 'Conecte sua conta do Instagram para agendar posts e analisar métricas',
+    'connect_tiktok_desc': 'Conecte sua conta do TikTok para gerenciar conteúdo e acompanhar performance',
     
     // Admin
     'user_management': 'Gerenciamento de Usuários',
     'system_stats': 'Estatísticas do Sistema',
-    'platform_analytics': 'Analytics da Plataforma'
+    'platform_analytics': 'Analytics da Plataforma',
+    
+    // Auth & Errors
+    'auth_error': 'Erro de autenticação',
+    'login_required': 'Você precisa estar logado para conectar uma conta',
+    'popup_blocked': 'Pop-up bloqueado',
+    'enable_popups': 'Permita pop-ups para este site para continuar',
+    'connecting_account': 'Conectando conta',
+    'simulating_connection': 'Simulando conexão com',
+    'account_connected': 'Conta conectada!',
+    'your_account': 'Sua conta',
+    'connected_successfully': 'foi conectada com sucesso',
+    'connection_error': 'Erro na conexão',
+    'connection_failed': 'Não foi possível conectar a conta. Tente novamente.'
   },
   'en': {
     // Common
@@ -133,6 +153,10 @@ const translations = {
     'your_plan': 'Your Plan',
     'upgrade': 'Upgrade',
     'manage_subscription': 'Manage Subscription',
+    'loading': 'Loading',
+    'followers': 'followers',
+    'connected': 'Connected',
+    'connect': 'Connect',
     
     // User Dropdown
     'my_account': 'My Account',
@@ -218,11 +242,28 @@ const translations = {
     'add_new_account': 'Add New Account',
     'account_status': 'Account Status',
     'last_activity': 'Last Activity',
+    'manage_accounts': 'Manage Accounts',
+    'connect_new_account': 'Connect New Account',
+    'connect_instagram_desc': 'Connect your Instagram account to schedule posts and analyze metrics',
+    'connect_tiktok_desc': 'Connect your TikTok account to manage content and track performance',
     
     // Admin
     'user_management': 'User Management',
     'system_stats': 'System Stats',
-    'platform_analytics': 'Platform Analytics'
+    'platform_analytics': 'Platform Analytics',
+    
+    // Auth & Errors
+    'auth_error': 'Authentication Error',
+    'login_required': 'You need to be logged in to connect an account',
+    'popup_blocked': 'Popup blocked',
+    'enable_popups': 'Please enable popups for this site to continue',
+    'connecting_account': 'Connecting account',
+    'simulating_connection': 'Simulating connection with',
+    'account_connected': 'Account connected!',
+    'your_account': 'Your account',
+    'connected_successfully': 'was connected successfully',
+    'connection_error': 'Connection error',
+    'connection_failed': 'Could not connect the account. Please try again.'
   }
 };
 
