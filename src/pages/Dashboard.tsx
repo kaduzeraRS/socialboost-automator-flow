@@ -127,18 +127,35 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span>Seguidores: +127</span>
-                  <span className="font-medium text-green-600">+8.3%</span>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 transition-all duration-200 hover:scale-105">
+                  <div className="flex items-center justify-center mb-2">
+                    <Users className="w-4 h-4 mr-1 text-purple-600" />
+                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Seguidores</span>
+                  </div>
+                  <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">+127</p>
+                  <p className="text-xs text-green-600">+8.3%</p>
                 </div>
-                <Progress value={83} className="h-2 transition-all duration-300" />
-                
-                <div className="flex justify-between text-sm">
-                  <span>Alcance: 18.5K</span>
-                  <span className="font-medium text-blue-600">+15.2%</span>
+
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 transition-all duration-200 hover:scale-105">
+                  <div className="flex items-center justify-center mb-2">
+                    <TrendingUp className="w-4 h-4 mr-1 text-indigo-600" />
+                    <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Alcance</span>
+                  </div>
+                  <p className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">18.5K</p>
+                  <p className="text-xs text-blue-600">+15.2%</p>
                 </div>
-                <Progress value={74} className="h-2 transition-all duration-300" />
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-center p-2 rounded-lg bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20">
+                  <div className="flex items-center justify-center mb-1">
+                    <Zap className="w-4 h-4 mr-1 text-yellow-600" />
+                    <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Automações Realizadas</span>
+                  </div>
+                  <p className="text-lg font-bold text-yellow-800 dark:text-yellow-200">1.247</p>
+                  <p className="text-xs text-green-600">Este mês</p>
+                </div>
               </div>
 
               <Button asChild variant="outline" className="w-full transition-all duration-200 hover:scale-105">
@@ -221,6 +238,17 @@ const Dashboard = () => {
                   </div>
                   <p className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">5.7%</p>
                   <p className="text-xs text-green-600">+1.2%</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-center p-2 rounded-lg bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20">
+                  <div className="flex items-center justify-center mb-1">
+                    <Zap className="w-4 h-4 mr-1 text-yellow-600" />
+                    <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Automações Realizadas</span>
+                  </div>
+                  <p className="text-lg font-bold text-yellow-800 dark:text-yellow-200">892</p>
+                  <p className="text-xs text-green-600">Este mês</p>
                 </div>
               </div>
 

@@ -17,7 +17,8 @@ const PricingSection = () => {
         "100 posts agendados",
         "5.000 interações/15 dias",
         "Suporte básico",
-        "Relatórios básicos"
+        "Relatórios básicos",
+        "Analytics básicos"
       ],
       popular: false,
       isCurrent: currentPlan === "Quinzenal"
@@ -32,7 +33,9 @@ const PricingSection = () => {
         "10.000 interações/mês",
         "Analytics avançados",
         "Suporte prioritário",
-        "Relatórios detalhados"
+        "Relatórios detalhados",
+        "Métricas de engajamento",
+        "Análise de crescimento"
       ],
       popular: false,
       isCurrent: currentPlan === "Mensal"
@@ -50,7 +53,9 @@ const PricingSection = () => {
         "Suporte VIP",
         "API access",
         "Relatórios premium",
-        "Insights personalizados"
+        "Insights personalizados",
+        "Automações avançadas",
+        "Métricas comparativas"
       ],
       popular: false,
       isCurrent: currentPlan === "Trimestral"
@@ -68,7 +73,9 @@ const PricingSection = () => {
         "Gerente dedicado",
         "White label",
         "Relatórios executivos",
-        "Consultoria estratégica"
+        "Consultoria estratégica",
+        "Dashboard personalizado",
+        "Integração customizada"
       ],
       popular: false,
       isCurrent: currentPlan === "Anual"
@@ -92,7 +99,7 @@ const PricingSection = () => {
           </p>
           {user && (
             <div className="mt-4">
-              <span className="inline-block bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 px-4 py-2 rounded-full text-sm font-medium">
+              <span className="inline-block bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-200 px-4 py-2 rounded-full text-sm font-medium">
                 Seu Plano Atual: {currentPlan}
               </span>
             </div>
@@ -104,8 +111,7 @@ const PricingSection = () => {
             <Card 
               key={index}
               className={`relative transition-all duration-300 hover:shadow-lg dark:bg-card bg-white ${
-                plan.isCurrent ? 'border-2 border-green-500 scale-105 shadow-lg' : 
-                plan.popular ? 'border-2 border-purple-primary scale-105 shadow-lg' : 'border-border'
+                plan.isCurrent ? 'border-2 border-green-500 scale-105 shadow-lg' : 'border-border'
               }`}
             >
               {plan.isCurrent && (
@@ -116,21 +122,11 @@ const PricingSection = () => {
                 </div>
               )}
               
-              {plan.popular && !plan.isCurrent && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-purple-primary text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Mais Popular
-                  </span>
-                </div>
-              )}
-              
               <CardHeader className="text-center">
                 <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
-                    <span className={`font-bold text-foreground ${
-                      plan.name === 'Trimestral' ? 'text-xl' : 'text-3xl'
-                    }`}>
+                    <span className="font-bold text-foreground text-2xl">
                       {plan.price}
                     </span>
                     <span className="text-muted-foreground ml-1 text-sm">/{plan.period}</span>
@@ -159,14 +155,12 @@ const PricingSection = () => {
                   className={`w-full ${
                     plan.isCurrent 
                       ? 'bg-green-500 hover:bg-green-600 text-white' 
-                      : plan.popular 
-                        ? 'bg-purple-primary hover:bg-purple-hover text-white' 
-                        : 'bg-foreground hover:bg-foreground/90 text-background'
+                      : 'bg-purple-primary hover:bg-purple-hover text-white'
                   }`}
                   onClick={() => handleChoosePlan(plan.name)}
                   disabled={plan.isCurrent}
                 >
-                  {plan.isCurrent ? 'Plano Ativo' : plan.popular ? 'Começar Agora' : 'Escolher Plano'}
+                  {plan.isCurrent ? 'Plano Ativo' : 'Escolher Plano'}
                 </Button>
               </CardContent>
             </Card>
