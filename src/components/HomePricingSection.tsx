@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSubscriptionPlans } from '@/hooks/useSubscriptionPlans';
 import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 const HomePricingSection = () => {
   const { data: plans = [], isLoading } = useSubscriptionPlans();
@@ -11,22 +12,23 @@ const HomePricingSection = () => {
   const handleChoosePlan = (planName: string) => {
     console.log('Escolher plano:', planName);
     if (!user) {
-      window.location.href = '/auth';
+      window.location.href = '/auth?mode=register';
       return;
     }
-    alert(`Redirecionando para checkout do plano ${planName}`);
+    // Redirecionar para página de checkout/planos
+    window.location.href = '/planos';
   };
 
   if (isLoading) {
     return (
-      <section className="py-20 px-4 bg-background">
+      <section id="planos" className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Planos Disponíveis
+              Escolha Seu Plano
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Escolha o plano ideal para o seu negócio. Comece grátis e escale conforme cresce.
+              Comece grátis e escale seu negócio com nossos planos flexíveis
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
@@ -52,14 +54,14 @@ const HomePricingSection = () => {
   }
 
   return (
-    <section className="py-20 px-4 bg-background">
+    <section id="planos" className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Planos Disponíveis
+            Escolha Seu Plano
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Escolha o plano ideal para o seu negócio. Comece grátis e escale conforme cresce.
+            Comece grátis e escale seu negócio com nossos planos flexíveis
           </p>
         </div>
 
@@ -188,7 +190,7 @@ const HomePricingSection = () => {
                   }`}
                   onClick={() => handleChoosePlan(plan.name)}
                 >
-                  {plan.is_popular ? 'Começar Agora' : 'Escolher Plano'}
+                  {user ? 'Ver Plano' : 'Começar Agora'}
                 </Button>
               </CardContent>
             </Card>

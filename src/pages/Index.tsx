@@ -1,20 +1,21 @@
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import HeroSection from '@/components/HeroSection';
+import FeaturesSection from '@/components/FeaturesSection';
 import HomePricingSection from '@/components/HomePricingSection';
 
 const Index = () => {
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main>
-          <HomePricingSection />
-        </main>
-        <Footer />
-      </div>
-    </ProtectedRoute>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main>
+        <HeroSection />
+        <FeaturesSection />
+        <HomePricingSection />
+      </main>
+      <Footer />
+    </div>
   );
 };
 
