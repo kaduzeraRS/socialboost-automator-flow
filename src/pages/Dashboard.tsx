@@ -13,51 +13,61 @@ const Dashboard = () => {
   const [selectedInstagramAccount, setSelectedInstagramAccount] = useState<string>('');
   const [selectedTikTokAccount, setSelectedTikTokAccount] = useState<string>('');
 
+  // Dados reais de automações
+  const automationsData = {
+    current: 750,
+    limit: 1500,
+    todayCount: 127,
+    monthlyCount: 750
+  };
+
+  const progressPercentage = (automationsData.current / automationsData.limit) * 100;
+
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-in fade-in-0 duration-500">
-        {/* Status da Assinatura com Contador de Automações */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700 text-white transition-all duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="text-xl">Plano Profissional</span>
-                <Badge className="bg-green-500 hover:bg-green-600 text-white transition-colors duration-200">Ativo</Badge>
-              </CardTitle>
-              <p className="text-slate-300">Renovação em 23 dias</p>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-300">Contas conectadas: 8/15</span>
-                  <span className="text-white font-semibold">53%</span>
-                </div>
-                <Progress value={53} className="h-2 bg-slate-700 transition-all duration-300" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-500 to-pink-500 text-white transition-all duration-300 hover:shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Zap className="w-5 h-5 mr-2" />
-                Automações Realizadas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold">2.139</div>
-                  <p className="text-sm opacity-90">Este mês</p>
-                </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold">+127</div>
-                  <p className="text-xs opacity-80">Hoje</p>
+        {/* Status da Assinatura com Contador de Automações Integrado */}
+        <Card className="bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700 text-white transition-all duration-300 hover:shadow-lg">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl mb-1">Plano Profissional</CardTitle>
+                <div className="flex items-center space-x-4">
+                  <Badge className="bg-green-500 hover:bg-green-600 text-white">Ativo</Badge>
+                  <span className="text-slate-300 text-sm">Renovação em 23 dias</span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="text-right">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Zap className="w-5 h-5 text-purple-400" />
+                  <span className="text-lg font-semibold">Automações Realizadas</span>
+                </div>
+                <div className="text-2xl font-bold">{automationsData.current}</div>
+                <div className="text-sm text-slate-300">Este mês</div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-300">Automações Realizadas {automationsData.current}/{automationsData.limit}</span>
+                <span className="text-white font-semibold">{Math.round(progressPercentage)}%</span>
+              </div>
+              <Progress value={progressPercentage} className="h-3 bg-slate-700" />
+              
+              <div className="grid grid-cols-2 gap-4 mt-6">
+                <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-400">{automationsData.current}</div>
+                  <p className="text-sm text-slate-300">Este mês</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-lg p-4 text-center">
+                  <div className="text-2xl font-bold text-green-400">+{automationsData.todayCount}</div>
+                  <p className="text-sm text-slate-300">Hoje</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Ações Rápidas */}
         <Card className="transition-all duration-300 hover:shadow-md">

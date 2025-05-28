@@ -1,15 +1,17 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 
 const PricingSection = () => {
   const { user } = useAuth();
-  // Fix: Properly type the variable to allow all plan comparisons
-  const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = "Mensal"; // Isso viria do Supabase posteriormente
+  
+  // Simulando o plano atual do usuário (posteriormente virá do Supabase)
+  const currentPlan: string | null = "Mensal";
 
   const plans = [
     {
-      name: "Quinzenal" as const,
+      name: "Quinzenal",
       price: "R$ 29,90",
       period: "15 dias",
       features: [
@@ -26,7 +28,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Quinzenal"
     },
     {
-      name: "Mensal" as const,
+      name: "Mensal",
       price: "R$ 49,90",
       period: "mês",
       features: [
@@ -45,7 +47,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Mensal"
     },
     {
-      name: "Trimestral" as const,
+      name: "Trimestral",
       price: "R$ 149,90",
       period: "3 meses",
       originalPrice: "R$ 49,90/mês",
@@ -67,7 +69,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Trimestral"
     },
     {
-      name: "Anual" as const,
+      name: "Anual",
       price: "R$ 549,90",
       period: "ano",
       originalPrice: "R$ 45,90/mês",
@@ -93,6 +95,11 @@ const PricingSection = () => {
   const handleChoosePlan = (planName: string) => {
     console.log('Escolher plano:', planName);
     alert(`Redirecionando para checkout do plano ${planName}`);
+  };
+
+  const handleUpgrade = (planName: string) => {
+    console.log('Upgrade para plano:', planName);
+    alert(`Redirecionando para upgrade para o plano ${planName}`);
   };
 
   return (
@@ -125,7 +132,7 @@ const PricingSection = () => {
               {plan.isCurrent && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                    Plano Atual
+                    Seu Plano Atual
                   </span>
                 </div>
               )}
@@ -181,17 +188,32 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Button 
-                  className={`w-full ${
-                    plan.isCurrent 
-                      ? 'bg-green-500 hover:bg-green-600 text-white' 
-                      : 'bg-purple-primary hover:bg-purple-hover text-white'
-                  }`}
-                  onClick={() => handleChoosePlan(plan.name)}
-                  disabled={plan.isCurrent}
-                >
-                  {plan.isCurrent ? 'Plano Ativo' : 'Escolher Plano'}
-                </Button>
+                {plan.isCurrent ? (
+                  <Button 
+                    className="w-full bg-green-500 hover:bg-green-600 text-white"
+                    disabled
+                  >
+                    Plano Ativo
+                  </Button>
+                ) : (
+                  <div className="space-y-2">
+                    <Button 
+                      className="w-full bg-purple-primary hover:bg-purple-hover text-white"
+                      onClick={() => handleChoosePlan(plan.name)}
+                    >
+                      Escolher Plano
+                    </Button>
+                    {user && (
+                      <Button 
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handleUpgrade(plan.name)}
+                      >
+                        Fazer Upgrade
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
