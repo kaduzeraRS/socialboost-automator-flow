@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,12 +8,14 @@ import { Instagram, Play, Plus, Settings, Trash2, Users, BarChart3 } from 'lucid
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useScheduledPosts } from '@/hooks/useScheduledPosts';
 import { useLanguage } from '@/contexts/LanguageContext';
-import ConnectAccountDialog from '@/components/ConnectAccountDialog';
+import { useState } from 'react';
 
 const Accounts = () => {
   const { accounts, loading, disconnectAccount } = useSocialAccounts();
   const { posts } = useScheduledPosts();
   const { t } = useLanguage();
+
+  const [connecting, setConnecting] = useState<'instagram' | 'tiktok' | null>(null);
 
   const getPlatformIcon = (platform: string) => {
     switch (platform.toLowerCase()) {
@@ -39,6 +40,26 @@ const Accounts = () => {
     return { scheduledPosts, publishedPosts };
   };
 
+  const handleConnect = async (platform: 'instagram' | 'tiktok') => {
+    try {
+      setConnecting(platform);
+      const response = await fetch(`/api/automation/connect?platform=${platform}`, {
+        method: 'POST',
+      });
+      if (response.ok) {
+        // Automação terminou, recarregar página
+        window.location.reload();
+      } else {
+        alert('Erro ao conectar a conta');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao conectar a conta');
+    } finally {
+      setConnecting(null);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -57,12 +78,24 @@ const Accounts = () => {
             <h1 className="text-3xl font-bold text-foreground">{t('connected_accounts')}</h1>
             <p className="text-muted-foreground">{t('manage_accounts')}</p>
           </div>
-          <ConnectAccountDialog>
-            <Button className="bg-purple-primary hover:bg-purple-hover">
+          <div className="flex space-x-2">
+            <Button
+              className="bg-purple-primary hover:bg-purple-hover"
+              onClick={() => handleConnect('instagram')}
+              disabled={!!connecting}
+            >
               <Plus className="w-4 h-4 mr-2" />
-              {t('add_account')}
+              {connecting === 'instagram' ? 'Conectando...' : 'Conectar Instagram'}
             </Button>
-          </ConnectAccountDialog>
+            <Button
+              className="bg-purple-primary hover:bg-purple-hover"
+              onClick={() => handleConnect('tiktok')}
+              disabled={!!connecting}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {connecting === 'tiktok' ? 'Conectando...' : 'Conectar TikTok'}
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
@@ -78,14 +111,8 @@ const Accounts = () => {
                   <Users className="w-12 h-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">{t('add_new_account')}</h3>
                   <p className="text-muted-foreground text-center mb-4">
-                    {t('connect_instagram_desc')}
+                    Nenhuma conta conectada ainda. Use os botões acima para conectar.
                   </p>
-                  <ConnectAccountDialog>
-                    <Button className="bg-purple-primary hover:bg-purple-hover">
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t('add_new_account')}
-                    </Button>
-                  </ConnectAccountDialog>
                 </CardContent>
               </Card>
             ) : (
