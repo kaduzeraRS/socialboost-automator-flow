@@ -135,7 +135,7 @@ const PricingSection = () => {
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
                     <span className={`font-bold text-foreground ${
-                      plan.name === 'Trimestral' ? 'text-xl' : 'text-2xl'
+                      plan.name === 'Trimestral' ? 'text-lg' : plan.name === 'Anual' ? 'text-xl' : 'text-2xl'
                     }`}>
                       {plan.price}
                     </span>

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, TrendingUp, Instagram, Play, Plus, Zap, Link2, Clock, BarChart3, Eye, Heart, MessageCircle, Users, Share2, UserPlus, Activity } from 'lucide-react';
+import { Calendar, TrendingUp, Instagram, Play, Plus, Zap, Link2, BarChart3, Eye, Heart, MessageCircle, Users, Share2, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AccountSelector from '@/components/AccountSelector';
 
@@ -16,25 +16,48 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-in fade-in-0 duration-500">
-        {/* Status da Assinatura */}
-        <Card className="bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700 text-white transition-all duration-300 hover:shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span className="text-xl">Plano Profissional</span>
-              <Badge className="bg-green-500 hover:bg-green-600 text-white transition-colors duration-200">Ativo</Badge>
-            </CardTitle>
-            <p className="text-slate-300">Renovação em 23 dias</p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-300">Contas conectadas: 8/15</span>
-                <span className="text-white font-semibold">53%</span>
+        {/* Status da Assinatura com Contador de Automações */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2 bg-gradient-to-r from-slate-900 to-slate-800 border-slate-700 text-white transition-all duration-300 hover:shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="text-xl">Plano Profissional</span>
+                <Badge className="bg-green-500 hover:bg-green-600 text-white transition-colors duration-200">Ativo</Badge>
+              </CardTitle>
+              <p className="text-slate-300">Renovação em 23 dias</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-300">Contas conectadas: 8/15</span>
+                  <span className="text-white font-semibold">53%</span>
+                </div>
+                <Progress value={53} className="h-2 bg-slate-700 transition-all duration-300" />
               </div>
-              <Progress value={53} className="h-2 bg-slate-700 transition-all duration-300" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-500 to-pink-500 text-white transition-all duration-300 hover:shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Zap className="w-5 h-5 mr-2" />
+                Automações Realizadas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold">2.139</div>
+                  <p className="text-sm opacity-90">Este mês</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold">+127</div>
+                  <p className="text-xs opacity-80">Hoje</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Ações Rápidas */}
         <Card className="transition-all duration-300 hover:shadow-md">
@@ -147,17 +170,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-center p-2 rounded-lg bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20">
-                  <div className="flex items-center justify-center mb-1">
-                    <Zap className="w-4 h-4 mr-1 text-yellow-600" />
-                    <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Automações Realizadas</span>
-                  </div>
-                  <p className="text-lg font-bold text-yellow-800 dark:text-yellow-200">1.247</p>
-                  <p className="text-xs text-green-600">Este mês</p>
-                </div>
-              </div>
-
               <Button asChild variant="outline" className="w-full transition-all duration-200 hover:scale-105">
                 <Link to="/contas">
                   <TrendingUp className="w-4 h-4 mr-2" />
@@ -241,17 +253,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-center p-2 rounded-lg bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20">
-                  <div className="flex items-center justify-center mb-1">
-                    <Zap className="w-4 h-4 mr-1 text-yellow-600" />
-                    <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">Automações Realizadas</span>
-                  </div>
-                  <p className="text-lg font-bold text-yellow-800 dark:text-yellow-200">892</p>
-                  <p className="text-xs text-green-600">Este mês</p>
-                </div>
-              </div>
-
               <Button asChild variant="outline" className="w-full transition-all duration-200 hover:scale-105">
                 <Link to="/contas">
                   <TrendingUp className="w-4 h-4 mr-2" />
@@ -262,51 +263,45 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Próximos Posts */}
+        {/* Calendário de Posts */}
         <Card className="transition-all duration-300 hover:shadow-md">
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Clock className="w-5 h-5 mr-2" />
-              Próximos Posts
+              <Calendar className="w-5 h-5 mr-2" />
+              Calendário de Posts
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center space-x-3 p-3 border rounded-lg transition-all duration-200 hover:bg-accent">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <Instagram className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">Post promocional - Black Friday</p>
-                <p className="text-sm text-muted-foreground">Hoje às 18:00</p>
-              </div>
-              <Badge variant="outline">Agendado</Badge>
-            </div>
-
-            <div className="flex items-center space-x-3 p-3 border rounded-lg transition-all duration-200 hover:bg-accent">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-rose-500 rounded-lg flex items-center justify-center">
-                <Play className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">Vídeo tutorial - Como usar</p>
-                <p className="text-sm text-muted-foreground">Amanhã às 14:30</p>
-              </div>
-              <Badge variant="outline">Agendado</Badge>
-            </div>
-
-            <div className="flex items-center space-x-3 p-3 border rounded-lg transition-all duration-200 hover:bg-accent">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                <Instagram className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">Stories - Bastidores</p>
-                <p className="text-sm text-muted-foreground">Amanhã às 20:00</p>
-              </div>
-              <Badge variant="outline">Agendado</Badge>
+            <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+              {/* Simulação de calendário */}
+              {Array.from({ length: 7 }, (_, i) => (
+                <div key={i} className="border rounded-lg p-3 min-h-[120px] transition-all duration-200 hover:bg-accent">
+                  <div className="text-sm font-medium mb-2">
+                    {new Date(Date.now() + i * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR', { 
+                      weekday: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </div>
+                  {i % 3 === 0 && (
+                    <div className="space-y-1">
+                      <div className="text-xs bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 p-1 rounded">
+                        18:00 - Instagram
+                      </div>
+                      {i % 2 === 0 && (
+                        <div className="text-xs bg-pink-100 dark:bg-pink-900/20 text-pink-800 dark:text-pink-200 p-1 rounded">
+                          20:00 - TikTok
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
             <Button asChild variant="outline" className="w-full transition-all duration-200 hover:scale-105">
               <Link to="/agendamento">
-                Ver todos os posts
+                <Plus className="w-4 h-4 mr-2" />
+                Agendar Novo Post
               </Link>
             </Button>
           </CardContent>

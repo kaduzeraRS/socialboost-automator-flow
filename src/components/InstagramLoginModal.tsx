@@ -60,14 +60,14 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
     }
 
     setIsLogging(true);
-    setAuthStatus('Iniciando automação de login...');
+    setAuthStatus('Iniciando login via navegador visível...');
 
     try {
       const authService = new InstagramAuthService();
       
       toast({
         title: "Conectando com Instagram",
-        description: "Aguarde enquanto fazemos o login automaticamente (navegador visível)...",
+        description: "Abrindo navegador visível para login transparente...",
       });
 
       const result = await authService.loginWithCredentials({
@@ -77,12 +77,12 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
         on2FARequired: (callback) => {
           setShow2FA(true);
           setTwoFactorCallback(() => callback);
-          setAuthStatus('Aguardando código de autenticação de dois fatores...');
+          setAuthStatus('Autenticação de dois fatores detectada...');
         }
       });
 
       if (result.success && result.userData) {
-        console.log('Dados capturados:', result.userData);
+        console.log('Dados capturados via navegador visível:', result.userData);
         
         const accountData = {
           platform: 'instagram',
@@ -96,7 +96,7 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
           profile_picture_url: result.userData.profile_picture_url
         };
 
-        console.log('Dados preparados para salvar:', accountData);
+        console.log('Salvando dados reais no banco:', accountData);
 
         const savedAccount = await connectAccount(accountData);
         if (savedAccount) {
@@ -105,7 +105,7 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
           if (isAuthenticated) {
             toast({
               title: "Conta conectada!",
-              description: "Sua conta Instagram foi conectada e salva no banco de dados.",
+              description: "Sua conta Instagram foi conectada e dados reais salvos no banco.",
             });
           } else {
             toast({
@@ -117,14 +117,14 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
           onClose();
           onSuccess?.();
         } else {
-          throw new Error('Falha ao salvar a conta');
+          throw new Error('Falha ao salvar a conta no banco');
         }
       } else {
-        throw new Error(result.error || 'Falha na conexão');
+        throw new Error(result.error || 'Falha na conexão via navegador');
       }
       
     } catch (error: any) {
-      console.error('Erro no login:', error);
+      console.error('Erro no login via navegador:', error);
       
       toast({
         title: "Erro no login",
