@@ -1,4 +1,3 @@
-
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,7 +58,7 @@ const Planos = () => {
       name: "Anual",
       price: "R$ 549,90",
       period: "ano",
-      originalPrice: "R$ 588",
+      originalPrice: "R$ 45,90/mês",
       features: [
         "Contas ilimitadas",
         "Posts ilimitados",

@@ -24,9 +24,20 @@ export const useSocialAccounts = () => {
     try {
       console.log('Fetching social accounts...');
       
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.log('No authenticated user found for fetching accounts');
+        setLoading(false);
+        return;
+      }
+
+      console.log('Authenticated user found:', user.id);
+      
       const { data, error } = await supabase
         .from('social_accounts')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -65,7 +76,7 @@ export const useSocialAccounts = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        console.error('No authenticated user found');
+        console.error('No authenticated user found for account connection');
         toast({
           title: "Erro de autenticação",
           description: "Você precisa estar logado para conectar uma conta.",

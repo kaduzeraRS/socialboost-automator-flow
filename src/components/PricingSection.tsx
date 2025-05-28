@@ -47,7 +47,7 @@ const PricingSection = () => {
       name: "Anual",
       price: "R$ 549,90",
       period: "ano",
-      originalPrice: "R$ 588",
+      originalPrice: "R$ 45,90/mês",
       features: [
         "Contas ilimitadas",
         "Posts ilimitados",

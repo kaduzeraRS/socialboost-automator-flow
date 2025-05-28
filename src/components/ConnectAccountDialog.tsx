@@ -34,8 +34,25 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     }
   ];
 
+  const generateSimilarStats = () => {
+    // Gera estatísticas similares para Instagram e TikTok
+    const baseFollowers = Math.floor(Math.random() * 50000) + 10000;
+    const baseFollowing = Math.floor(Math.random() * 2000) + 500;
+    const basePosts = Math.floor(Math.random() * 300) + 100;
+    
+    return {
+      followers_count: baseFollowers + Math.floor(Math.random() * 1000),
+      following_count: baseFollowing + Math.floor(Math.random() * 100),
+      posts_count: basePosts + Math.floor(Math.random() * 50)
+    };
+  };
+
   const handleConnect = async (platform: { name: string }) => {
+    console.log('Attempting to connect account for platform:', platform.name);
+    console.log('Current user:', user);
+    
     if (!user) {
+      console.error('No user found when trying to connect account');
       toast({
         title: "Erro de autenticação",
         description: "Você precisa estar logado para conectar uma conta.",
@@ -45,29 +62,41 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     }
 
     try {
+      console.log('User is authenticated, proceeding with connection...');
+      
       toast({
         title: "Conectando conta",
         description: `Simulando conexão com ${platform.name}...`,
       });
 
-      // Simular dados da conta conectada
+      // Gerar estatísticas similares para ambas as plataformas
+      const stats = generateSimilarStats();
+      
       const accountData = {
         platform: platform.name.toLowerCase(),
         username: `@usuario_${platform.name.toLowerCase()}_${Math.floor(Math.random() * 1000)}`,
         account_id: `mock_${Date.now()}`,
-        followers_count: Math.floor(Math.random() * 10000) + 1000,
-        following_count: Math.floor(Math.random() * 5000) + 500,
-        posts_count: Math.floor(Math.random() * 500) + 50,
+        ...stats,
         profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}${Date.now()}`
       };
+
+      console.log('Connecting account with data:', accountData);
 
       const result = await connectAccount(accountData);
       
       if (result) {
+        console.log('Account connected successfully:', result);
         setIsOpen(false);
         toast({
           title: "Conta conectada!",
           description: `Sua conta ${platform.name} foi conectada com sucesso.`,
+        });
+      } else {
+        console.error('Failed to connect account - no result returned');
+        toast({
+          title: "Erro na conexão",
+          description: "Não foi possível conectar a conta. Tente novamente.",
+          variant: "destructive"
         });
       }
     } catch (error) {
@@ -81,6 +110,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   };
 
   const handleDisconnect = async (accountId: string, platform: string) => {
+    console.log('Disconnecting account:', accountId, platform);
     await disconnectAccount(accountId, platform);
   };
 
@@ -137,7 +167,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <div>
                             <p className="font-medium capitalize">{account.platform}</p>
                             <p className="text-sm text-muted-foreground">{account.username}</p>
-                            <p className="text-xs text-muted-foreground">{account.followers_count} seguidores</p>
+                            <p className="text-xs text-muted-foreground">{account.followers_count?.toLocaleString()} seguidores</p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
