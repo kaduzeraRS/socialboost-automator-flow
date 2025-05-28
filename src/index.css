@@ -53,13 +53,11 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border;
   }
   
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: Inter, sans-serif;
+    @apply bg-background text-foreground font-sans;
   }
 }
 
@@ -69,12 +67,7 @@
   }
   
   .card-hover {
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .card-hover:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
   }
   
   .purple-gradient {
@@ -82,23 +75,19 @@
   }
 
   .smooth-transition {
-    transition: all 0.3s ease-in-out;
+    @apply transition-all duration-300 ease-in-out;
   }
 
   .hover-lift {
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .hover-lift:hover {
-    transform: scale(1.05);
+    @apply transition-transform duration-200 hover:scale-105;
   }
 
   .fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+    @apply animate-in fade-in duration-500;
   }
 
   .slide-up {
-    animation: slideUp 0.5s ease-in-out;
+    @apply animate-in slide-in-from-bottom-4 duration-500;
   }
 }
 
@@ -125,28 +114,6 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .animate-slide-up {
   animation: slideInFromBottom 0.5s ease-out;
 }
@@ -157,17 +124,17 @@
 
 /* Transições suaves para todos os botões */
 button {
-  transition: all 0.2s ease-in-out;
+  @apply transition-all duration-200 ease-in-out;
 }
 
 /* Transições para cards */
 .card {
-  transition: all 0.3s ease-in-out;
+  @apply transition-all duration-300 ease-in-out;
 }
 
 /* Transições para inputs */
 input, textarea, select {
-  transition: all 0.2s ease-in-out;
+  @apply transition-all duration-200 ease-in-out;
 }
 
 /* Hover effects globais */
