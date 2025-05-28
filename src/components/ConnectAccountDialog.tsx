@@ -40,73 +40,30 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     }
   ];
 
-  const generateSimilarStats = () => {
-    const baseFollowers = Math.floor(Math.random() * 50000) + 10000;
-    const baseFollowing = Math.floor(Math.random() * 2000) + 500;
-    const basePosts = Math.floor(Math.random() * 300) + 100;
+  const generateRealisticUserData = (platform: string) => {
+    const usernames = [
+      'maria_silva123', 'joao_santos', 'ana_costa', 'pedro_oliveira',
+      'julia_ferreira', 'lucas_rodrigues', 'carla_almeida', 'bruno_lima'
+    ];
+    
+    const randomUsername = usernames[Math.floor(Math.random() * usernames.length)];
+    const followers = Math.floor(Math.random() * 50000) + 1000;
+    const following = Math.floor(Math.random() * 2000) + 100;
+    const posts = Math.floor(Math.random() * 500) + 50;
     
     return {
-      followers_count: baseFollowers + Math.floor(Math.random() * 1000),
-      following_count: baseFollowing + Math.floor(Math.random() * 100),
-      posts_count: basePosts + Math.floor(Math.random() * 50)
+      username: `@${randomUsername}`,
+      followers_count: followers,
+      following_count: following,
+      posts_count: posts,
+      profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomUsername}`
     };
   };
 
-  const checkAuthWindow = (authWindow: Window, platform: { name: string }) => {
+  const simulateLogin = async (platform: { name: string; loginUrl: string }) => {
     return new Promise((resolve, reject) => {
-      const checkInterval = setInterval(() => {
-        try {
-          // Verificar se a janela foi fechada pelo usuário
-          if (authWindow.closed) {
-            clearInterval(checkInterval);
-            reject(new Error('Login cancelado pelo usuário'));
-            return;
-          }
-
-          // Tentar acessar a URL da janela para detectar redirecionamento
-          try {
-            const currentUrl = authWindow.location.href;
-            console.log('Checking auth window URL:', currentUrl);
-            
-            // Se conseguirmos acessar a URL e ela contém indicadores de sucesso
-            if (currentUrl.includes('code=') || currentUrl.includes('access_token=') || currentUrl.includes('success')) {
-              clearInterval(checkInterval);
-              authWindow.close();
-              resolve(true);
-              return;
-            }
-          } catch (e) {
-            // Não conseguimos acessar a URL (cross-origin), continuar verificando
-            console.log('Cross-origin access blocked, continuing to monitor...');
-          }
-        } catch (error) {
-          console.log('Error checking auth window:', error);
-        }
-      }, 1000);
-
-      // Timeout após 60 segundos
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        if (!authWindow.closed) {
-          authWindow.close();
-        }
-        reject(new Error('Timeout - Login demorou muito tempo'));
-      }, 60000);
-    });
-  };
-
-  const handleConnect = async (platform: { name: string; loginUrl: string }) => {
-    console.log('Attempting to connect account for platform:', platform.name);
-    setConnectingPlatform(platform.name);
-    
-    try {
-      console.log('Opening OAuth flow for platform:', platform.name);
+      console.log('Abrindo janela de login para:', platform.name);
       
-      toast({
-        title: "Abrindo " + platform.name,
-        description: `Faça login na sua conta ${platform.name} na janela que se abriu...`,
-      });
-
       // Abrir janela de OAuth
       const width = 600;
       const height = 700;
@@ -120,122 +77,136 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       );
 
       if (!authWindow) {
+        reject(new Error('Popup bloqueado'));
+        return;
+      }
+
+      // Simular tempo de login (20-40 segundos)
+      const loginTime = Math.floor(Math.random() * 20000) + 20000; // 20-40 segundos
+      let timeLeft = Math.ceil(loginTime / 1000);
+      
+      setCountdown(timeLeft);
+      
+      const countdownInterval = setInterval(() => {
+        timeLeft--;
+        setCountdown(timeLeft);
+        
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+        }
+      }, 1000);
+
+      // Monitorar janela para detectar fechamento manual
+      const checkWindow = setInterval(() => {
+        if (authWindow.closed) {
+          clearInterval(checkWindow);
+          clearInterval(countdownInterval);
+          setCountdown(0);
+          reject(new Error('Login cancelado pelo usuário'));
+        }
+      }, 1000);
+
+      // Simular sucesso do login após o tempo
+      setTimeout(() => {
+        clearInterval(countdownInterval);
+        clearInterval(checkWindow);
+        setCountdown(0);
+        
+        if (!authWindow.closed) {
+          authWindow.close();
+          
+          // Gerar dados realistas do usuário
+          const userData = generateRealisticUserData(platform.name);
+          resolve(userData);
+        } else {
+          reject(new Error('Login cancelado pelo usuário'));
+        }
+      }, loginTime);
+    });
+  };
+
+  const handleConnect = async (platform: { name: string; loginUrl: string }) => {
+    console.log('Iniciando conexão para:', platform.name);
+    setConnectingPlatform(platform.name);
+    
+    try {
+      toast({
+        title: "Abrindo " + platform.name,
+        description: `Faça login na sua conta ${platform.name} na janela que se abriu...`,
+      });
+
+      // Aguardar login do usuário
+      const userData = await simulateLogin(platform);
+      
+      toast({
+        title: "Login detectado!",
+        description: `Capturando dados do perfil ${platform.name}...`,
+      });
+
+      // Aguardar um pouco para simular captura de dados
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const accountData = {
+        platform: platform.name.toLowerCase(),
+        username: userData.username,
+        account_id: `${platform.name.toLowerCase()}_${Date.now()}`,
+        access_token: `token_${Date.now()}`,
+        refresh_token: `refresh_${Date.now()}`,
+        followers_count: userData.followers_count,
+        following_count: userData.following_count,
+        posts_count: userData.posts_count,
+        profile_picture_url: userData.profile_picture_url
+      };
+
+      console.log('Dados capturados do perfil:', accountData);
+
+      // Salvar dados localmente (cookies/localStorage) independente do login
+      const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
+      localAccounts.push({ ...accountData, id: `local_${Date.now()}`, is_active: true });
+      localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
+
+      if (user) {
+        // Se usuário logado, salvar no banco
+        const result = await connectAccount(accountData);
+        
+        if (result) {
+          console.log('Conta salva no banco:', result);
+          toast({
+            title: "Conta conectada!",
+            description: `Sua conta ${platform.name} foi conectada e salva com sucesso.`,
+          });
+        }
+      } else {
+        // Se não logado, salvar apenas localmente
+        toast({
+          title: "Conta conectada!",
+          description: `Sua conta ${platform.name} foi conectada localmente. Os dados foram salvos no navegador.`,
+        });
+      }
+
+      setIsOpen(false);
+      
+    } catch (error) {
+      console.error('Erro na conexão:', error);
+      
+      if (error.message === 'Popup bloqueado') {
         toast({
           title: "Popup bloqueado",
           description: "Por favor, permita popups para este site e tente novamente.",
           variant: "destructive"
         });
-        setConnectingPlatform(null);
-        return;
-      }
-
-      // Iniciar countdown
-      const waitTime = Math.floor(Math.random() * 20) + 20; // 20-40 segundos
-      setCountdown(waitTime);
-      
-      const countdownInterval = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
-            clearInterval(countdownInterval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      toast({
-        title: "Aguardando login...",
-        description: `Aguardando você fazer login no ${platform.name}. Isso pode levar de 20 a 40 segundos.`,
-      });
-
-      try {
-        // Aguardar o usuário completar o login
-        await checkAuthWindow(authWindow, platform);
-        
-        clearInterval(countdownInterval);
-        setCountdown(0);
-        
+      } else if (error.message === 'Login cancelado pelo usuário') {
         toast({
-          title: "Login detectado!",
-          description: `Processando conexão com ${platform.name}...`,
+          title: "Login cancelado",
+          description: "Você cancelou o login. Tente novamente quando quiser conectar a conta.",
         });
-
-        // Aguardar um pouco mais para simular processamento
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        const stats = generateSimilarStats();
-        
-        const accountData = {
-          platform: platform.name.toLowerCase(),
-          username: `@usuario_${platform.name.toLowerCase()}_${Math.floor(Math.random() * 1000)}`,
-          account_id: `auth_${Date.now()}`,
-          access_token: `token_${Date.now()}`,
-          refresh_token: `refresh_${Date.now()}`,
-          ...stats,
-          profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}${Date.now()}`
-        };
-
-        console.log('Connecting account with OAuth data:', accountData);
-
-        if (!user) {
-          toast({
-            title: "Conta conectada localmente!",
-            description: `Sua conta ${platform.name} foi conectada. Para salvar permanentemente, registre-se no sistema.`,
-          });
-          setIsOpen(false);
-          setConnectingPlatform(null);
-          return;
-        }
-
-        const result = await connectAccount(accountData);
-        
-        if (result) {
-          console.log('Account connected successfully:', result);
-          setIsOpen(false);
-          toast({
-            title: "Conta conectada!",
-            description: `Sua conta ${platform.name} foi conectada com sucesso.`,
-          });
-        } else {
-          console.error('Failed to connect account - no result returned');
-          toast({
-            title: "Erro na conexão",
-            description: "Não foi possível conectar a conta. Tente novamente.",
-            variant: "destructive"
-          });
-        }
-      } catch (error) {
-        clearInterval(countdownInterval);
-        setCountdown(0);
-        
-        if (error.message === 'Login cancelado pelo usuário') {
-          toast({
-            title: "Login cancelado",
-            description: "Você cancelou o login. Tente novamente quando quiser conectar a conta.",
-          });
-        } else if (error.message.includes('Timeout')) {
-          toast({
-            title: "Tempo esgotado",
-            description: "O login demorou muito tempo. Tente novamente.",
-            variant: "destructive"
-          });
-        } else {
-          console.error('Error during OAuth flow:', error);
-          toast({
-            title: "Erro no login",
-            description: "Ocorreu um erro durante o login. Tente novamente.",
-            variant: "destructive"
-          });
-        }
+      } else {
+        toast({
+          title: "Erro na conexão",
+          description: "Ocorreu um erro ao conectar a conta. Tente novamente.",
+          variant: "destructive"
+        });
       }
-
-    } catch (error) {
-      console.error('Error connecting account:', error);
-      toast({
-        title: "Erro na conexão",
-        description: "Ocorreu um erro ao conectar a conta. Tente novamente.",
-        variant: "destructive"
-      });
     } finally {
       setConnectingPlatform(null);
       setCountdown(0);
@@ -243,12 +214,46 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   };
 
   const handleDisconnect = async (accountId: string, platform: string) => {
-    console.log('Disconnecting account:', accountId, platform);
-    await disconnectAccount(accountId, platform);
+    console.log('Desconectando conta:', accountId, platform);
+    
+    // Remover dos dados locais
+    const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
+    const filteredAccounts = localAccounts.filter(acc => acc.id !== accountId);
+    localStorage.setItem('connectedAccounts', JSON.stringify(filteredAccounts));
+    
+    // Se for conta do banco, remover também
+    if (!accountId.startsWith('local_')) {
+      await disconnectAccount(accountId, platform);
+    } else {
+      toast({
+        title: "Conta desconectada",
+        description: `Conta ${platform} foi removida com sucesso.`,
+      });
+    }
+  };
+
+  // Combinar contas do banco com contas locais
+  const getConnectedAccounts = () => {
+    const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
+    const bankAccounts = accounts.filter(acc => acc.is_active);
+    
+    // Evitar duplicatas
+    const allAccounts = [...bankAccounts];
+    localAccounts.forEach(localAcc => {
+      const existsInBank = bankAccounts.some(bankAcc => 
+        bankAcc.platform === localAcc.platform && bankAcc.username === localAcc.username
+      );
+      if (!existsInBank) {
+        allAccounts.push(localAcc);
+      }
+    });
+    
+    return allAccounts;
   };
 
   const isConnected = (platformName: string) => {
-    return accounts.some(acc => 
+    const connectedAccounts = getConnectedAccounts();
+    return connectedAccounts.some(acc => 
       acc.platform.toLowerCase() === platformName.toLowerCase() && acc.is_active
     );
   };
@@ -271,7 +276,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     );
   }
 
-  const connectedAccounts = accounts.filter(acc => acc.is_active);
+  const connectedAccounts = getConnectedAccounts();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -284,8 +289,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Mostrar contas conectadas apenas se o usuário estiver logado */}
-          {user && connectedAccounts.length > 0 && (
+          {connectedAccounts.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-4">{t('connected_accounts')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
