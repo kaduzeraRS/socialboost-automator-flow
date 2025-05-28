@@ -57,13 +57,15 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
         return;
       }
 
+      // Tentar cadastro com confirmação automática
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-          }
+          },
+          emailRedirectTo: window.location.origin + '/dashboard'
         }
       });
 
@@ -88,17 +90,39 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
 
       console.log('Register successful:', data);
 
-      if (data.user && !data.session) {
+      // Se há uma sessão, significa que o usuário foi automaticamente logado
+      if (data.session) {
+        toast({
+          title: "Conta criada com sucesso!",
+          description: "Bem-vindo ao Adacemy Boost!",
+        });
+        onSuccess();
+      } else if (data.user && !data.session) {
+        // Se não há sessão, mas há usuário, significa que precisa confirmar email
         toast({
           title: "Cadastro realizado!",
           description: "Verifique seu email para confirmar a conta antes de fazer login.",
         });
-      } else {
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Você foi automaticamente conectado.",
-        });
-        onSuccess();
+        
+        // Tentar fazer login automaticamente após um breve delay
+        setTimeout(async () => {
+          try {
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+
+            if (!loginError && loginData.session) {
+              toast({
+                title: "Login automático realizado!",
+                description: "Você foi conectado automaticamente.",
+              });
+              onSuccess();
+            }
+          } catch (autoLoginError) {
+            console.log('Auto login failed, user needs to verify email:', autoLoginError);
+          }
+        }, 1000);
       }
 
     } catch (error) {
@@ -125,7 +149,7 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
             placeholder="Seu nome completo"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="pl-10"
+            className="pl-10 transition-all duration-200 focus:scale-105"
             required
             disabled={loading}
           />
@@ -142,7 +166,7 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
             placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="pl-10"
+            className="pl-10 transition-all duration-200 focus:scale-105"
             required
             disabled={loading}
           />
@@ -159,7 +183,7 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
             placeholder="Sua senha (mín. 6 caracteres)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pl-10"
+            className="pl-10 transition-all duration-200 focus:scale-105"
             required
             disabled={loading}
           />
@@ -176,7 +200,7 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
             placeholder="Confirme sua senha"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="pl-10"
+            className="pl-10 transition-all duration-200 focus:scale-105"
             required
             disabled={loading}
           />
@@ -185,7 +209,7 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
 
       <Button 
         type="submit" 
-        className="w-full bg-purple-primary hover:bg-purple-hover"
+        className="w-full bg-purple-primary hover:bg-purple-hover transition-all duration-200 hover:scale-105"
         disabled={loading}
       >
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -198,7 +222,7 @@ const RegisterForm = ({ onSuccess, onToggleMode, loading, setLoading }: Register
           <Button
             variant="link"
             onClick={onToggleMode}
-            className="p-0 ml-1 font-medium"
+            className="p-0 ml-1 font-medium transition-all duration-200 hover:scale-105"
             disabled={loading}
           >
             Fazer login

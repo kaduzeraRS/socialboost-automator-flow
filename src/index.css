@@ -73,4 +73,71 @@
   .purple-gradient {
     background: linear-gradient(135deg, #6C5DD3 0%, #5A4CC7 100%);
   }
+
+  .smooth-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  .fade-in {
+    @apply animate-in fade-in duration-500;
+  }
+
+  .slide-up {
+    @apply animate-in slide-in-from-bottom-4 duration-500;
+  }
+}
+
+/* Animações personalizadas */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-slide-up {
+  animation: slideInFromBottom 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Transições suaves para todos os botões */
+button {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Transições para cards */
+.card {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Transições para inputs */
+input, textarea, select {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Hover effects globais */
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(108, 93, 211, 0.3);
 }
