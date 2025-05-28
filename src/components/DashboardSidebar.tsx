@@ -27,22 +27,25 @@ const DashboardSidebar = () => {
     { title: t('settings'), href: '/configuracoes', icon: Settings },
   ];
 
+  // Check if user is admin based on profile data
   const isAdmin = profile?.role === 'admin';
 
   if (loading) {
     return (
-      <div className="w-64 bg-card border-r border-border h-screen sticky top-0 transition-all duration-300">
+      <div className="w-64 bg-card border-r border-border h-screen sticky top-0">
         <div className="p-6">
-          <div className="flex items-center space-x-2 animate-pulse">
-            <div className="w-8 h-8 rounded-lg bg-gray-200"></div>
-            <div className="h-6 bg-gray-200 rounded w-32"></div>
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-primary to-purple-hover flex items-center justify-center">
+              <span className="text-white font-bold text-sm">AB</span>
+            </div>
+            <h1 className="text-xl font-bold text-foreground">Adacemy Boost</h1>
           </div>
         </div>
         <div className="px-4 space-y-2">
-          <div className="animate-pulse space-y-2">
-            <div className="h-10 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
-            <div className="h-10 bg-gray-200 rounded"></div>
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 bg-gray-200 rounded mb-2"></div>
+            <div className="h-10 bg-gray-200 rounded mb-2"></div>
           </div>
         </div>
       </div>
@@ -50,9 +53,9 @@ const DashboardSidebar = () => {
   }
 
   return (
-    <div className="w-64 bg-card border-r border-border h-screen sticky top-0 transition-all duration-300">
+    <div className="w-64 bg-card border-r border-border h-screen sticky top-0">
       <div className="p-6">
-        <div className="flex items-center space-x-2 transition-all duration-200 hover:scale-105">
+        <div className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-primary to-purple-hover flex items-center justify-center">
             <span className="text-white font-bold text-sm">AB</span>
           </div>
@@ -70,9 +73,9 @@ const DashboardSidebar = () => {
               key={item.href}
               to={item.href}
               className={cn(
-                "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
+                "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 isActive 
-                  ? "bg-purple-primary text-white shadow-lg" 
+                  ? "bg-purple-primary text-white" 
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
@@ -82,13 +85,14 @@ const DashboardSidebar = () => {
           );
         })}
         
+        {/* Admin menu item - only show for admins */}
         {isAdmin && (
           <Link
             to="/admin"
             className={cn(
-              "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105",
+              "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
               location.pathname === "/admin"
-                ? "bg-purple-primary text-white shadow-lg" 
+                ? "bg-purple-primary text-white" 
                 : "text-muted-foreground hover:text-foreground hover:bg-accent"
             )}
           >
