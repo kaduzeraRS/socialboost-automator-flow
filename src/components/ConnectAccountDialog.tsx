@@ -19,7 +19,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [authStatus, setAuthStatus] = useState<string>('');
   const { toast } = useToast();
-  const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
+  const { accounts, connectAccount, disconnectAccount, loading, refetch } = useSocialAccounts();
   const { user, loading: authLoading } = useAuth();
   const { t } = useLanguage();
 
@@ -48,7 +48,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       
       toast({
         title: "Conectando com " + platform.name,
-        description: `Uma janela será aberta. Faça login para conectar sua conta.`,
+        description: `Uma janela será aberta. Faça login e navegue até seu perfil para capturar os dados.`,
       });
 
       const result = await authService.authenticateWithPlatform({
@@ -57,7 +57,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       });
 
       if (result.success && result.userData) {
-        console.log('Dados capturados:', result.userData);
+        console.log('Dados reais capturados:', result.userData);
         
         const accountData = {
           platform: platform.name.toLowerCase(),
@@ -71,26 +71,41 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
           profile_picture_url: result.userData.profile_picture_url
         };
 
-        // Salvar localmente primeiro
-        const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
-        const newAccount = { ...accountData, id: `local_${Date.now()}`, is_active: true };
-        localAccounts.push(newAccount);
-        localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
+        console.log('Dados preparados para salvar:', accountData);
 
-        // Se usuário logado, salvar no banco também
+        // Se usuário logado, salvar no banco de dados
         if (user) {
+          console.log('Usuário logado, salvando no banco...');
           const savedAccount = await connectAccount(accountData);
           if (savedAccount) {
-            console.log('Conta salva no banco:', savedAccount);
+            console.log('Conta salva no banco com sucesso:', savedAccount);
+            
+            toast({
+              title: "Conta conectada!",
+              description: `Sua conta ${platform.name} real foi conectada e salva no banco de dados.`,
+            });
+            
+            // Recarregar as contas para mostrar a nova conta
+            await refetch();
+            setIsOpen(false);
+          } else {
+            throw new Error('Falha ao salvar a conta no banco de dados');
           }
+        } else {
+          // Se não logado, salvar apenas localmente (backup)
+          console.log('Usuário não logado, salvando apenas localmente...');
+          const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
+          const newAccount = { ...accountData, id: `local_${Date.now()}`, is_active: true };
+          localAccounts.push(newAccount);
+          localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
+
+          toast({
+            title: "Conta conectada!",
+            description: `Sua conta ${platform.name} foi conectada. Faça login para sincronizar com o servidor.`,
+          });
+          
+          setIsOpen(false);
         }
-
-        toast({
-          title: "Conta conectada!",
-          description: `Sua conta ${platform.name} foi conectada com sucesso.`,
-        });
-
-        setIsOpen(false);
       } else {
         throw new Error(result.error || 'Falha na conexão');
       }
@@ -112,10 +127,12 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const handleDisconnect = async (accountId: string, platform: string) => {
     console.log('Desconectando conta:', accountId, platform);
     
+    // Remover do localStorage (se existir)
     const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
     const filteredAccounts = localAccounts.filter(acc => acc.id !== accountId);
     localStorage.setItem('connectedAccounts', JSON.stringify(filteredAccounts));
     
+    // Se não for conta local, remover do banco também
     if (!accountId.startsWith('local_')) {
       await disconnectAccount(accountId, platform);
     } else {
@@ -124,6 +141,9 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         description: `Conta ${platform} foi removida com sucesso.`,
       });
     }
+    
+    // Recarregar as contas
+    await refetch();
   };
 
   const getConnectedAccounts = () => {

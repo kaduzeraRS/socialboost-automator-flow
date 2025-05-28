@@ -14,38 +14,88 @@ export class SocialAuthService {
   private extractInstagramData(authWindow: Window): any | null {
     try {
       const doc = authWindow.document;
+      console.log('Tentando extrair dados do Instagram...');
       
-      // Extrair username
+      // Extrair username - usando o seletor que você forneceu
       const usernameElement = doc.querySelector('span.x1lliihq.x193iq5w.x6ikm8r.x10wlt62.xlyipyv.xuxw1ft');
       const username = usernameElement?.textContent?.trim() || '';
+      console.log('Username encontrado:', username);
       
-      // Extrair posts, seguindo e seguidores
-      const statsElements = doc.querySelectorAll('span.x5n08af.x1s688f span.html-span');
-      let posts = 0, following = 0, followers = 0;
-      
-      if (statsElements.length >= 3) {
-        posts = parseInt(statsElements[0]?.textContent?.trim() || '0');
-        following = parseInt(statsElements[1]?.textContent?.trim() || '0');
-        followers = parseInt(statsElements[2]?.textContent?.trim() || '0');
-      }
-      
-      // Se não encontrou pelo índice, tentar por título
-      if (followers === 0) {
-        const followersSpan = doc.querySelector('span[title]');
-        if (followersSpan) {
-          followers = parseInt(followersSpan.getAttribute('title') || '0');
+      if (!username) {
+        console.log('Username não encontrado, tentando outros seletores...');
+        // Tentar outros seletores comuns para username
+        const altUsernameSelectors = [
+          'h2._aa3a._aa3b span',
+          'h1._aa3a span',
+          '[data-testid="user-avatar"] + div h2',
+          'header section h2'
+        ];
+        
+        for (const selector of altUsernameSelectors) {
+          const element = doc.querySelector(selector);
+          if (element?.textContent?.trim()) {
+            const foundUsername = element.textContent.trim();
+            console.log(`Username encontrado com seletor ${selector}:`, foundUsername);
+            break;
+          }
         }
       }
       
-      // Extrair foto do perfil
+      // Extrair estatísticas usando seus seletores específicos
+      let posts = 0, following = 0, followers = 0;
+      
+      // Posts - primeiro span com as classes que você forneceu
+      const postsElement = doc.querySelector('span.x5n08af.x1s688f span.html-span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs');
+      if (postsElement) {
+        posts = parseInt(postsElement.textContent?.trim() || '0');
+        console.log('Posts encontrados:', posts);
+      }
+      
+      // Seguidores - procurar pelo span com title (como você mostrou)
+      const followersElement = doc.querySelector('span.x5n08af.x1s688f[title] span.html-span');
+      if (followersElement) {
+        const titleElement = followersElement.closest('span[title]');
+        if (titleElement) {
+          const titleValue = titleElement.getAttribute('title');
+          followers = parseInt(titleValue || '0');
+          console.log('Seguidores encontrados via title:', followers);
+        }
+      }
+      
+      // Se não encontrou via title, tentar via texto
+      if (followers === 0) {
+        const allStatsElements = doc.querySelectorAll('span.x5n08af.x1s688f span.html-span');
+        console.log(`Encontrados ${allStatsElements.length} elementos de estatísticas`);
+        
+        if (allStatsElements.length >= 3) {
+          posts = parseInt(allStatsElements[0]?.textContent?.trim() || '0');
+          followers = parseInt(allStatsElements[1]?.textContent?.trim() || '0');
+          following = parseInt(allStatsElements[2]?.textContent?.trim() || '0');
+          console.log('Estatísticas por índice - Posts:', posts, 'Seguidores:', followers, 'Seguindo:', following);
+        }
+      }
+      
+      // Seguindo - último elemento das estatísticas
+      if (following === 0) {
+        const followingElements = doc.querySelectorAll('span.x5n08af.x1s688f span.html-span');
+        if (followingElements.length >= 3) {
+          following = parseInt(followingElements[2]?.textContent?.trim() || '0');
+          console.log('Seguindo encontrado:', following);
+        }
+      }
+      
+      // Extrair foto do perfil - usando o seletor que você forneceu
       const profileImg = doc.querySelector('img.xz74otr.x168nmei.x13lgxp2.x5pf9jr.xo71vjh.x972fbf.xcfux6l.x1qhh985.xm0m39n.x5yr21d.x17qophe.x10l6tqk.x13vifvy.x11njtxf.xh8yej3');
       const profilePictureUrl = profileImg?.getAttribute('src') || '';
+      console.log('Foto do perfil encontrada:', profilePictureUrl ? 'Sim' : 'Não');
       
-      if (!username) {
+      // Verificar se conseguimos extrair dados válidos
+      if (!username && posts === 0 && followers === 0 && following === 0) {
+        console.log('Nenhum dado válido extraído');
         return null;
       }
       
-      return {
+      const extractedData = {
         id: `instagram_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         username: username.startsWith('@') ? username : `@${username}`,
         followers_count: followers,
@@ -55,6 +105,10 @@ export class SocialAuthService {
         access_token: `instagram_access_${Date.now()}`,
         refresh_token: `instagram_refresh_${Date.now()}`
       };
+      
+      console.log('Dados extraídos com sucesso:', extractedData);
+      return extractedData;
+      
     } catch (error) {
       console.error('Erro ao extrair dados do Instagram:', error);
       return null;
@@ -63,25 +117,45 @@ export class SocialAuthService {
 
   private extractTikTokData(authWindow: Window): any | null {
     try {
-      // Para TikTok, vamos manter a geração de dados aleatórios por enquanto
-      // pois a estrutura HTML pode ser diferente
-      const usernames = [
-        'maria_silva123', 'joao_santos', 'ana_costa', 'pedro_oliveira',
-        'julia_ferreira', 'lucas_rodrigues', 'carla_almeida', 'bruno_lima'
+      const doc = authWindow.document;
+      console.log('Tentando extrair dados do TikTok...');
+      
+      // Tentar extrair dados reais do TikTok
+      let username = '';
+      let followers = 0;
+      let following = 0;
+      let posts = 0;
+      
+      // Seletores comuns para TikTok
+      const usernameSelectors = [
+        '[data-testid="user-page-nickname"]',
+        'h1[data-testid="user-title"]',
+        '.user-username',
+        '[class*="username"]'
       ];
       
-      const randomUsername = usernames[Math.floor(Math.random() * usernames.length)];
-      const followers = Math.floor(Math.random() * 50000) + 1000;
-      const following = Math.floor(Math.random() * 2000) + 100;
-      const posts = Math.floor(Math.random() * 500) + 50;
+      for (const selector of usernameSelectors) {
+        const element = doc.querySelector(selector);
+        if (element?.textContent?.trim()) {
+          username = element.textContent.trim();
+          console.log(`Username do TikTok encontrado com ${selector}:`, username);
+          break;
+        }
+      }
+      
+      // Se não conseguiu extrair dados reais, retornar null para não usar dados falsos
+      if (!username) {
+        console.log('Não foi possível extrair dados reais do TikTok');
+        return null;
+      }
       
       return {
         id: `tiktok_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        username: `@${randomUsername}`,
+        username: username.startsWith('@') ? username : `@${username}`,
         followers_count: followers,
         following_count: following,
         posts_count: posts,
-        profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomUsername}`,
+        profile_picture_url: '',
         access_token: `tiktok_access_${Date.now()}`,
         refresh_token: `tiktok_refresh_${Date.now()}`
       };
@@ -123,7 +197,7 @@ export class SocialAuthService {
       let checkInterval: NodeJS.Timeout;
       let statusUpdateInterval: NodeJS.Timeout;
       let extractionAttempts = 0;
-      let timeLeft = 90; // Aumentado para 90 segundos
+      let timeLeft = 120; // Aumentado para 2 minutos
 
       // Atualizar status a cada segundo
       statusUpdateInterval = setInterval(() => {
@@ -133,33 +207,28 @@ export class SocialAuthService {
         }
       }, 1000);
 
-      // Verificar se a janela foi fechada e tentar extrair dados a cada 2 segundos
+      // Verificar se a janela foi fechada e tentar extrair dados a cada 3 segundos
       checkInterval = setInterval(() => {
         if (authWindow.closed) {
           clearInterval(checkInterval);
           clearInterval(statusUpdateInterval);
           clearTimeout(timeoutId);
           
-          onStatusChange?.('Processando dados da conta...');
-          // Simular dados já que a janela foi fechada
-          setTimeout(() => {
-            const userData = platform.toLowerCase() === 'instagram' 
-              ? this.generateFallbackData(platform)
-              : this.extractTikTokData(authWindow);
-            resolve(userData);
-          }, 1500);
+          reject(new Error('Janela fechada antes da extração de dados. Faça login e navegue até seu perfil antes de fechar a janela.'));
           return;
         }
 
-        // Tentar extrair dados se estiver logado (a cada 2 segundos)
-        if (extractionAttempts < 10) {
+        // Tentar extrair dados se estiver logado (a cada 3 segundos)
+        if (extractionAttempts < 20) {
           try {
             let userData = null;
+            const currentUrl = authWindow.location.href;
+            console.log('URL atual:', currentUrl);
             
             if (platform.toLowerCase() === 'instagram') {
               // Verificar se chegou na página do perfil
-              const currentUrl = authWindow.location.href;
               if (currentUrl.includes('instagram.com') && !currentUrl.includes('login') && !currentUrl.includes('accounts')) {
+                onStatusChange?.('Detectada página do perfil. Extraindo dados...');
                 userData = this.extractInstagramData(authWindow);
                 
                 if (userData) {
@@ -172,10 +241,13 @@ export class SocialAuthService {
                   resolve(userData);
                   return;
                 }
+              } else if (currentUrl.includes('login') || currentUrl.includes('accounts')) {
+                onStatusChange?.('Faça seu login e navegue até seu perfil...');
               }
             } else if (platform.toLowerCase() === 'tiktok') {
               const currentUrl = authWindow.location.href;
               if (currentUrl.includes('tiktok.com') && !currentUrl.includes('login')) {
+                onStatusChange?.('Detectada página do perfil. Extraindo dados...');
                 userData = this.extractTikTokData(authWindow);
                 
                 if (userData) {
@@ -197,9 +269,9 @@ export class SocialAuthService {
             extractionAttempts++;
           }
         }
-      }, 2000);
+      }, 3000);
 
-      // Timeout após 90 segundos
+      // Timeout após 2 minutos
       timeoutId = setTimeout(() => {
         clearInterval(checkInterval);
         clearInterval(statusUpdateInterval);
@@ -208,32 +280,9 @@ export class SocialAuthService {
           authWindow.close();
         }
         
-        reject(new Error('Tempo limite excedido. Tente novamente.'));
-      }, 90000);
+        reject(new Error('Tempo limite excedido. Faça login e navegue até seu perfil mais rapidamente.'));
+      }, 120000);
     });
-  }
-
-  private generateFallbackData(platform: string): any {
-    const usernames = [
-      'maria_silva123', 'joao_santos', 'ana_costa', 'pedro_oliveira',
-      'julia_ferreira', 'lucas_rodrigues', 'carla_almeida', 'bruno_lima'
-    ];
-    
-    const randomUsername = usernames[Math.floor(Math.random() * usernames.length)];
-    const followers = Math.floor(Math.random() * 50000) + 1000;
-    const following = Math.floor(Math.random() * 2000) + 100;
-    const posts = Math.floor(Math.random() * 500) + 50;
-    
-    return {
-      id: `${platform}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      username: `@${randomUsername}`,
-      followers_count: followers,
-      following_count: following,
-      posts_count: posts,
-      profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${randomUsername}`,
-      access_token: `${platform}_access_${Date.now()}`,
-      refresh_token: `${platform}_refresh_${Date.now()}`
-    };
   }
 
   async authenticateWithPlatform(config: SocialAuthConfig): Promise<SocialAuthResult> {
@@ -250,12 +299,16 @@ export class SocialAuthService {
 
       config.onStatusChange?.(`Janela do ${config.platform} aberta. Faça seu login e navegue até seu perfil...`);
 
-      // Aguardar o usuário fazer login e capturar dados
+      // Aguardar o usuário fazer login e capturar dados REAIS
       const userData = await this.waitForUserLogin(authWindow, config.platform, config.onStatusChange);
+      
+      if (!userData) {
+        throw new Error('Não foi possível extrair dados reais da conta. Verifique se você navegou até seu perfil.');
+      }
       
       config.onStatusChange?.('Conta conectada com sucesso!');
       
-      console.log('Autenticação concluída:', userData);
+      console.log('Autenticação concluída com dados reais:', userData);
       
       return {
         success: true,
@@ -271,6 +324,10 @@ export class SocialAuthService {
         errorMessage = "Tempo limite excedido. Faça o login e navegue até seu perfil mais rapidamente.";
       } else if (error.message.includes('popups')) {
         errorMessage = "Por favor, permita popups para este site e tente novamente.";
+      } else if (error.message.includes('Janela fechada')) {
+        errorMessage = "Janela fechada muito cedo. Faça login e navegue até seu perfil antes de fechar.";
+      } else if (error.message.includes('extrair dados')) {
+        errorMessage = "Não foi possível capturar os dados da conta. Certifique-se de estar na página do seu perfil.";
       }
       
       return {
