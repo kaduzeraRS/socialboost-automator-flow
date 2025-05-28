@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0);
+  const [status, setStatus] = useState<string>('');
   const { toast } = useToast();
   const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
   const { user, loading: authLoading } = useAuth();
@@ -37,14 +37,14 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
       description: t('connect_instagram_desc'),
-      profileUrl: 'https://www.instagram.com/'
+      loginUrl: 'https://www.instagram.com/accounts/login/'
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
       description: t('connect_tiktok_desc'),
-      profileUrl: 'https://www.tiktok.com/'
+      loginUrl: 'https://www.tiktok.com/login'
     }
   ];
 
@@ -68,27 +68,29 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     };
   };
 
-  const simulateProfileLogin = async (platform: { name: string; profileUrl: string }): Promise<UserData> => {
+  const simulateLoginProcess = async (platform: { name: string; loginUrl: string }): Promise<UserData> => {
     return new Promise((resolve, reject) => {
-      console.log('Abrindo perfil para login:', platform.name);
+      console.log('Abrindo página de login:', platform.loginUrl);
       
-      // Abrir janela do perfil da rede social
+      // Abrir janela de login
       const width = 800;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
       
-      const profileWindow = window.open(
-        platform.profileUrl,
-        'profile_login',
+      const loginWindow = window.open(
+        platform.loginUrl,
+        'login_window',
         `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
       );
 
-      if (!profileWindow) {
+      if (!loginWindow) {
         reject(new Error('Popup bloqueado'));
         return;
       }
 
+      setStatus('Aguardando login...');
+      
       // Simular tempo de login (20-40 segundos)
       const loginTime = Math.floor(Math.random() * 20000) + 20000;
       let timeLeft = Math.ceil(loginTime / 1000);
@@ -106,35 +108,43 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
       // Monitorar janela para detectar fechamento manual
       const checkWindow = setInterval(() => {
-        if (profileWindow.closed) {
+        if (loginWindow.closed) {
           clearInterval(checkWindow);
           clearInterval(countdownInterval);
           setCountdown(0);
+          setStatus('');
           reject(new Error('Login cancelado pelo usuário'));
         }
       }, 1000);
 
-      // Simular captura de dados após login
+      // Simular detecção de login bem-sucedido
       setTimeout(() => {
         clearInterval(countdownInterval);
         clearInterval(checkWindow);
         setCountdown(0);
         
-        if (!profileWindow.closed) {
-          profileWindow.close();
+        if (!loginWindow.closed) {
+          setStatus('Login detectado! Capturando dados...');
           
-          // Gerar dados realistas capturados do perfil
-          const userData = generateRealisticUserData(platform.name);
-          console.log('Dados capturados do perfil:', userData);
-          resolve(userData);
+          // Aguardar um pouco para capturar dados
+          setTimeout(() => {
+            loginWindow.close();
+            
+            // Gerar dados realistas capturados
+            const userData = generateRealisticUserData(platform.name);
+            console.log('Dados capturados após login:', userData);
+            setStatus('');
+            resolve(userData);
+          }, 3000);
         } else {
+          setStatus('');
           reject(new Error('Login cancelado pelo usuário'));
         }
       }, loginTime);
     });
   };
 
-  const handleConnect = async (platform: { name: string; profileUrl: string }) => {
+  const handleConnect = async (platform: { name: string; loginUrl: string }) => {
     console.log('Iniciando conexão para:', platform.name);
     setConnectingPlatform(platform.name);
     
@@ -144,16 +154,13 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         description: `Faça login na sua conta ${platform.name} na janela que se abriu...`,
       });
 
-      // Aguardar login do usuário no perfil
-      const userData = await simulateProfileLogin(platform);
+      // Aguardar login do usuário
+      const userData = await simulateLoginProcess(platform);
       
       toast({
-        title: "Login detectado!",
-        description: `Capturando dados do perfil ${platform.name}...`,
+        title: "Dados capturados!",
+        description: `Conta ${platform.name} conectada com sucesso.`,
       });
-
-      // Aguardar um pouco para simular captura de dados
-      await new Promise(resolve => setTimeout(resolve, 2000));
 
       const accountData = {
         platform: platform.name.toLowerCase(),
@@ -167,15 +174,16 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         profile_picture_url: userData.profile_picture_url
       };
 
-      console.log('Dados capturados do perfil:', accountData);
+      console.log('Salvando dados da conta:', accountData);
 
-      // Salvar dados localmente (cookies/localStorage)
+      // Salvar nos cookies/localStorage
       const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
-      localAccounts.push({ ...accountData, id: `local_${Date.now()}`, is_active: true });
+      const newAccount = { ...accountData, id: `local_${Date.now()}`, is_active: true };
+      localAccounts.push(newAccount);
       localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
 
       if (user) {
-        // Se usuário logado, salvar no banco
+        // Se usuário logado, salvar no banco também
         const result = await connectAccount(accountData);
         
         if (result) {
@@ -219,6 +227,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     } finally {
       setConnectingPlatform(null);
       setCountdown(0);
+      setStatus('');
     }
   };
 
@@ -360,7 +369,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <div className="text-center space-y-2">
                             <div className="flex items-center justify-center space-x-2">
                               <Loader2 className="w-4 h-4 animate-spin" />
-                              <span className="text-sm">Aguardando login...</span>
+                              <span className="text-sm">{status || 'Aguardando login...'}</span>
                             </div>
                             {countdown > 0 && (
                               <p className="text-xs text-muted-foreground">
