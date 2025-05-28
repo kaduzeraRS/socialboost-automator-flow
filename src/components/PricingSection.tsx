@@ -7,8 +7,14 @@ import PricingFooter from './pricing/PricingFooter';
 const PricingSection = () => {
   const { user } = useAuth();
   
-  // Fix: Use a variable that can change to any plan type
-  const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = user ? "Mensal" : null;
+  // Fix: Make currentPlan dynamic - this could come from user data in a real app
+  const getCurrentUserPlan = (): "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null => {
+    if (!user) return null;
+    // For now, we'll simulate different plans - in a real app this would come from the user's subscription data
+    return "Mensal"; // This could be user.subscription?.plan or similar
+  };
+  
+  const currentPlan = getCurrentUserPlan();
 
   const plans = [
     {
