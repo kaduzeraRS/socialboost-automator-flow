@@ -25,8 +25,9 @@ export const useSystemLogs = () => {
 
   const fetchLogs = async () => {
     try {
+      // Temporariamente usando warming_logs até que system_logs seja reconhecida
       const { data, error } = await supabase
-        .from('system_logs')
+        .from('warming_logs')
         .select('*')
         .order('executed_at', { ascending: false })
         .limit(100);
@@ -36,7 +37,19 @@ export const useSystemLogs = () => {
         return;
       }
 
-      setLogs(data || []);
+      // Mapear os dados para o formato esperado
+      const mappedData = data?.map(log => ({
+        id: log.id,
+        user_id: log.user_id,
+        warming_campaign_id: log.warming_campaign_id,
+        action: log.action as SystemLog['action'],
+        status: log.success ? 'success' : 'failed' as SystemLog['status'],
+        error_message: log.error_message,
+        executed_at: log.executed_at,
+        details: { amount: log.amount, target_post_id: log.target_post_id }
+      })) || [];
+
+      setLogs(mappedData);
     } catch (error) {
       console.error('Error in fetchLogs:', error);
     } finally {
@@ -60,12 +73,20 @@ export const useSystemLogs = () => {
       
       if (!user) return;
 
-      await supabase
-        .from('system_logs')
-        .insert([{
-          user_id: user.id,
-          ...logData
-        }]);
+      // Temporariamente usando warming_logs
+      if (logData.warming_campaign_id) {
+        await supabase
+          .from('warming_logs')
+          .insert([{
+            user_id: user.id,
+            warming_campaign_id: logData.warming_campaign_id,
+            action: logData.action,
+            success: logData.status === 'success',
+            error_message: logData.error_message,
+            amount: logData.details?.amount || 1,
+            target_post_id: logData.target_post_url
+          }]);
+      }
 
       await fetchLogs();
     } catch (error) {

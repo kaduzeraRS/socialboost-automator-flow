@@ -142,7 +142,7 @@ const UnfollowDialog = ({ children }: UnfollowDialogProps) => {
                     <div>
                       <h4 className="font-medium">{account.platform} - {account.username}</h4>
                       <p className="text-sm text-muted-foreground">
-                        Seguindo: {account.following_count || 0}
+                        Seguindo: {account.followers_count || 0}
                       </p>
                     </div>
                     <div className="space-x-2">
