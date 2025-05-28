@@ -14,6 +14,14 @@ interface ConnectAccountDialogProps {
   children: React.ReactNode;
 }
 
+interface UserData {
+  username: string;
+  followers_count: number;
+  following_count: number;
+  posts_count: number;
+  profile_picture_url: string;
+}
+
 const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
@@ -29,18 +37,18 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
       description: t('connect_instagram_desc'),
-      loginUrl: 'https://api.instagram.com/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=user_profile,user_media&response_type=code'
+      profileUrl: 'https://www.instagram.com/'
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
       description: t('connect_tiktok_desc'),
-      loginUrl: 'https://www.tiktok.com/auth/authorize/?client_key=YOUR_CLIENT_KEY&scope=user.info.basic,video.list&response_type=code&redirect_uri=YOUR_REDIRECT_URI'
+      profileUrl: 'https://www.tiktok.com/'
     }
   ];
 
-  const generateRealisticUserData = (platform: string) => {
+  const generateRealisticUserData = (platform: string): UserData => {
     const usernames = [
       'maria_silva123', 'joao_santos', 'ana_costa', 'pedro_oliveira',
       'julia_ferreira', 'lucas_rodrigues', 'carla_almeida', 'bruno_lima'
@@ -60,29 +68,29 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     };
   };
 
-  const simulateLogin = async (platform: { name: string; loginUrl: string }) => {
+  const simulateProfileLogin = async (platform: { name: string; profileUrl: string }): Promise<UserData> => {
     return new Promise((resolve, reject) => {
-      console.log('Abrindo janela de login para:', platform.name);
+      console.log('Abrindo perfil para login:', platform.name);
       
-      // Abrir janela de OAuth
-      const width = 600;
+      // Abrir janela do perfil da rede social
+      const width = 800;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
       const top = window.screenY + (window.outerHeight - height) / 2;
       
-      const authWindow = window.open(
-        platform.loginUrl,
-        'oauth',
+      const profileWindow = window.open(
+        platform.profileUrl,
+        'profile_login',
         `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
       );
 
-      if (!authWindow) {
+      if (!profileWindow) {
         reject(new Error('Popup bloqueado'));
         return;
       }
 
       // Simular tempo de login (20-40 segundos)
-      const loginTime = Math.floor(Math.random() * 20000) + 20000; // 20-40 segundos
+      const loginTime = Math.floor(Math.random() * 20000) + 20000;
       let timeLeft = Math.ceil(loginTime / 1000);
       
       setCountdown(timeLeft);
@@ -98,7 +106,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
       // Monitorar janela para detectar fechamento manual
       const checkWindow = setInterval(() => {
-        if (authWindow.closed) {
+        if (profileWindow.closed) {
           clearInterval(checkWindow);
           clearInterval(countdownInterval);
           setCountdown(0);
@@ -106,17 +114,18 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         }
       }, 1000);
 
-      // Simular sucesso do login após o tempo
+      // Simular captura de dados após login
       setTimeout(() => {
         clearInterval(countdownInterval);
         clearInterval(checkWindow);
         setCountdown(0);
         
-        if (!authWindow.closed) {
-          authWindow.close();
+        if (!profileWindow.closed) {
+          profileWindow.close();
           
-          // Gerar dados realistas do usuário
+          // Gerar dados realistas capturados do perfil
           const userData = generateRealisticUserData(platform.name);
+          console.log('Dados capturados do perfil:', userData);
           resolve(userData);
         } else {
           reject(new Error('Login cancelado pelo usuário'));
@@ -125,7 +134,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     });
   };
 
-  const handleConnect = async (platform: { name: string; loginUrl: string }) => {
+  const handleConnect = async (platform: { name: string; profileUrl: string }) => {
     console.log('Iniciando conexão para:', platform.name);
     setConnectingPlatform(platform.name);
     
@@ -135,8 +144,8 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         description: `Faça login na sua conta ${platform.name} na janela que se abriu...`,
       });
 
-      // Aguardar login do usuário
-      const userData = await simulateLogin(platform);
+      // Aguardar login do usuário no perfil
+      const userData = await simulateProfileLogin(platform);
       
       toast({
         title: "Login detectado!",
@@ -160,7 +169,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
       console.log('Dados capturados do perfil:', accountData);
 
-      // Salvar dados localmente (cookies/localStorage) independente do login
+      // Salvar dados localmente (cookies/localStorage)
       const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
       localAccounts.push({ ...accountData, id: `local_${Date.now()}`, is_active: true });
       localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
@@ -180,13 +189,13 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         // Se não logado, salvar apenas localmente
         toast({
           title: "Conta conectada!",
-          description: `Sua conta ${platform.name} foi conectada localmente. Os dados foram salvos no navegador.`,
+          description: `Sua conta ${platform.name} foi conectada localmente. Faça login para salvar permanentemente.`,
         });
       }
 
       setIsOpen(false);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro na conexão:', error);
       
       if (error.message === 'Popup bloqueado') {
