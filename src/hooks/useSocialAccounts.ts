@@ -259,9 +259,6 @@ export const useSocialAccounts = () => {
         await connectAccount({
           platform: localAccount.platform,
           username: localAccount.username,
-          account_id: localAccount.account_id,
-          access_token: localAccount.access_token,
-          refresh_token: localAccount.refresh_token,
           followers_count: localAccount.followers_count,
           following_count: localAccount.following_count,
           posts_count: localAccount.posts_count,
