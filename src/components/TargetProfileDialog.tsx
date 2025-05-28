@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus } from 'lucide-react';
 import { useTargetProfiles } from '@/hooks/useTargetProfiles';
+import { useAuth } from '@/hooks/useAuth';
 
 interface TargetProfileDialogProps {
   socialAccounts: any[];
@@ -17,29 +18,62 @@ const TargetProfileDialog = ({ socialAccounts, onProfileAdded }: TargetProfileDi
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [selectedAccount, setSelectedAccount] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { addTargetProfile } = useTargetProfiles();
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username || !selectedAccount) return;
+    console.log('Form submitted:', { username, selectedAccount, user: !!user });
+    
+    if (!user) {
+      console.error('User not authenticated');
+      return;
+    }
+    
+    if (!username || !selectedAccount) {
+      console.log('Missing required fields:', { username, selectedAccount });
+      return;
+    }
 
     const account = socialAccounts.find(acc => acc.id === selectedAccount);
-    if (!account) return;
+    if (!account) {
+      console.error('Account not found:', selectedAccount);
+      return;
+    }
 
-    const result = await addTargetProfile({
+    setIsSubmitting(true);
+    console.log('Adding profile with data:', {
       social_account_id: selectedAccount,
       username: username.startsWith('@') ? username : `@${username}`,
       platform: account.platform
     });
 
-    if (result) {
-      setUsername('');
-      setSelectedAccount('');
-      setIsOpen(false);
-      onProfileAdded?.();
+    try {
+      const result = await addTargetProfile({
+        social_account_id: selectedAccount,
+        username: username.startsWith('@') ? username : `@${username}`,
+        platform: account.platform
+      });
+
+      if (result) {
+        console.log('Profile added successfully:', result);
+        setUsername('');
+        setSelectedAccount('');
+        setIsOpen(false);
+        onProfileAdded?.();
+      }
+    } catch (error) {
+      console.error('Error adding profile:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -83,8 +117,12 @@ const TargetProfileDialog = ({ socialAccounts, onProfileAdded }: TargetProfileDi
             <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-purple-primary hover:bg-purple-hover">
-              Adicionar
+            <Button 
+              type="submit" 
+              className="bg-purple-primary hover:bg-purple-hover"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Adicionando...' : 'Adicionar'}
             </Button>
           </div>
         </form>

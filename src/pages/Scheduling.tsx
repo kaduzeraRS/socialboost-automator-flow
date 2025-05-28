@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, Image, Plus } from 'lucide-react';
 import { useState } from 'react';
+import CreatePostDialog from '@/components/CreatePostDialog';
 
 const Scheduling = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -43,10 +44,12 @@ const Scheduling = () => {
             <h1 className="text-3xl font-bold text-foreground">Agendamento de Posts</h1>
             <p className="text-muted-foreground">Gerencie e agende seus posts para Instagram e TikTok</p>
           </div>
-          <Button className="bg-purple-primary hover:bg-purple-hover">
-            <Plus className="w-4 h-4 mr-2" />
-            Novo Post
-          </Button>
+          <CreatePostDialog>
+            <Button className="bg-purple-primary hover:bg-purple-hover">
+              <Plus className="w-4 h-4 mr-2" />
+              Novo Post
+            </Button>
+          </CreatePostDialog>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

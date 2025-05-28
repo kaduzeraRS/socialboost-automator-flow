@@ -8,6 +8,8 @@ interface SocialAccount {
   platform: string;
   username: string;
   followers_count: number;
+  following_count: number;
+  posts_count: number;
   is_active: boolean;
   profile_picture_url?: string;
   created_at: string;
@@ -20,6 +22,8 @@ export const useSocialAccounts = () => {
 
   const fetchAccounts = async () => {
     try {
+      console.log('Fetching social accounts...');
+      
       const { data, error } = await supabase
         .from('social_accounts')
         .select('*')
@@ -35,6 +39,7 @@ export const useSocialAccounts = () => {
         return;
       }
 
+      console.log('Social accounts loaded:', data);
       setAccounts(data || []);
     } catch (error) {
       console.error('Error in fetchAccounts:', error);
@@ -53,9 +58,12 @@ export const useSocialAccounts = () => {
     profile_picture_url?: string;
   }) => {
     try {
+      console.log('Connecting account:', accountData);
+      
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
+        console.error('No authenticated user found');
         toast({
           title: "Erro de autenticação",
           description: "Você precisa estar logado para conectar uma conta.",
@@ -63,6 +71,8 @@ export const useSocialAccounts = () => {
         });
         return null;
       }
+
+      console.log('Authenticated user for account connection:', user.id);
 
       const { data, error } = await supabase
         .from('social_accounts')
@@ -83,6 +93,8 @@ export const useSocialAccounts = () => {
         return null;
       }
 
+      console.log('Account connected successfully:', data);
+
       // Log the connection
       await logConnection(data.id, accountData.platform, 'connect', 'success');
 
@@ -101,6 +113,8 @@ export const useSocialAccounts = () => {
 
   const disconnectAccount = async (accountId: string, platform: string) => {
     try {
+      console.log('Disconnecting account:', accountId);
+      
       const { error } = await supabase
         .from('social_accounts')
         .delete()

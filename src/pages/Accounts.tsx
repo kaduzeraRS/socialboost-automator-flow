@@ -116,15 +116,15 @@ const Accounts = () => {
                       <CardContent className="space-y-4">
                         <div className="grid grid-cols-3 gap-2 text-sm">
                           <div className="text-center">
-                            <p className="font-medium">{account.followers_count}</p>
+                            <p className="font-medium">{account.followers_count || 0}</p>
                             <p className="text-muted-foreground text-xs">Seguidores</p>
                           </div>
                           <div className="text-center">
-                            <p className="font-medium">{account.following_count}</p>
+                            <p className="font-medium">{account.following_count || 0}</p>
                             <p className="text-muted-foreground text-xs">Seguindo</p>
                           </div>
                           <div className="text-center">
-                            <p className="font-medium">{account.posts_count}</p>
+                            <p className="font-medium">{account.posts_count || 0}</p>
                             <p className="text-muted-foreground text-xs">Posts</p>
                           </div>
                         </div>
@@ -179,7 +179,7 @@ const Accounts = () => {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center p-4 border rounded">
                           <BarChart3 className="w-8 h-8 mx-auto mb-2 text-blue-500" />
-                          <p className="text-2xl font-bold">{account.followers_count}</p>
+                          <p className="text-2xl font-bold">{account.followers_count || 0}</p>
                           <p className="text-sm text-muted-foreground">Seguidores</p>
                         </div>
                         <div className="text-center p-4 border rounded">
