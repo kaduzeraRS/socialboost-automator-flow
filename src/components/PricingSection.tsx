@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const PricingSection = () => {
   const { user } = useAuth();
-  const currentPlan = "Mensal"; // Isso viria do Supabase posteriormente
+  const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = "Mensal"; // Isso viria do Supabase posteriormente
 
   const plans = [
     {
