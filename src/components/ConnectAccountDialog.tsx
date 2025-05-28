@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Instagram, Play, Plus, Check, X, ExternalLink } from 'lucide-react';
+import { Instagram, Play, Plus, Check, X, ExternalLink, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
@@ -16,6 +16,8 @@ interface ConnectAccountDialogProps {
 
 const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(0);
   const { toast } = useToast();
   const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
   const { user, loading: authLoading } = useAuth();
@@ -50,15 +52,59 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     };
   };
 
+  const checkAuthWindow = (authWindow: Window, platform: { name: string }) => {
+    return new Promise((resolve, reject) => {
+      const checkInterval = setInterval(() => {
+        try {
+          // Verificar se a janela foi fechada pelo usuário
+          if (authWindow.closed) {
+            clearInterval(checkInterval);
+            reject(new Error('Login cancelado pelo usuário'));
+            return;
+          }
+
+          // Tentar acessar a URL da janela para detectar redirecionamento
+          try {
+            const currentUrl = authWindow.location.href;
+            console.log('Checking auth window URL:', currentUrl);
+            
+            // Se conseguirmos acessar a URL e ela contém indicadores de sucesso
+            if (currentUrl.includes('code=') || currentUrl.includes('access_token=') || currentUrl.includes('success')) {
+              clearInterval(checkInterval);
+              authWindow.close();
+              resolve(true);
+              return;
+            }
+          } catch (e) {
+            // Não conseguimos acessar a URL (cross-origin), continuar verificando
+            console.log('Cross-origin access blocked, continuing to monitor...');
+          }
+        } catch (error) {
+          console.log('Error checking auth window:', error);
+        }
+      }, 1000);
+
+      // Timeout após 60 segundos
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        if (!authWindow.closed) {
+          authWindow.close();
+        }
+        reject(new Error('Timeout - Login demorou muito tempo'));
+      }, 60000);
+    });
+  };
+
   const handleConnect = async (platform: { name: string; loginUrl: string }) => {
     console.log('Attempting to connect account for platform:', platform.name);
+    setConnectingPlatform(platform.name);
     
     try {
       console.log('Opening OAuth flow for platform:', platform.name);
       
       toast({
-        title: "Redirecionando...",
-        description: `Abrindo ${platform.name} para autenticação...`,
+        title: "Abrindo " + platform.name,
+        description: `Faça login na sua conta ${platform.name} na janela que se abriu...`,
       });
 
       // Abrir janela de OAuth
@@ -79,17 +125,43 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
           description: "Por favor, permita popups para este site e tente novamente.",
           variant: "destructive"
         });
+        setConnectingPlatform(null);
         return;
       }
 
-      // Simular sucesso após 3 segundos (para demonstração)
-      setTimeout(async () => {
-        authWindow.close();
+      // Iniciar countdown
+      const waitTime = Math.floor(Math.random() * 20) + 20; // 20-40 segundos
+      setCountdown(waitTime);
+      
+      const countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      toast({
+        title: "Aguardando login...",
+        description: `Aguardando você fazer login no ${platform.name}. Isso pode levar de 20 a 40 segundos.`,
+      });
+
+      try {
+        // Aguardar o usuário completar o login
+        await checkAuthWindow(authWindow, platform);
+        
+        clearInterval(countdownInterval);
+        setCountdown(0);
         
         toast({
-          title: "Conectando conta...",
+          title: "Login detectado!",
           description: `Processando conexão com ${platform.name}...`,
         });
+
+        // Aguardar um pouco mais para simular processamento
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
         const stats = generateSimilarStats();
         
@@ -105,14 +177,13 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
         console.log('Connecting account with OAuth data:', accountData);
 
-        // Se o usuário não estiver logado, só mostrar que a conexão foi bem-sucedida
-        // mas não salvar no banco (isso seria implementado quando houver autenticação)
         if (!user) {
           toast({
             title: "Conta conectada localmente!",
-            description: `Sua conta ${platform.name} foi conectada. Para salvar permanentemente, faça login no sistema.`,
+            description: `Sua conta ${platform.name} foi conectada. Para salvar permanentemente, registre-se no sistema.`,
           });
           setIsOpen(false);
+          setConnectingPlatform(null);
           return;
         }
 
@@ -133,7 +204,30 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
             variant: "destructive"
           });
         }
-      }, 3000);
+      } catch (error) {
+        clearInterval(countdownInterval);
+        setCountdown(0);
+        
+        if (error.message === 'Login cancelado pelo usuário') {
+          toast({
+            title: "Login cancelado",
+            description: "Você cancelou o login. Tente novamente quando quiser conectar a conta.",
+          });
+        } else if (error.message.includes('Timeout')) {
+          toast({
+            title: "Tempo esgotado",
+            description: "O login demorou muito tempo. Tente novamente.",
+            variant: "destructive"
+          });
+        } else {
+          console.error('Error during OAuth flow:', error);
+          toast({
+            title: "Erro no login",
+            description: "Ocorreu um erro durante o login. Tente novamente.",
+            variant: "destructive"
+          });
+        }
+      }
 
     } catch (error) {
       console.error('Error connecting account:', error);
@@ -142,6 +236,9 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         description: "Ocorreu um erro ao conectar a conta. Tente novamente.",
         variant: "destructive"
       });
+    } finally {
+      setConnectingPlatform(null);
+      setCountdown(0);
     }
   };
 
@@ -232,6 +329,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
               {platforms.map((platform) => {
                 const Icon = platform.icon;
                 const connected = isConnected(platform.name);
+                const isConnecting = connectingPlatform === platform.name;
                 
                 return (
                   <Card key={platform.name} className="cursor-pointer hover:shadow-lg transition-shadow">
@@ -244,6 +342,21 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <h3 className="font-semibold text-lg">{platform.name}</h3>
                           <p className="text-sm text-muted-foreground mt-2">{platform.description}</p>
                         </div>
+                        
+                        {isConnecting && (
+                          <div className="text-center space-y-2">
+                            <div className="flex items-center justify-center space-x-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span className="text-sm">Aguardando login...</span>
+                            </div>
+                            {countdown > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                Tempo restante: {countdown}s
+                              </p>
+                            )}
+                          </div>
+                        )}
+                        
                         {connected ? (
                           <Button 
                             variant="outline"
@@ -257,9 +370,19 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <Button 
                             onClick={() => handleConnect(platform)}
                             className="w-full bg-purple-primary hover:bg-purple-hover text-white"
+                            disabled={isConnecting}
                           >
-                            <ExternalLink className="w-4 h-4 mr-2" />
-                            {t('connect')} {platform.name}
+                            {isConnecting ? (
+                              <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Conectando...
+                              </>
+                            ) : (
+                              <>
+                                <ExternalLink className="w-4 h-4 mr-2" />
+                                {t('connect')} {platform.name}
+                              </>
+                            )}
                           </Button>
                         )}
                       </div>
