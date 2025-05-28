@@ -1,15 +1,14 @@
 
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Instagram, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Instagram } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useAuth } from '@/hooks/useAuth';
 import { InstagramAuthService } from '@/services/InstagramAuthService';
+import InstagramLoginForm from './InstagramLoginForm';
+import InstagramLoginStatus from './InstagramLoginStatus';
 
 interface InstagramLoginModalProps {
   isOpen: boolean;
@@ -18,34 +17,13 @@ interface InstagramLoginModalProps {
 }
 
 const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModalProps) => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
   const [isLogging, setIsLogging] = useState(false);
   const [authStatus, setAuthStatus] = useState('');
   const { toast } = useToast();
   const { connectAccount, refetch } = useSocialAccounts();
   const { user } = useAuth();
 
-  const handleInputChange = (field: string, value: string) => {
-    setCredentials(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleLogin = async () => {
-    if (!credentials.username || !credentials.password) {
-      toast({
-        title: "Dados incompletos",
-        description: "Por favor, preencha usuário e senha.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  const handleLogin = async (credentials: { username: string; password: string }) => {
     setIsLogging(true);
     setAuthStatus('Iniciando automação de login...');
 
@@ -64,8 +42,6 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
       });
 
       if (result.success && result.userData) {
-        console.log('Dados reais capturados:', result.userData);
-        
         const accountData = {
           platform: 'instagram',
           username: result.userData.username,
@@ -78,18 +54,12 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
           profile_picture_url: result.userData.profile_picture_url
         };
 
-        console.log('Dados preparados para salvar:', accountData);
-
-        // Se usuário logado, salvar no banco de dados
         if (user) {
-          console.log('Usuário logado, salvando no banco...');
           const savedAccount = await connectAccount(accountData);
           if (savedAccount) {
-            console.log('Conta salva no banco com sucesso:', savedAccount);
-            
             toast({
               title: "Conta conectada!",
-              description: "Sua conta Instagram foi conectada e salva no banco de dados.",
+              description: "Sua conta Instagram foi conectada com sucesso.",
             });
             
             await refetch();
@@ -99,8 +69,6 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
             throw new Error('Falha ao salvar a conta no banco de dados');
           }
         } else {
-          // Se não logado, salvar apenas localmente
-          console.log('Usuário não logado, salvando apenas localmente...');
           const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
           const newAccount = { ...accountData, id: `local_${Date.now()}`, is_active: true };
           localAccounts.push(newAccount);
@@ -134,7 +102,6 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
 
   const handleClose = () => {
     if (!isLogging) {
-      setCredentials({ username: '', password: '' });
       setAuthStatus('');
       onClose();
     }
@@ -154,73 +121,15 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
         
         <Card>
           <CardContent className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Usuário, e-mail ou telefone</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="Digite seu usuário, e-mail ou telefone"
-                value={credentials.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                disabled={isLogging}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Digite sua senha"
-                  value={credentials.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  disabled={isLogging}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isLogging}
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {isLogging && authStatus && (
-              <div className="text-center space-y-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="flex items-center justify-center space-x-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                  <span className="text-sm text-blue-600">{authStatus}</span>
-                </div>
-              </div>
-            )}
-
-            <Button 
-              onClick={handleLogin}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-              disabled={isLogging || !credentials.username || !credentials.password}
-            >
-              {isLogging ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Conectando...
-                </>
-              ) : (
-                'Conectar'
-              )}
-            </Button>
-
-            <p className="text-xs text-muted-foreground text-center">
-              Seus dados são utilizados apenas para conectar sua conta e não são armazenados.
-            </p>
+            <InstagramLoginForm 
+              onSubmit={handleLogin}
+              isLoading={isLogging}
+            />
+            
+            <InstagramLoginStatus 
+              status={authStatus}
+              isVisible={isLogging && !!authStatus}
+            />
           </CardContent>
         </Card>
       </DialogContent>
