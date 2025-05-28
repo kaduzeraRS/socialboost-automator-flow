@@ -1,13 +1,15 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Instagram, Play, Plus, Check, X, ExternalLink } from 'lucide-react';
+import { Instagram, Play, Plus, Check, X, ExternalLink, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
+import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ConnectAccountDialogProps {
   children: React.ReactNode;
@@ -17,6 +19,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
+  const { user, loading: authLoading } = useAuth();
   const { t } = useLanguage();
 
   const platforms = [
@@ -49,9 +52,41 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   };
 
   const handleConnect = async (platform: { name: string; loginUrl: string }) => {
-    console.log('Opening OAuth for platform:', platform.name);
+    console.log('Attempting to connect account for platform:', platform.name);
+    console.log('Current user:', user);
+    console.log('Auth loading:', authLoading);
     
+    // Verificar se ainda está carregando
+    if (authLoading) {
+      console.log('Authentication still loading, please wait...');
+      toast({
+        title: "Carregando...",
+        description: "Aguarde enquanto verificamos sua autenticação.",
+      });
+      return;
+    }
+
+    // Verificar se o usuário está logado
+    if (!user) {
+      console.error('No user found when trying to connect account');
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para conectar uma conta. Faça login primeiro.",
+        variant: "destructive"
+      });
+      
+      // Redirecionar para a página de login
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 2000);
+      return;
+    }
+
     try {
+      console.log('User is authenticated, proceeding with OAuth flow...');
+      console.log('User ID:', user.id);
+      console.log('User email:', user.email);
+      
       toast({
         title: "Redirecionando...",
         description: `Abrindo ${platform.name} para autenticação...`,
@@ -141,7 +176,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     );
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
@@ -172,6 +207,19 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         </DialogHeader>
         
         <div className="space-y-6">
+          {/* Alerta de autenticação se não estiver logado */}
+          {!user && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Você precisa estar logado para conectar contas. 
+                <Button variant="link" className="p-0 ml-1" onClick={() => window.location.href = '/'}>
+                  Fazer login
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
           {connectedAccounts.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-4">{t('connected_accounts')}</h3>
@@ -241,6 +289,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <Button 
                             onClick={() => handleConnect(platform)}
                             className="w-full bg-purple-primary hover:bg-purple-hover text-white"
+                            disabled={!user}
                           >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             {t('connect')} {platform.name}

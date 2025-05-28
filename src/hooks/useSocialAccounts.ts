@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -73,17 +72,37 @@ export const useSocialAccounts = () => {
     try {
       console.log('Connecting account:', accountData);
       
-      // Simular um usuário temporário para demonstração
-      const tempUserId = 'demo-user-' + Date.now();
+      const { data: { user } } = await supabase.auth.getUser();
       
-      // Verificar se a conta já está conectada (usando localStorage para demo)
-      const existingAccounts = JSON.parse(localStorage.getItem('demo_accounts') || '[]');
-      const alreadyExists = existingAccounts.some((acc: any) => 
-        acc.platform === accountData.platform && acc.is_active
-      );
+      if (!user) {
+        console.error('No authenticated user found for account connection');
+        toast({
+          title: "Erro de autenticação",
+          description: "Sessão expirada. Faça login novamente para conectar uma conta.",
+          variant: "destructive"
+        });
+        // Redirecionar para login
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+        return null;
+      }
 
-      if (alreadyExists) {
-        console.log('Account already connected');
+      console.log('Authenticated user for account connection:', user.id);
+      console.log('User email:', user.email);
+
+      // Verificar se a conta já está conectada
+      const { data: existingAccounts, error: checkError } = await supabase
+        .from('social_accounts')
+        .select('id, platform, username')
+        .eq('user_id', user.id)
+        .eq('platform', accountData.platform)
+        .eq('is_active', true);
+
+      if (checkError) {
+        console.error('Error checking existing accounts:', checkError);
+      } else if (existingAccounts && existingAccounts.length > 0) {
+        console.log('Account already connected:', existingAccounts[0]);
         toast({
           title: "Conta já conectada",
           description: `Você já possui uma conta ${accountData.platform} conectada.`,
@@ -92,29 +111,37 @@ export const useSocialAccounts = () => {
         return null;
       }
 
-      // Criar nova conta
-      const newAccount = {
-        id: 'account-' + Date.now(),
-        user_id: tempUserId,
-        ...accountData,
-        is_active: true,
-        created_at: new Date().toISOString()
-      };
+      const { data, error } = await supabase
+        .from('social_accounts')
+        .insert([{
+          user_id: user.id,
+          ...accountData
+        }])
+        .select()
+        .single();
 
-      // Salvar no localStorage para demonstração
-      const updatedAccounts = [...existingAccounts, newAccount];
-      localStorage.setItem('demo_accounts', JSON.stringify(updatedAccounts));
+      if (error) {
+        console.error('Error connecting account:', error);
+        toast({
+          title: "Erro ao conectar conta",
+          description: "Não foi possível conectar a conta. Tente novamente.",
+          variant: "destructive"
+        });
+        return null;
+      }
 
-      console.log('Account connected successfully:', newAccount);
+      console.log('Account connected successfully:', data);
+
+      // Log the connection
+      await logConnection(data.id, accountData.platform, 'connect', 'success');
 
       toast({
         title: "Conta conectada!",
         description: `Sua conta ${accountData.platform} foi conectada com sucesso.`,
       });
 
-      // Atualizar a lista local
-      setAccounts(updatedAccounts);
-      return newAccount;
+      await fetchAccounts(); // Refresh the list
+      return data;
     } catch (error) {
       console.error('Error in connectAccount:', error);
       toast({
@@ -130,20 +157,65 @@ export const useSocialAccounts = () => {
     try {
       console.log('Disconnecting account:', accountId);
       
-      // Remover do localStorage
-      const existingAccounts = JSON.parse(localStorage.getItem('demo_accounts') || '[]');
-      const updatedAccounts = existingAccounts.filter((acc: any) => acc.id !== accountId);
-      localStorage.setItem('demo_accounts', JSON.stringify(updatedAccounts));
+      const { error } = await supabase
+        .from('social_accounts')
+        .delete()
+        .eq('id', accountId);
+
+      if (error) {
+        console.error('Error disconnecting account:', error);
+        toast({
+          title: "Erro ao desconectar",
+          description: "Não foi possível desconectar a conta.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Log the disconnection
+      await logConnection(accountId, platform, 'disconnect', 'success');
 
       toast({
         title: "Conta desconectada",
         description: `Conta ${platform} foi desconectada com sucesso.`,
       });
 
-      // Atualizar a lista local
-      setAccounts(updatedAccounts);
+      await fetchAccounts(); // Refresh the list
     } catch (error) {
       console.error('Error in disconnectAccount:', error);
+    }
+  };
+
+  const logConnection = async (
+    socialAccountId: string,
+    platform: string,
+    action: string,
+    status: string,
+    errorMessage?: string
+  ) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
+      await supabase
+        .from('connection_logs')
+        .insert([{
+          user_id: user.id,
+          social_account_id: socialAccountId,
+          platform,
+          action,
+          status,
+          error_message: errorMessage,
+          ip_address: null,
+          user_agent: navigator.userAgent,
+          metadata: {
+            timestamp: new Date().toISOString(),
+            browser: navigator.userAgent
+          }
+        }]);
+    } catch (error) {
+      console.error('Error logging connection:', error);
     }
   };
 
@@ -166,10 +238,7 @@ export const useSocialAccounts = () => {
   };
 
   useEffect(() => {
-    // Carregar contas do localStorage para demonstração
-    const demoAccounts = JSON.parse(localStorage.getItem('demo_accounts') || '[]');
-    setAccounts(demoAccounts);
-    setLoading(false);
+    fetchAccounts();
   }, []);
 
   return {
