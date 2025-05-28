@@ -228,14 +228,6 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('connect_new_account')}</h3>
-            {!user && (
-              <p className="text-sm text-muted-foreground mb-4">
-                Conecte suas contas das redes sociais. Para salvar permanentemente, 
-                <Button variant="link" className="p-0 ml-1" onClick={() => window.location.href = '/auth'}>
-                  faça login no sistema
-                </Button>
-              </p>
-            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {platforms.map((platform) => {
                 const Icon = platform.icon;

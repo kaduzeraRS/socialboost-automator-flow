@@ -196,6 +196,8 @@ const Auth = () => {
                     onChange={(e) => setFullName(e.target.value)}
                     className="pl-10"
                     required
+                    autoComplete="name"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -213,6 +215,8 @@ const Auth = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
+                  autoComplete="email"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -229,6 +233,8 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10"
                   required
+                  autoComplete={isSignUp ? "new-password" : "current-password"}
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -246,6 +252,8 @@ const Auth = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10"
                     required
+                    autoComplete="new-password"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -268,6 +276,7 @@ const Auth = () => {
                 variant="link"
                 onClick={toggleMode}
                 className="p-0 ml-1 font-medium"
+                disabled={loading}
               >
                 {isSignUp ? 'Fazer login' : 'Criar conta'}
               </Button>
