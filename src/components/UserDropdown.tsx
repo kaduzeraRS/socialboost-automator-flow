@@ -25,8 +25,8 @@ const UserDropdown = () => {
   };
 
   const handleSettings = () => {
-    console.log('Redirecionando para aba de notificações');
-    window.location.href = '/configuracoes?tab=notifications';
+    console.log('Redirecionando para configurações');
+    window.location.href = '/configuracoes';
   };
 
   const handleHelp = () => {
@@ -67,7 +67,7 @@ const UserDropdown = () => {
       <Button 
         variant="ghost" 
         size="icon" 
-        onClick={() => window.location.href = '/'}
+        onClick={() => window.location.href = '/auth'}
         className="transition-all duration-200 hover:scale-105"
       >
         <User className="w-5 h-5" />
@@ -76,7 +76,7 @@ const UserDropdown = () => {
   }
 
   const userEmail = user.email || 'Usuário não identificado';
-  const userName = profile?.full_name || user.user_metadata?.full_name || 'Usuário';
+  const userName = profile?.full_name || user.user_metadata?.full_name || userEmail.split('@')[0] || 'Usuário';
 
   return (
     <DropdownMenu>
@@ -100,7 +100,7 @@ const UserDropdown = () => {
               {userEmail}
             </p>
             {profile?.role && profile.role !== 'user' && (
-              <p className="text-xs leading-none text-purple-600 font-medium capitalize bg-purple-50 px-2 py-1 rounded">
+              <p className="text-xs leading-none text-purple-600 font-medium capitalize bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded">
                 {profile.role === 'admin' ? 'Administrador' : 
                  profile.role === 'agency' ? 'Agência' : 
                  profile.role === 'moderator' ? 'Moderador' : profile.role}

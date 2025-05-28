@@ -1,8 +1,12 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
 
 const PricingSection = () => {
+  const { user } = useAuth();
+  const currentPlan = "Mensal"; // Isso viria do Supabase posteriormente
+
   const plans = [
     {
       name: "Quinzenal",
@@ -12,9 +16,11 @@ const PricingSection = () => {
         "2 contas Instagram/TikTok",
         "100 posts agendados",
         "5.000 interações/15 dias",
-        "Suporte básico"
+        "Suporte básico",
+        "Relatórios básicos"
       ],
-      popular: false
+      popular: false,
+      isCurrent: currentPlan === "Quinzenal"
     },
     {
       name: "Mensal",
@@ -25,9 +31,11 @@ const PricingSection = () => {
         "1.000 posts agendados",
         "10.000 interações/mês",
         "Analytics avançados",
-        "Suporte prioritário"
+        "Suporte prioritário",
+        "Relatórios detalhados"
       ],
-      popular: true
+      popular: false,
+      isCurrent: currentPlan === "Mensal"
     },
     {
       name: "Trimestral",
@@ -40,9 +48,12 @@ const PricingSection = () => {
         "15.000 interações/mês",
         "Analytics avançados",
         "Suporte VIP",
-        "API access"
+        "API access",
+        "Relatórios premium",
+        "Insights personalizados"
       ],
-      popular: false
+      popular: false,
+      isCurrent: currentPlan === "Trimestral"
     },
     {
       name: "Anual",
@@ -55,9 +66,12 @@ const PricingSection = () => {
         "20.000 interações/mês",
         "Tudo do plano anterior",
         "Gerente dedicado",
-        "White label"
+        "White label",
+        "Relatórios executivos",
+        "Consultoria estratégica"
       ],
-      popular: false
+      popular: false,
+      isCurrent: currentPlan === "Anual"
     }
   ];
 
@@ -76,6 +90,13 @@ const PricingSection = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Escolha o plano ideal para o seu negócio. Comece grátis e escale conforme cresce.
           </p>
+          {user && (
+            <div className="mt-4">
+              <span className="inline-block bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-200 px-4 py-2 rounded-full text-sm font-medium">
+                Seu Plano Atual: {currentPlan}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
@@ -83,10 +104,19 @@ const PricingSection = () => {
             <Card 
               key={index}
               className={`relative transition-all duration-300 hover:shadow-lg dark:bg-card bg-white ${
+                plan.isCurrent ? 'border-2 border-green-500 scale-105 shadow-lg' : 
                 plan.popular ? 'border-2 border-purple-primary scale-105 shadow-lg' : 'border-border'
               }`}
             >
-              {plan.popular && (
+              {plan.isCurrent && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Plano Atual
+                  </span>
+                </div>
+              )}
+              
+              {plan.popular && !plan.isCurrent && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-purple-primary text-white px-3 py-1 rounded-full text-sm font-medium">
                     Mais Popular
@@ -99,7 +129,7 @@ const PricingSection = () => {
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
                     <span className={`font-bold text-foreground ${
-                      plan.name === 'Trimestral' ? 'text-2xl' : 'text-3xl'
+                      plan.name === 'Trimestral' ? 'text-xl' : 'text-3xl'
                     }`}>
                       {plan.price}
                     </span>
@@ -127,13 +157,16 @@ const PricingSection = () => {
 
                 <Button 
                   className={`w-full ${
-                    plan.popular 
-                      ? 'bg-purple-primary hover:bg-purple-hover text-white' 
-                      : 'bg-foreground hover:bg-foreground/90 text-background'
+                    plan.isCurrent 
+                      ? 'bg-green-500 hover:bg-green-600 text-white' 
+                      : plan.popular 
+                        ? 'bg-purple-primary hover:bg-purple-hover text-white' 
+                        : 'bg-foreground hover:bg-foreground/90 text-background'
                   }`}
                   onClick={() => handleChoosePlan(plan.name)}
+                  disabled={plan.isCurrent}
                 >
-                  {plan.popular ? 'Começar Agora' : 'Escolher Plano'}
+                  {plan.isCurrent ? 'Plano Ativo' : plan.popular ? 'Começar Agora' : 'Escolher Plano'}
                 </Button>
               </CardContent>
             </Card>

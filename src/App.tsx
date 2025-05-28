@@ -15,6 +15,7 @@ import Accounts from "./pages/Accounts";
 import Settings from "./pages/Settings";
 import Planos from "./pages/Planos";
 import Admin from "./pages/Admin";
+import Lists from "./pages/Lists";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/agendamento" element={<Scheduling />} />
             <Route path="/contas" element={<Accounts />} />
             <Route path="/planos" element={<Planos />} />
+            <Route path="/listas" element={<Lists />} />
             <Route path="/configuracoes" element={<Settings />} />
             <Route path="/admin" element={<Admin />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

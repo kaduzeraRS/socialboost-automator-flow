@@ -90,39 +90,39 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Eye className="w-4 h-4 mr-1 text-blue-500" />
-                    <span className="text-sm font-medium">Visualizações</span>
+                    <Eye className="w-4 h-4 mr-1 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Visualizações</span>
                   </div>
-                  <p className="text-2xl font-bold">24.8K</p>
+                  <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">24.8K</p>
                   <p className="text-xs text-green-600">+18.2%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-red-50 to-red-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Heart className="w-4 h-4 mr-1 text-red-500" />
-                    <span className="text-sm font-medium">Curtidas</span>
+                    <Heart className="w-4 h-4 mr-1 text-red-600" />
+                    <span className="text-sm font-medium text-red-700 dark:text-red-300">Curtidas</span>
                   </div>
-                  <p className="text-2xl font-bold">1.2K</p>
+                  <p className="text-2xl font-bold text-red-800 dark:text-red-200">1.2K</p>
                   <p className="text-xs text-green-600">+24.1%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <MessageCircle className="w-4 h-4 mr-1 text-green-500" />
-                    <span className="text-sm font-medium">Comentários</span>
+                    <MessageCircle className="w-4 h-4 mr-1 text-green-600" />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Comentários</span>
                   </div>
-                  <p className="text-2xl font-bold">186</p>
+                  <p className="text-2xl font-bold text-green-800 dark:text-green-200">186</p>
                   <p className="text-xs text-green-600">+31.5%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Share2 className="w-4 h-4 mr-1 text-orange-500" />
-                    <span className="text-sm font-medium">Shares</span>
+                    <Share2 className="w-4 h-4 mr-1 text-orange-600" />
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Shares</span>
                   </div>
-                  <p className="text-2xl font-bold">89</p>
+                  <p className="text-2xl font-bold text-orange-800 dark:text-orange-200">89</p>
                   <p className="text-xs text-green-600">+12.3%</p>
                 </div>
               </div>
@@ -167,62 +167,69 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Eye className="w-4 h-4 mr-1 text-blue-500" />
-                    <span className="text-sm font-medium">Views</span>
+                    <Eye className="w-4 h-4 mr-1 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Views</span>
                   </div>
-                  <p className="text-2xl font-bold">89.3K</p>
+                  <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">89.3K</p>
                   <p className="text-xs text-green-600">+45.2%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-red-50 to-red-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Heart className="w-4 h-4 mr-1 text-red-500" />
-                    <span className="text-sm font-medium">Likes</span>
+                    <Heart className="w-4 h-4 mr-1 text-red-600" />
+                    <span className="text-sm font-medium text-red-700 dark:text-red-300">Likes</span>
                   </div>
-                  <p className="text-2xl font-bold">3.2K</p>
+                  <p className="text-2xl font-bold text-red-800 dark:text-red-200">3.2K</p>
                   <p className="text-xs text-green-600">+28.7%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <MessageCircle className="w-4 h-4 mr-1 text-green-500" />
-                    <span className="text-sm font-medium">Comentários</span>
+                    <MessageCircle className="w-4 h-4 mr-1 text-green-600" />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">Comentários</span>
                   </div>
-                  <p className="text-2xl font-bold">412</p>
+                  <p className="text-2xl font-bold text-green-800 dark:text-green-200">412</p>
                   <p className="text-xs text-green-600">+52.1%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Share2 className="w-4 h-4 mr-1 text-orange-500" />
-                    <span className="text-sm font-medium">Shares</span>
+                    <Share2 className="w-4 h-4 mr-1 text-orange-600" />
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Shares</span>
                   </div>
-                  <p className="text-2xl font-bold">234</p>
+                  <p className="text-2xl font-bold text-orange-800 dark:text-orange-200">234</p>
                   <p className="text-xs text-green-600">+67.3%</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Users className="w-4 h-4 mr-1 text-purple-500" />
-                    <span className="text-sm font-medium">Seguidores</span>
+                    <Users className="w-4 h-4 mr-1 text-purple-600" />
+                    <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Seguidores</span>
                   </div>
-                  <p className="text-2xl font-bold">+89</p>
+                  <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">+89</p>
                   <p className="text-xs text-green-600">+12.8%</p>
                 </div>
 
-                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 transition-all duration-200 hover:scale-105">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 transition-all duration-200 hover:scale-105">
                   <div className="flex items-center justify-center mb-2">
-                    <Activity className="w-4 h-4 mr-1 text-indigo-500" />
-                    <span className="text-sm font-medium">Engajamento</span>
+                    <Activity className="w-4 h-4 mr-1 text-indigo-600" />
+                    <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">Engajamento</span>
                   </div>
-                  <p className="text-2xl font-bold">5.7%</p>
+                  <p className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">5.7%</p>
                   <p className="text-xs text-green-600">+1.2%</p>
                 </div>
               </div>
+
+              <Button asChild variant="outline" className="w-full transition-all duration-200 hover:scale-105">
+                <Link to="/contas">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Ver Relatório Completo
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
