@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SocialAccount {
   id: string;
@@ -18,21 +20,22 @@ export const useSocialAccounts = () => {
   const [accounts, setAccounts] = useState<SocialAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user, isAuthenticated } = useAuth();
 
   const fetchAccounts = async () => {
     try {
       console.log('Fetching social accounts...');
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        console.log('No authenticated user found for fetching accounts');
-        setLoading(false);
+      setLoading(true);
+
+      if (!isAuthenticated || !user) {
+        console.log('User not authenticated, loading local accounts only');
+        loadLocalAccounts();
         return;
       }
 
       console.log('Authenticated user found:', user.id);
       
+      // Buscar contas do banco de dados
       const { data, error } = await supabase
         .from('social_accounts')
         .select('*')
@@ -49,12 +52,34 @@ export const useSocialAccounts = () => {
         return;
       }
 
-      console.log('Social accounts loaded:', data);
-      setAccounts(data || []);
+      console.log('Social accounts loaded from database:', data);
+      
+      // Combinar com contas locais se houver
+      const localAccounts = getLocalAccounts();
+      const combinedAccounts = [...(data || []), ...localAccounts];
+      
+      setAccounts(combinedAccounts);
     } catch (error) {
       console.error('Error in fetchAccounts:', error);
+      loadLocalAccounts();
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadLocalAccounts = () => {
+    const localAccounts = getLocalAccounts();
+    setAccounts(localAccounts);
+    setLoading(false);
+  };
+
+  const getLocalAccounts = (): SocialAccount[] => {
+    try {
+      const stored = localStorage.getItem('connectedAccounts');
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error('Error loading local accounts:', error);
+      return [];
     }
   };
 
@@ -71,25 +96,14 @@ export const useSocialAccounts = () => {
   }) => {
     try {
       console.log('Connecting account:', accountData);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        console.error('No authenticated user found for account connection');
-        toast({
-          title: "Erro de autenticação",
-          description: "Sessão expirada. Faça login novamente para conectar uma conta.",
-          variant: "destructive"
-        });
-        // Redirecionar para login
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
-        return null;
+
+      if (!isAuthenticated || !user) {
+        // Salvar localmente se não autenticado
+        console.log('User not authenticated, saving locally');
+        return saveAccountLocally(accountData);
       }
 
       console.log('Authenticated user for account connection:', user.id);
-      console.log('User email:', user.email);
 
       // Verificar se a conta já está conectada
       const { data: existingAccounts, error: checkError } = await supabase
@@ -132,9 +146,6 @@ export const useSocialAccounts = () => {
 
       console.log('Account connected successfully:', data);
 
-      // Log the connection
-      await logConnection(data.id, accountData.platform, 'connect', 'success');
-
       toast({
         title: "Conta conectada!",
         description: `Sua conta ${accountData.platform} foi conectada com sucesso.`,
@@ -153,10 +164,61 @@ export const useSocialAccounts = () => {
     }
   };
 
+  const saveAccountLocally = (accountData: any) => {
+    try {
+      const localAccounts = getLocalAccounts();
+      const newAccount = { 
+        ...accountData, 
+        id: `local_${Date.now()}`, 
+        is_active: true,
+        created_at: new Date().toISOString()
+      };
+      
+      localAccounts.push(newAccount);
+      localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
+
+      toast({
+        title: "Conta conectada localmente!",
+        description: "Faça login para sincronizar com o servidor.",
+      });
+
+      setAccounts(prev => [...prev, newAccount]);
+      return newAccount;
+    } catch (error) {
+      console.error('Error saving account locally:', error);
+      return null;
+    }
+  };
+
   const disconnectAccount = async (accountId: string, platform: string) => {
     try {
       console.log('Disconnecting account:', accountId);
       
+      // Se for conta local
+      if (accountId.startsWith('local_')) {
+        const localAccounts = getLocalAccounts();
+        const filteredAccounts = localAccounts.filter(acc => acc.id !== accountId);
+        localStorage.setItem('connectedAccounts', JSON.stringify(filteredAccounts));
+        
+        toast({
+          title: "Conta desconectada",
+          description: `Conta ${platform} foi removida com sucesso.`,
+        });
+        
+        await fetchAccounts();
+        return;
+      }
+
+      // Se for conta do banco de dados
+      if (!isAuthenticated) {
+        toast({
+          title: "Erro",
+          description: "É necessário estar logado para desconectar contas do servidor.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('social_accounts')
         .delete()
@@ -172,9 +234,6 @@ export const useSocialAccounts = () => {
         return;
       }
 
-      // Log the disconnection
-      await logConnection(accountId, platform, 'disconnect', 'success');
-
       toast({
         title: "Conta desconectada",
         description: `Conta ${platform} foi desconectada com sucesso.`,
@@ -186,60 +245,47 @@ export const useSocialAccounts = () => {
     }
   };
 
-  const logConnection = async (
-    socialAccountId: string,
-    platform: string,
-    action: string,
-    status: string,
-    errorMessage?: string
-  ) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) return;
+  // Sincronizar contas locais com o servidor após login
+  const syncLocalAccountsWithServer = async () => {
+    if (!isAuthenticated || !user) return;
 
-      await supabase
-        .from('connection_logs')
-        .insert([{
-          user_id: user.id,
-          social_account_id: socialAccountId,
-          platform,
-          action,
-          status,
-          error_message: errorMessage,
-          ip_address: null,
-          user_agent: navigator.userAgent,
-          metadata: {
-            timestamp: new Date().toISOString(),
-            browser: navigator.userAgent
-          }
-        }]);
-    } catch (error) {
-      console.error('Error logging connection:', error);
-    }
-  };
+    const localAccounts = getLocalAccounts();
+    if (localAccounts.length === 0) return;
 
-  // Função para filtrar contas por período (útil para TikTok últimos 7 dias)
-  const getAccountsByPlatformAndPeriod = (platform: string, days?: number) => {
-    let filteredAccounts = accounts.filter(acc => 
-      acc.platform.toLowerCase() === platform.toLowerCase() && acc.is_active
-    );
+    console.log('Syncing local accounts with server:', localAccounts);
 
-    if (days) {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - days);
-      
-      filteredAccounts = filteredAccounts.filter(acc => 
-        new Date(acc.created_at) >= cutoffDate
-      );
+    for (const localAccount of localAccounts) {
+      try {
+        await connectAccount({
+          platform: localAccount.platform,
+          username: localAccount.username,
+          account_id: localAccount.account_id,
+          access_token: localAccount.access_token,
+          refresh_token: localAccount.refresh_token,
+          followers_count: localAccount.followers_count,
+          following_count: localAccount.following_count,
+          posts_count: localAccount.posts_count,
+          profile_picture_url: localAccount.profile_picture_url
+        });
+      } catch (error) {
+        console.error('Error syncing account:', error);
+      }
     }
 
-    return filteredAccounts;
+    // Limpar contas locais após sincronização
+    localStorage.removeItem('connectedAccounts');
   };
 
   useEffect(() => {
     fetchAccounts();
-  }, []);
+  }, [isAuthenticated, user]);
+
+  // Sincronizar contas locais quando o usuário fizer login
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      syncLocalAccountsWithServer();
+    }
+  }, [isAuthenticated, user]);
 
   return {
     accounts,
@@ -247,6 +293,6 @@ export const useSocialAccounts = () => {
     connectAccount,
     disconnectAccount,
     refetch: fetchAccounts,
-    getAccountsByPlatformAndPeriod
+    syncLocalAccounts: syncLocalAccountsWithServer
   };
 };

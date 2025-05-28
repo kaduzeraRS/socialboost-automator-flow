@@ -26,8 +26,8 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
   const [isLogging, setIsLogging] = useState(false);
   const [authStatus, setAuthStatus] = useState('');
   const { toast } = useToast();
-  const { connectAccount, refetch } = useSocialAccounts();
-  const { user } = useAuth();
+  const { connectAccount } = useSocialAccounts();
+  const { isAuthenticated } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
     setCredentials(prev => ({
@@ -64,7 +64,7 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
       });
 
       if (result.success && result.userData) {
-        console.log('Dados reais capturados:', result.userData);
+        console.log('Dados capturados:', result.userData);
         
         const accountData = {
           platform: 'instagram',
@@ -80,39 +80,26 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
 
         console.log('Dados preparados para salvar:', accountData);
 
-        // Se usuário logado, salvar no banco de dados
-        if (user) {
-          console.log('Usuário logado, salvando no banco...');
-          const savedAccount = await connectAccount(accountData);
-          if (savedAccount) {
-            console.log('Conta salva no banco com sucesso:', savedAccount);
-            
+        const savedAccount = await connectAccount(accountData);
+        if (savedAccount) {
+          console.log('Conta salva com sucesso:', savedAccount);
+          
+          if (isAuthenticated) {
             toast({
               title: "Conta conectada!",
               description: "Sua conta Instagram foi conectada e salva no banco de dados.",
             });
-            
-            await refetch();
-            onClose();
-            onSuccess?.();
           } else {
-            throw new Error('Falha ao salvar a conta no banco de dados');
+            toast({
+              title: "Conta conectada localmente!",
+              description: "Faça login para sincronizar com o servidor.",
+            });
           }
-        } else {
-          // Se não logado, salvar apenas localmente
-          console.log('Usuário não logado, salvando apenas localmente...');
-          const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
-          const newAccount = { ...accountData, id: `local_${Date.now()}`, is_active: true };
-          localAccounts.push(newAccount);
-          localStorage.setItem('connectedAccounts', JSON.stringify(localAccounts));
-
-          toast({
-            title: "Conta conectada!",
-            description: "Sua conta Instagram foi conectada. Faça login para sincronizar com o servidor.",
-          });
           
           onClose();
           onSuccess?.();
+        } else {
+          throw new Error('Falha ao salvar a conta');
         }
       } else {
         throw new Error(result.error || 'Falha na conexão');
@@ -154,6 +141,14 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
         
         <Card>
           <CardContent className="p-6 space-y-4">
+            {!isAuthenticated && (
+              <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  <strong>Nota:</strong> Você não está logado. A conta será salva localmente e sincronizada quando fizer login.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-2">
               <Label htmlFor="username">Usuário, e-mail ou telefone</Label>
               <Input
@@ -219,7 +214,7 @@ const InstagramLoginModal = ({ isOpen, onClose, onSuccess }: InstagramLoginModal
             </Button>
 
             <p className="text-xs text-muted-foreground text-center">
-              Seus dados são utilizados apenas para conectar sua conta e não são armazenados.
+              Seus dados são utilizados apenas para conectar sua conta e não são armazenados permanentemente.
             </p>
           </CardContent>
         </Card>
