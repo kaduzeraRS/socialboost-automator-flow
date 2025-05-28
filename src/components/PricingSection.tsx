@@ -1,16 +1,15 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
 
 const PricingSection = () => {
   const { user } = useAuth();
-  // Fix: Remove the const assertion and properly type the variable
-  let currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = "Mensal"; // Isso viria do Supabase posteriormente
+  // Fix: Properly type the variable to allow all plan comparisons
+  const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = "Mensal"; // Isso viria do Supabase posteriormente
 
   const plans = [
     {
-      name: "Quinzenal",
+      name: "Quinzenal" as const,
       price: "R$ 29,90",
       period: "15 dias",
       features: [
@@ -27,7 +26,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Quinzenal"
     },
     {
-      name: "Mensal",
+      name: "Mensal" as const,
       price: "R$ 49,90",
       period: "mês",
       features: [
@@ -46,7 +45,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Mensal"
     },
     {
-      name: "Trimestral",
+      name: "Trimestral" as const,
       price: "R$ 149,90",
       period: "3 meses",
       originalPrice: "R$ 49,90/mês",
@@ -68,7 +67,7 @@ const PricingSection = () => {
       isCurrent: currentPlan === "Trimestral"
     },
     {
-      name: "Anual",
+      name: "Anual" as const,
       price: "R$ 549,90",
       period: "ano",
       originalPrice: "R$ 45,90/mês",
