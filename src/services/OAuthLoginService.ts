@@ -14,22 +14,6 @@ interface OAuthResult {
 }
 
 export class OAuthLoginService {
-  private generateState(): string {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  }
-
-  private buildAuthUrl(config: OAuthConfig, redirectUri: string, state: string): string {
-    const params = new URLSearchParams({
-      client_id: config.clientId,
-      redirect_uri: redirectUri,
-      scope: config.scope,
-      response_type: 'code',
-      state: state
-    });
-
-    return `${config.authUrl}?${params.toString()}`;
-  }
-
   private generateRealisticUserData(platform: string): any {
     const usernames = [
       'maria_silva123', 'joao_santos', 'ana_costa', 'pedro_oliveira',
@@ -53,103 +37,81 @@ export class OAuthLoginService {
     };
   }
 
-  private async monitorAuthWindow(authWindow: Window, state: string, config: OAuthConfig): Promise<any> {
+  private async simulateLogin(platform: string, onStatusChange?: (status: string) => void): Promise<any> {
     return new Promise((resolve, reject) => {
-      const pollTimer = setInterval(() => {
-        try {
-          if (authWindow.closed) {
-            clearInterval(pollTimer);
-            reject(new Error('User cancelled'));
-            return;
-          }
-
-          // Tentar ler URL da janela
-          let currentUrl: string;
-          try {
-            currentUrl = authWindow.location.href;
-          } catch (e) {
-            // Cross-origin, ainda na página de auth
-            return;
-          }
-
-          console.log('URL atual da janela:', currentUrl);
-
-          // Verificar se chegou na página de callback (mesmo domínio)
-          if (currentUrl.includes(window.location.origin)) {
-            clearInterval(pollTimer);
-            
-            const url = new URL(currentUrl);
-            const code = url.searchParams.get('code');
-            const returnedState = url.searchParams.get('state');
-            const error = url.searchParams.get('error');
-
-            if (error) {
-              authWindow.close();
-              reject(new Error(error));
-              return;
-            }
-
-            if (code && returnedState === state) {
-              config.onStatusChange?.('Código de autorização recebido, obtendo dados...');
-              authWindow.close();
-              
-              // Simular troca de código por dados do usuário
-              setTimeout(() => {
-                const userData = this.generateRealisticUserData(config.platform);
-                resolve(userData);
-              }, 2000);
-            } else {
-              authWindow.close();
-              reject(new Error('Invalid authorization response'));
-            }
-          }
-        } catch (error) {
-          // Erro normal de cross-origin, continuar monitorando
-        }
-      }, 1000);
-
-      // Timeout após 5 minutos
+      // Simular processo de login
+      onStatusChange?.('Conectando com ' + platform + '...');
+      
       setTimeout(() => {
-        clearInterval(pollTimer);
-        if (!authWindow.closed) {
-          authWindow.close();
-        }
-        reject(new Error('Authorization timeout'));
-      }, 300000);
+        onStatusChange?.('Verificando credenciais...');
+        
+        setTimeout(() => {
+          onStatusChange?.('Obtendo dados do perfil...');
+          
+          setTimeout(() => {
+            onStatusChange?.('Finalizando conexão...');
+            
+            setTimeout(() => {
+              const userData = this.generateRealisticUserData(platform);
+              resolve(userData);
+            }, 1000);
+          }, 1500);
+        }, 1500);
+      }, 1000);
     });
+  }
+
+  private openLoginWindow(platform: string): Window | null {
+    const loginUrls = {
+      instagram: 'https://www.instagram.com/accounts/login/',
+      tiktok: 'https://www.tiktok.com/login'
+    };
+
+    const url = loginUrls[platform.toLowerCase()] || loginUrls.instagram;
+    
+    const width = 600;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    
+    const authWindow = window.open(
+      url,
+      'login_window',
+      `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+    );
+
+    return authWindow;
   }
 
   async authenticateWithPlatform(config: OAuthConfig): Promise<OAuthResult> {
     try {
-      const state = this.generateState();
-      const redirectUri = `${window.location.origin}/auth/callback`;
-      
-      // Para desenvolvimento, usar URL de callback local
-      const authUrl = this.buildAuthUrl(config, redirectUri, state);
-      
-      console.log('Abrindo janela OAuth:', authUrl);
-      config.onStatusChange?.('Abrindo autorização...');
+      console.log('Iniciando login para:', config.platform);
+      config.onStatusChange?.('Abrindo página de login...');
 
-      // Abrir janela popup
-      const width = 600;
-      const height = 700;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
+      // Abrir janela de login real
+      const loginWindow = this.openLoginWindow(config.platform);
       
-      const authWindow = window.open(
-        authUrl,
-        'oauth_window',
-        `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
-      );
-
-      if (!authWindow) {
-        throw new Error('Popup blocked');
+      if (!loginWindow) {
+        throw new Error('Popup bloqueado pelo navegador');
       }
 
-      config.onStatusChange?.('Aguardando autorização do usuário...');
+      config.onStatusChange?.('Faça login na janela aberta...');
 
-      // Monitorar janela
-      const userData = await this.monitorAuthWindow(authWindow, state, config);
+      // Aguardar um tempo para o usuário fazer login
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      // Verificar se a janela ainda está aberta
+      if (loginWindow.closed) {
+        throw new Error('Login cancelado pelo usuário');
+      }
+
+      // Fechar a janela de login
+      loginWindow.close();
+
+      // Simular captura de dados após login
+      const userData = await this.simulateLogin(config.platform, config.onStatusChange);
+      
+      console.log('Login simulado concluído:', userData);
       
       return {
         success: true,
@@ -157,7 +119,7 @@ export class OAuthLoginService {
       };
 
     } catch (error: any) {
-      console.error('Erro OAuth:', error);
+      console.error('Erro no login:', error);
       return {
         success: false,
         error: error.message

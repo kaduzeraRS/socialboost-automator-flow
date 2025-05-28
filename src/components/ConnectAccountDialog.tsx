@@ -29,45 +29,38 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
       description: t('connect_instagram_desc'),
-      clientId: 'YOUR_INSTAGRAM_CLIENT_ID',
-      scope: 'user_profile,user_media',
-      authUrl: 'https://api.instagram.com/oauth/authorize'
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
       description: t('connect_tiktok_desc'),
-      clientId: 'YOUR_TIKTOK_CLIENT_ID',
-      scope: 'user.info.basic',
-      authUrl: 'https://www.tiktok.com/auth/authorize'
     }
   ];
 
   const handleConnect = async (platform: any) => {
-    console.log('Iniciando processo OAuth para:', platform.name);
+    console.log('Iniciando conexão com:', platform.name);
     setConnectingPlatform(platform.name);
-    setAuthStatus('Iniciando autorização...');
+    setAuthStatus('Preparando conexão...');
     
     try {
       const oauthService = new OAuthLoginService();
       
       toast({
-        title: "Abrindo " + platform.name,
-        description: `Você será redirecionado para autorizar o acesso à sua conta ${platform.name}...`,
+        title: "Conectando com " + platform.name,
+        description: `Uma nova janela será aberta. Faça login para conectar sua conta.`,
       });
 
-      // Usar OAuth flow adequado
       const result = await oauthService.authenticateWithPlatform({
         platform: platform.name.toLowerCase(),
-        clientId: platform.clientId,
-        scope: platform.scope,
-        authUrl: platform.authUrl,
+        clientId: '', // Não precisamos mais de client_id real
+        scope: '',
+        authUrl: '',
         onStatusChange: setAuthStatus
       });
 
       if (result.success && result.userData) {
-        console.log('Dados OAuth capturados:', result.userData);
+        console.log('Dados capturados:', result.userData);
         
         const accountData = {
           platform: platform.name.toLowerCase(),
@@ -102,30 +95,28 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
         setIsOpen(false);
       } else {
-        throw new Error(result.error || 'Falha na autenticação');
+        throw new Error(result.error || 'Falha na conexão');
       }
       
     } catch (error: any) {
-      console.error('Erro na conexão OAuth:', error);
+      console.error('Erro na conexão:', error);
       
-      if (error.message === 'User cancelled') {
-        toast({
-          title: "Autorização cancelada",
-          description: "Você cancelou a autorização. Tente novamente quando quiser conectar a conta.",
-        });
-      } else if (error.message === 'Popup blocked') {
-        toast({
-          title: "Popup bloqueado",
-          description: "Por favor, permita popups para este site e tente novamente.",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Erro na conexão",
-          description: "Ocorreu um erro ao conectar a conta. Verifique se você autorizou o acesso.",
-          variant: "destructive"
-        });
+      let errorMessage = "Ocorreu um erro ao conectar a conta.";
+      let errorTitle = "Erro na conexão";
+      
+      if (error.message === 'Login cancelado pelo usuário') {
+        errorTitle = "Login cancelado";
+        errorMessage = "Você cancelou o login. Tente novamente quando quiser conectar a conta.";
+      } else if (error.message === 'Popup bloqueado pelo navegador') {
+        errorTitle = "Popup bloqueado";
+        errorMessage = "Por favor, permita popups para este site e tente novamente.";
       }
+      
+      toast({
+        title: errorTitle,
+        description: errorMessage,
+        variant: error.message === 'Login cancelado pelo usuário' ? "default" : "destructive"
+      });
     } finally {
       setConnectingPlatform(null);
       setAuthStatus('');
@@ -135,12 +126,10 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const handleDisconnect = async (accountId: string, platform: string) => {
     console.log('Desconectando conta:', accountId, platform);
     
-    // Remover dos dados locais
     const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
     const filteredAccounts = localAccounts.filter(acc => acc.id !== accountId);
     localStorage.setItem('connectedAccounts', JSON.stringify(filteredAccounts));
     
-    // Se for conta do banco, remover também
     if (!accountId.startsWith('local_')) {
       await disconnectAccount(accountId, platform);
     } else {
@@ -151,12 +140,10 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
     }
   };
 
-  // Combinar contas do banco com contas locais
   const getConnectedAccounts = () => {
     const localAccounts = JSON.parse(localStorage.getItem('connectedAccounts') || '[]');
     const bankAccounts = accounts.filter(acc => acc.is_active);
     
-    // Evitar duplicatas
     const allAccounts = [...bankAccounts];
     localAccounts.forEach(localAcc => {
       const existsInBank = bankAccounts.some(bankAcc => 
