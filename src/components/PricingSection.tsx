@@ -7,6 +7,7 @@ import PricingFooter from './pricing/PricingFooter';
 const PricingSection = () => {
   const { user } = useAuth();
   
+  // Fix: Properly type the currentPlan to allow all plan types
   const currentPlan: "Quinzenal" | "Mensal" | "Trimestral" | "Anual" | null = "Mensal";
 
   const plans = [
