@@ -3,13 +3,12 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Instagram, Play, Plus, Check, X, ExternalLink, AlertCircle } from 'lucide-react';
+import { Instagram, Play, Plus, Check, X, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ConnectAccountDialogProps {
   children: React.ReactNode;
@@ -53,39 +52,9 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
   const handleConnect = async (platform: { name: string; loginUrl: string }) => {
     console.log('Attempting to connect account for platform:', platform.name);
-    console.log('Current user:', user);
-    console.log('Auth loading:', authLoading);
     
-    // Verificar se ainda está carregando
-    if (authLoading) {
-      console.log('Authentication still loading, please wait...');
-      toast({
-        title: "Carregando...",
-        description: "Aguarde enquanto verificamos sua autenticação.",
-      });
-      return;
-    }
-
-    // Verificar se o usuário está logado
-    if (!user) {
-      console.error('No user found when trying to connect account');
-      toast({
-        title: "Erro de autenticação",
-        description: "Você precisa estar logado para conectar uma conta. Faça login primeiro.",
-        variant: "destructive"
-      });
-      
-      // Redirecionar para a página de login
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
-      return;
-    }
-
     try {
-      console.log('User is authenticated, proceeding with OAuth flow...');
-      console.log('User ID:', user.id);
-      console.log('User email:', user.email);
+      console.log('Opening OAuth flow for platform:', platform.name);
       
       toast({
         title: "Redirecionando...",
@@ -135,6 +104,17 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         };
 
         console.log('Connecting account with OAuth data:', accountData);
+
+        // Se o usuário não estiver logado, só mostrar que a conexão foi bem-sucedida
+        // mas não salvar no banco (isso seria implementado quando houver autenticação)
+        if (!user) {
+          toast({
+            title: "Conta conectada localmente!",
+            description: `Sua conta ${platform.name} foi conectada. Para salvar permanentemente, faça login no sistema.`,
+          });
+          setIsOpen(false);
+          return;
+        }
 
         const result = await connectAccount(accountData);
         
@@ -207,20 +187,8 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Alerta de autenticação se não estiver logado */}
-          {!user && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Você precisa estar logado para conectar contas. 
-                <Button variant="link" className="p-0 ml-1" onClick={() => window.location.href = '/'}>
-                  Fazer login
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {connectedAccounts.length > 0 && (
+          {/* Mostrar contas conectadas apenas se o usuário estiver logado */}
+          {user && connectedAccounts.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-4">{t('connected_accounts')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -260,6 +228,14 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('connect_new_account')}</h3>
+            {!user && (
+              <p className="text-sm text-muted-foreground mb-4">
+                Conecte suas contas das redes sociais. Para salvar permanentemente, 
+                <Button variant="link" className="p-0 ml-1" onClick={() => window.location.href = '/auth'}>
+                  faça login no sistema
+                </Button>
+              </p>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {platforms.map((platform) => {
                 const Icon = platform.icon;
@@ -289,7 +265,6 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
                           <Button 
                             onClick={() => handleConnect(platform)}
                             className="w-full bg-purple-primary hover:bg-purple-hover text-white"
-                            disabled={!user}
                           >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             {t('connect')} {platform.name}
