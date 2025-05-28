@@ -19,7 +19,7 @@ const HomePricingSection = () => {
 
   if (isLoading) {
     return (
-      <section id="planos" className="py-20 px-4 bg-background">
+      <section className="py-20 px-4 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -52,7 +52,7 @@ const HomePricingSection = () => {
   }
 
   return (
-    <section id="planos" className="py-20 px-4 bg-background">
+    <section className="py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -83,16 +83,14 @@ const HomePricingSection = () => {
                 <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
-                    <span className={`font-bold text-foreground ${
-                      plan.type === 'trimestral' ? 'text-lg' : plan.type === 'anual' ? 'text-xl' : 'text-2xl'
-                    }`}>
+                    <span className="text-3xl font-bold text-foreground">
                       R$ {plan.price.toFixed(2).replace('.', ',')}
                     </span>
                     <span className="text-muted-foreground ml-1 text-sm">/{plan.billing_period}</span>
                   </div>
                   {plan.original_price && (
                     <div className="text-sm text-muted-foreground mt-1">
-                      R$ {plan.original_price.toFixed(2).replace('.', ',')}/mês
+                      De R$ {plan.original_price.toFixed(2).replace('.', ',')}/mês
                     </div>
                   )}
                 </div>

@@ -100,7 +100,7 @@ const Planos = () => {
 
           {/* Current Subscription Status */}
           {userSubscription && (
-            <Card className="border-green-500 dark:bg-card bg-white border-2">
+            <Card className="border-green-500 dark:bg-card bg-white border-2 shadow-lg">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Star className="w-6 h-6 text-green-500" />
@@ -137,10 +137,10 @@ const Planos = () => {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button className="bg-purple-primary hover:bg-purple-hover text-white" onClick={handleManagePayment}>
                     <CreditCard className="w-4 h-4 mr-2" />
-                    {t('manage_payment')}
+                    Gerenciar Pagamento
                   </Button>
                   <Button variant="outline" size="sm" className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-600 dark:hover:bg-red-900/20 text-xs h-8 px-2" onClick={handleCancelSubscription}>
-                    {t('cancel')}
+                    Cancelar
                   </Button>
                 </div>
               </CardContent>
@@ -175,16 +175,14 @@ const Planos = () => {
                       <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                       <div className="mt-4">
                         <div className="flex items-baseline justify-center">
-                          <span className={`font-bold text-foreground ${
-                            plan.type === 'trimestral' ? 'text-lg' : plan.type === 'anual' ? 'text-xl' : 'text-2xl'
-                          }`}>
+                          <span className="text-2xl font-bold text-foreground">
                             R$ {plan.price.toFixed(2).replace('.', ',')}
                           </span>
                           <span className="text-muted-foreground ml-1 text-sm">/{plan.billing_period}</span>
                         </div>
                         {plan.original_price && (
                           <div className="text-sm text-muted-foreground mt-1">
-                            R$ {plan.original_price.toFixed(2).replace('.', ',')}/mês
+                            De R$ {plan.original_price.toFixed(2).replace('.', ',')}/mês
                           </div>
                         )}
                       </div>
@@ -351,35 +349,11 @@ const Planos = () => {
                 <p className="text-sm text-muted-foreground">Sim, você pode fazer upgrade ou downgrade do seu plano a qualquer momento.</p>
               </div>
               <div>
-                <h4 className="font-medium text-foreground mb-2">O que acontece se eu usar a mesma conta em emails diferentes?</h4>
-                <p className="text-sm text-muted-foreground">Nosso sistema detecta contas duplicadas para evitar múltiplos períodos de teste gratuito.</p>
-              </div>
-              <div>
                 <h4 className="font-medium text-foreground mb-2">Como funcionam as interações extras?</h4>
                 <p className="text-sm text-muted-foreground">Você pode comprar pacotes de interações adicionais que são válidos por 30 dias após a compra.</p>
               </div>
             </CardContent>
           </Card>
-
-          <div className="text-center">
-            <p className="text-muted-foreground mb-4">
-              Todos os planos incluem 3 dias de teste grátis
-            </p>
-            <div className="inline-flex items-center space-x-4 text-sm text-muted-foreground">
-              <span className="flex items-center">
-                <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Sem taxa de setup
-              </span>
-              <span className="flex items-center">
-                <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Cancele quando quiser
-              </span>
-            </div>
-          </div>
         </div>
       </DashboardLayout>
     </ProtectedRoute>
