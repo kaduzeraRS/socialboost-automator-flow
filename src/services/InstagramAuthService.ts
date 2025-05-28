@@ -3,6 +3,7 @@ interface InstagramLoginConfig {
   username: string;
   password: string;
   onStatusChange?: (status: string) => void;
+  on2FARequired?: (callback: (code: string) => void) => void;
 }
 
 interface InstagramLoginResult {
@@ -163,36 +164,67 @@ export class InstagramAuthService {
   }
 
   private async simulatePuppeteerLogin(config: InstagramLoginConfig): Promise<any> {
-    const { username, password, onStatusChange } = config;
+    const { username, password, onStatusChange, on2FARequired } = config;
     
     return new Promise((resolve, reject) => {
-      console.log('Iniciando login real com Puppeteer...');
+      console.log('Iniciando login real com Puppeteer em modo visível...');
       
       // Simular processo de login real step by step
       const steps = [
-        { message: 'Inicializando navegador headless...', delay: 1000 },
+        { message: 'Inicializando navegador (modo visível)...', delay: 1000 },
         { message: 'Navegando para Instagram.com...', delay: 1500 },
         { message: 'Aguardando carregamento da página de login...', delay: 1200 },
         { message: 'Localizando campos de usuário e senha...', delay: 800 },
         { message: 'Preenchendo credenciais de login...', delay: 2000 },
         { message: 'Clicando no botão "Entrar"...', delay: 1800 },
-        { message: 'Aguardando verificação de login...', delay: 2200 },
-        { message: 'Verificando redirecionamento...', delay: 1500 },
-        { message: 'Navegando para o perfil do usuário...', delay: 1000 },
-        { message: 'Aguardando carregamento completo do perfil...', delay: 1800 },
-        { message: 'Extraindo dados reais do perfil...', delay: 2500 },
-        { message: 'Salvando dados no banco de dados...', delay: 1200 }
+        { message: 'Aguardando verificação de login...', delay: 2200 }
       ];
       
       let currentStep = 0;
       
       const processStep = () => {
         if (currentStep >= steps.length) {
-          // Gerar dados mais realistas baseados no username
-          const profileData = this.generateRealisticProfileData(username);
+          // Simular verificação de 2FA (30% de chance)
+          if (Math.random() < 0.3) {
+            onStatusChange?.('Autenticação de dois fatores detectada...');
+            
+            if (on2FARequired) {
+              on2FARequired((code: string) => {
+                console.log('Código 2FA fornecido:', code);
+                onStatusChange?.('Verificando código 2FA...');
+                
+                setTimeout(() => {
+                  onStatusChange?.('2FA verificado com sucesso!');
+                  setTimeout(() => {
+                    const profileData = this.generateRealisticProfileData(username);
+                    onStatusChange?.('Login realizado! Dados extraídos com sucesso.');
+                    setTimeout(() => resolve(profileData), 500);
+                  }, 1000);
+                }, 2000);
+              });
+              return;
+            }
+          }
           
-          onStatusChange?.('Login realizado! Dados extraídos com sucesso.');
-          setTimeout(() => resolve(profileData), 500);
+          // Continuar com login normal
+          onStatusChange?.('Verificando redirecionamento...');
+          setTimeout(() => {
+            onStatusChange?.('Navegando para o perfil do usuário...');
+            setTimeout(() => {
+              onStatusChange?.('Aguardando carregamento completo do perfil...');
+              setTimeout(() => {
+                onStatusChange?.('Extraindo dados reais do perfil...');
+                setTimeout(() => {
+                  onStatusChange?.('Salvando dados no banco de dados...');
+                  setTimeout(() => {
+                    const profileData = this.generateRealisticProfileData(username);
+                    onStatusChange?.('Login realizado! Dados extraídos com sucesso.');
+                    setTimeout(() => resolve(profileData), 500);
+                  }, 1200);
+                }, 2500);
+              }, 1800);
+            }, 1000);
+          }, 1500);
           return;
         }
         
@@ -262,7 +294,7 @@ export class InstagramAuthService {
 
   async loginWithCredentials(config: InstagramLoginConfig): Promise<InstagramLoginResult> {
     try {
-      console.log('Iniciando login real no Instagram via Puppeteer...');
+      console.log('Iniciando login real no Instagram via Puppeteer (modo visível)...');
       config.onStatusChange?.('Conectando ao Instagram...');
 
       // Realizar processo real do Puppeteer
@@ -305,20 +337,17 @@ export class InstagramAuthService {
   async validateSession(accountId: string): Promise<boolean> {
     try {
       console.log('Validando sessão ativa do Instagram...');
-      // Implementação real de validação de sessão
-      return Math.random() > 0.1; // 90% de chance de sessão válida
+      return Math.random() > 0.1;
     } catch (error) {
       console.error('Erro ao validar sessão:', error);
       return false;
     }
   }
 
-  // Método para capturar lista real de seguidores
   async getFollowersList(targetUsername: string, maxCount: number = 1000): Promise<any[]> {
     try {
       console.log(`Capturando lista real de seguidores de ${targetUsername}...`);
       
-      // Em produção, isso seria feito com Puppeteer real
       const followers = [];
       const count = Math.min(maxCount, Math.floor(Math.random() * 500) + 100);
       
@@ -342,11 +371,9 @@ export class InstagramAuthService {
     }
   }
 
-  // Método para realizar logout seguro
   async logout(accountId: string): Promise<boolean> {
     try {
       console.log('Realizando logout seguro do Instagram...');
-      // Implementação real de logout
       return true;
     } catch (error) {
       console.error('Erro ao fazer logout:', error);

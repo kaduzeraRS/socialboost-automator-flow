@@ -20,6 +20,8 @@ const PricingSection = () => {
         "Relatórios básicos",
         "Analytics básicos"
       ],
+      automations: "500 automações/15 dias",
+      reports: "Relatórios básicos de engajamento",
       popular: false,
       isCurrent: currentPlan === "Quinzenal"
     },
@@ -37,6 +39,8 @@ const PricingSection = () => {
         "Métricas de engajamento",
         "Análise de crescimento"
       ],
+      automations: "2.000 automações/mês",
+      reports: "Relatórios avançados + Analytics de crescimento",
       popular: false,
       isCurrent: currentPlan === "Mensal"
     },
@@ -57,6 +61,8 @@ const PricingSection = () => {
         "Automações avançadas",
         "Métricas comparativas"
       ],
+      automations: "5.000 automações/mês",
+      reports: "Relatórios premium + API de dados + Insights personalizados",
       popular: false,
       isCurrent: currentPlan === "Trimestral"
     },
@@ -77,6 +83,8 @@ const PricingSection = () => {
         "Dashboard personalizado",
         "Integração customizada"
       ],
+      automations: "Automações ilimitadas",
+      reports: "Relatórios executivos + Consultoria estratégica + Dashboard personalizado",
       popular: false,
       isCurrent: currentPlan === "Anual"
     }
@@ -126,7 +134,9 @@ const PricingSection = () => {
                 <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
-                    <span className="font-bold text-foreground text-2xl">
+                    <span className={`font-bold text-foreground ${
+                      plan.name === 'Trimestral' ? 'text-xl' : 'text-2xl'
+                    }`}>
                       {plan.price}
                     </span>
                     <span className="text-muted-foreground ml-1 text-sm">/{plan.period}</span>
@@ -140,6 +150,26 @@ const PricingSection = () => {
               </CardHeader>
 
               <CardContent>
+                <div className="space-y-4 mb-6">
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">
+                      Automações
+                    </div>
+                    <div className="text-sm text-blue-600 dark:text-blue-300">
+                      {plan.automations}
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                    <div className="text-xs font-medium text-purple-800 dark:text-purple-200 mb-1">
+                      Relatórios
+                    </div>
+                    <div className="text-sm text-purple-600 dark:text-purple-300">
+                      {plan.reports}
+                    </div>
+                  </div>
+                </div>
+
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center text-sm">

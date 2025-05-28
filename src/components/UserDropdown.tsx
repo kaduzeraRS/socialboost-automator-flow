@@ -75,36 +75,51 @@ const UserDropdown = () => {
     );
   }
 
-  const userEmail = user.email || 'Usuário não identificado';
+  const userEmail = user.email || 'usuario@email.com';
   const userName = profile?.full_name || user.user_metadata?.full_name || userEmail.split('@')[0] || 'Usuário';
+  const userRole = profile?.role || 'user';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          size="icon"
-          className="transition-all duration-200 hover:scale-105 hover:bg-accent"
+          className="flex items-center space-x-2 px-3 py-2 h-auto transition-all duration-200 hover:scale-105 hover:bg-accent"
         >
-          <User className="w-5 h-5" />
+          <div className="w-8 h-8 bg-gradient-to-br from-purple-primary to-purple-hover rounded-full flex items-center justify-center">
+            <User className="w-4 h-4 text-white" />
+          </div>
+          <div className="hidden md:flex flex-col items-start">
+            <span className="text-sm font-medium text-foreground">{userName}</span>
+            <span className="text-xs text-muted-foreground">{userEmail}</span>
+          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-72 bg-popover border shadow-lg animate-in fade-in-0 zoom-in-95"
+        className="w-80 bg-popover border shadow-lg animate-in fade-in-0 zoom-in-95"
       >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2 p-2">
-            <p className="text-sm font-medium leading-none">{userName}</p>
-            <p className="text-xs leading-none text-muted-foreground bg-muted px-2 py-1 rounded">
-              {userEmail}
-            </p>
-            {profile?.role && profile.role !== 'user' && (
-              <p className="text-xs leading-none text-purple-600 font-medium capitalize bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded">
-                {profile.role === 'admin' ? 'Administrador' : 
-                 profile.role === 'agency' ? 'Agência' : 
-                 profile.role === 'moderator' ? 'Moderador' : profile.role}
-              </p>
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-primary to-purple-hover rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium leading-none">{userName}</p>
+                <p className="text-xs leading-none text-muted-foreground mt-1 bg-muted px-2 py-1 rounded">
+                  {userEmail}
+                </p>
+              </div>
+            </div>
+            {userRole && userRole !== 'user' && (
+              <div className="ml-15">
+                <span className="inline-block text-xs leading-none text-purple-600 font-medium capitalize bg-purple-50 dark:bg-purple-900/20 px-2 py-1 rounded">
+                  {userRole === 'admin' ? 'Administrador' : 
+                   userRole === 'agency' ? 'Agência' : 
+                   userRole === 'moderator' ? 'Moderador' : userRole}
+                </span>
+              </div>
             )}
           </div>
         </DropdownMenuLabel>
@@ -128,7 +143,7 @@ const UserDropdown = () => {
           className="cursor-pointer transition-colors duration-200 hover:bg-accent"
         >
           <HelpCircle className="mr-3 h-4 w-4" />
-          <span>Ajuda</span>
+          <span>Ajuda & Suporte</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem 
