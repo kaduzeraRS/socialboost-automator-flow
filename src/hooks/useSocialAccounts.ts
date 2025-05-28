@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -79,13 +78,38 @@ export const useSocialAccounts = () => {
         console.error('No authenticated user found for account connection');
         toast({
           title: "Erro de autenticação",
-          description: "Você precisa estar logado para conectar uma conta.",
+          description: "Sessão expirada. Faça login novamente para conectar uma conta.",
           variant: "destructive"
         });
+        // Redirecionar para login
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
         return null;
       }
 
       console.log('Authenticated user for account connection:', user.id);
+      console.log('User email:', user.email);
+
+      // Verificar se a conta já está conectada
+      const { data: existingAccounts, error: checkError } = await supabase
+        .from('social_accounts')
+        .select('id, platform, username')
+        .eq('user_id', user.id)
+        .eq('platform', accountData.platform)
+        .eq('is_active', true);
+
+      if (checkError) {
+        console.error('Error checking existing accounts:', checkError);
+      } else if (existingAccounts && existingAccounts.length > 0) {
+        console.log('Account already connected:', existingAccounts[0]);
+        toast({
+          title: "Conta já conectada",
+          description: `Você já possui uma conta ${accountData.platform} conectada.`,
+          variant: "destructive"
+        });
+        return null;
+      }
 
       const { data, error } = await supabase
         .from('social_accounts')
@@ -120,6 +144,11 @@ export const useSocialAccounts = () => {
       return data;
     } catch (error) {
       console.error('Error in connectAccount:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Ocorreu um erro inesperado. Tente novamente.",
+        variant: "destructive"
+      });
       return null;
     }
   };
