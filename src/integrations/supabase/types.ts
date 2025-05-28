@@ -223,85 +223,203 @@ export type Database = {
         }
         Relationships: []
       }
-      subscription_plans: {
+      subscription_history: {
         Row: {
-          billing_period: string | null
+          action: string
           created_at: string
-          currency: string | null
-          description: string | null
-          features: Json | null
           id: string
-          is_active: boolean | null
-          max_accounts: number | null
-          max_posts_per_month: number | null
-          name: string
-          price: number
-          warming_enabled: boolean | null
+          plan_id: string
+          previous_plan_id: string | null
+          subscription_id: string
+          user_id: string
         }
         Insert: {
-          billing_period?: string | null
+          action: string
           created_at?: string
-          currency?: string | null
-          description?: string | null
-          features?: Json | null
           id?: string
-          is_active?: boolean | null
-          max_accounts?: number | null
-          max_posts_per_month?: number | null
-          name: string
-          price: number
-          warming_enabled?: boolean | null
+          plan_id: string
+          previous_plan_id?: string | null
+          subscription_id: string
+          user_id: string
         }
         Update: {
-          billing_period?: string | null
+          action?: string
           created_at?: string
-          currency?: string | null
-          description?: string | null
-          features?: Json | null
+          id?: string
+          plan_id?: string
+          previous_plan_id?: string | null
+          subscription_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_history_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_history_previous_plan_id_fkey"
+            columns: ["previous_plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          advanced_analytics: boolean | null
+          api_access: boolean | null
+          automations_limit: number | null
+          basic_analytics: boolean | null
+          basic_support: boolean | null
+          billing_period: string
+          created_at: string
+          currency: string
+          custom_dashboard: boolean | null
+          dedicated_manager: boolean | null
+          id: string
+          is_active: boolean | null
+          is_popular: boolean | null
+          max_accounts: number
+          max_interactions_per_period: number
+          max_posts_per_month: number | null
+          name: string
+          original_price: number | null
+          price: number
+          priority_support: boolean | null
+          reports_type: string | null
+          sort_order: number | null
+          strategic_consulting: boolean | null
+          type: Database["public"]["Enums"]["plan_type"]
+          updated_at: string
+          vip_support: boolean | null
+          white_label: boolean | null
+        }
+        Insert: {
+          advanced_analytics?: boolean | null
+          api_access?: boolean | null
+          automations_limit?: number | null
+          basic_analytics?: boolean | null
+          basic_support?: boolean | null
+          billing_period: string
+          created_at?: string
+          currency?: string
+          custom_dashboard?: boolean | null
+          dedicated_manager?: boolean | null
           id?: string
           is_active?: boolean | null
-          max_accounts?: number | null
+          is_popular?: boolean | null
+          max_accounts: number
+          max_interactions_per_period: number
+          max_posts_per_month?: number | null
+          name: string
+          original_price?: number | null
+          price: number
+          priority_support?: boolean | null
+          reports_type?: string | null
+          sort_order?: number | null
+          strategic_consulting?: boolean | null
+          type: Database["public"]["Enums"]["plan_type"]
+          updated_at?: string
+          vip_support?: boolean | null
+          white_label?: boolean | null
+        }
+        Update: {
+          advanced_analytics?: boolean | null
+          api_access?: boolean | null
+          automations_limit?: number | null
+          basic_analytics?: boolean | null
+          basic_support?: boolean | null
+          billing_period?: string
+          created_at?: string
+          currency?: string
+          custom_dashboard?: boolean | null
+          dedicated_manager?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          max_accounts?: number
+          max_interactions_per_period?: number
           max_posts_per_month?: number | null
           name?: string
+          original_price?: number | null
           price?: number
-          warming_enabled?: boolean | null
+          priority_support?: boolean | null
+          reports_type?: string | null
+          sort_order?: number | null
+          strategic_consulting?: boolean | null
+          type?: Database["public"]["Enums"]["plan_type"]
+          updated_at?: string
+          vip_support?: boolean | null
+          white_label?: boolean | null
         }
         Relationships: []
       }
       user_subscriptions: {
         Row: {
           created_at: string
+          current_accounts_used: number | null
+          current_automations_used: number | null
+          current_interactions_used: number | null
           current_period_end: string
           current_period_start: string
+          current_posts_used: number | null
           id: string
+          payment_provider: string | null
           plan_id: string
-          status: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          trial_end: string | null
+          trial_start: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
+          current_accounts_used?: number | null
+          current_automations_used?: number | null
+          current_interactions_used?: number | null
           current_period_end: string
           current_period_start: string
+          current_posts_used?: number | null
           id?: string
+          payment_provider?: string | null
           plan_id: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
+          current_accounts_used?: number | null
+          current_automations_used?: number | null
+          current_interactions_used?: number | null
           current_period_end?: string
           current_period_start?: string
+          current_posts_used?: number | null
           id?: string
+          payment_provider?: string | null
           plan_id?: string
-          status?: string | null
+          status?: Database["public"]["Enums"]["subscription_status"]
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          trial_end?: string | null
+          trial_start?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -429,6 +547,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_current_plan: {
+        Args: { user_id: string }
+        Returns: {
+          plan_name: string
+          plan_type: Database["public"]["Enums"]["plan_type"]
+          subscription_status: Database["public"]["Enums"]["subscription_status"]
+        }[]
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -438,7 +564,14 @@ export type Database = {
       }
     }
     Enums: {
+      plan_type: "quinzenal" | "mensal" | "trimestral" | "anual"
       post_status: "draft" | "scheduled" | "published" | "failed" | "cancelled"
+      subscription_status:
+        | "active"
+        | "inactive"
+        | "canceled"
+        | "past_due"
+        | "trialing"
       user_role: "admin" | "agency" | "user" | "moderator"
       warming_status: "active" | "paused" | "completed" | "failed"
       warming_type: "likes" | "comments" | "views" | "followers" | "shares"
@@ -557,7 +690,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      plan_type: ["quinzenal", "mensal", "trimestral", "anual"],
       post_status: ["draft", "scheduled", "published", "failed", "cancelled"],
+      subscription_status: [
+        "active",
+        "inactive",
+        "canceled",
+        "past_due",
+        "trialing",
+      ],
       user_role: ["admin", "agency", "user", "moderator"],
       warming_status: ["active", "paused", "completed", "failed"],
       warming_type: ["likes", "comments", "views", "followers", "shares"],
