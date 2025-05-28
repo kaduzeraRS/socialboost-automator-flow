@@ -1,43 +1,34 @@
-
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, Image, Plus } from 'lucide-react';
 import { useState } from 'react';
 import CreatePostDialog from '@/components/CreatePostDialog';
-
 const Scheduling = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-
-  const scheduledPosts = [
-    {
-      id: 1,
-      date: '2024-02-15',
-      time: '14:30',
-      platform: 'Instagram',
-      caption: 'Nova coleção chegando! 🔥 #moda #style',
-      status: 'Agendado'
-    },
-    {
-      id: 2,
-      date: '2024-02-15',
-      time: '18:00',
-      platform: 'TikTok',
-      caption: 'Tutorial de maquiagem rápida ✨',
-      status: 'Agendado'
-    },
-    {
-      id: 3,
-      date: '2024-02-16',
-      time: '12:00',
-      platform: 'Instagram',
-      caption: 'Dica do dia: como combinar cores 🎨',
-      status: 'Agendado'
-    }
-  ];
-
-  return (
-    <DashboardLayout>
+  const scheduledPosts = [{
+    id: 1,
+    date: '2024-02-15',
+    time: '14:30',
+    platform: 'Instagram',
+    caption: 'Nova coleção chegando! 🔥 #moda #style',
+    status: 'Agendado'
+  }, {
+    id: 2,
+    date: '2024-02-15',
+    time: '18:00',
+    platform: 'TikTok',
+    caption: 'Tutorial de maquiagem rápida ✨',
+    status: 'Agendado'
+  }, {
+    id: 3,
+    date: '2024-02-16',
+    time: '12:00',
+    platform: 'Instagram',
+    caption: 'Dica do dia: como combinar cores 🎨',
+    status: 'Agendado'
+  }];
+  return <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -73,28 +64,7 @@ const Scheduling = () => {
           </Card>
 
           {/* Upload Rápido */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Image className="w-5 h-5" />
-                <span>Upload Rápido</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                <Image className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Arraste arquivos aqui ou clique para fazer upload
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Até 10 arquivos (imagem/vídeo)
-                </p>
-              </div>
-              <Button variant="outline" className="w-full">
-                Selecionar Arquivos
-              </Button>
-            </CardContent>
-          </Card>
+          
         </div>
 
         {/* Posts Agendados */}
@@ -104,11 +74,7 @@ const Scheduling = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {scheduledPosts.map((post) => (
-                <div
-                  key={post.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors"
-                >
+              {scheduledPosts.map(post => <div key={post.id} className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-accent/50 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
                       <Image className="w-6 h-6 text-muted-foreground" />
@@ -139,14 +105,11 @@ const Scheduling = () => {
                       Excluir
                     </Button>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
-  );
+    </DashboardLayout>;
 };
-
 export default Scheduling;
