@@ -7,6 +7,7 @@ import { Instagram, Play, Plus, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ConnectAccountDialogProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
   const { accounts, connectAccount, disconnectAccount, loading } = useSocialAccounts();
+  const { user } = useAuth();
 
   const platforms = [
     {
@@ -23,65 +25,59 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
       icon: Instagram,
       color: 'from-purple-500 to-pink-500',
       description: 'Conecte sua conta do Instagram para agendar posts e analisar métricas',
-      authUrl: 'https://www.instagram.com/accounts/login/'
     },
     {
       name: 'TikTok',
       icon: Play,
       color: 'from-black to-gray-800',
       description: 'Conecte sua conta do TikTok para gerenciar conteúdo e acompanhar performance',
-      authUrl: 'https://www.tiktok.com/login'
     }
   ];
 
-  const handleConnect = async (platform: { name: string; authUrl: string }) => {
-    toast({
-      title: "Abrindo navegador",
-      description: `Redirecionando para ${platform.name}...`,
-    });
+  const handleConnect = async (platform: { name: string }) => {
+    if (!user) {
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar logado para conectar uma conta.",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Open browser window for authentication
-    const authWindow = window.open(
-      platform.authUrl,
-      '_blank',
-      'width=600,height=700,scrollbars=yes,resizable=yes'
-    );
+    try {
+      toast({
+        title: "Conectando conta",
+        description: `Simulando conexão com ${platform.name}...`,
+      });
 
-    // Simulate authentication process
-    const checkAuth = setInterval(() => {
-      try {
-        if (authWindow?.closed) {
-          clearInterval(checkAuth);
-          
-          // Simulate successful authentication and save to database
-          const handleSuccessfulAuth = async () => {
-            const accountData = {
-              platform: platform.name.toLowerCase(),
-              username: `@usuario_${platform.name.toLowerCase()}`,
-              account_id: `mock_${Date.now()}`,
-              followers_count: Math.floor(Math.random() * 10000) + 1000,
-              profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}`
-            };
+      // Simular dados da conta conectada
+      const accountData = {
+        platform: platform.name.toLowerCase(),
+        username: `@usuario_${platform.name.toLowerCase()}_${Math.floor(Math.random() * 1000)}`,
+        account_id: `mock_${Date.now()}`,
+        followers_count: Math.floor(Math.random() * 10000) + 1000,
+        following_count: Math.floor(Math.random() * 5000) + 500,
+        posts_count: Math.floor(Math.random() * 500) + 50,
+        profile_picture_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${platform.name}${Date.now()}`
+      };
 
-            const result = await connectAccount(accountData);
-            
-            if (result) {
-              // Close dialog after successful connection
-              setIsOpen(false);
-            }
-          };
-
-          handleSuccessfulAuth();
-        }
-      } catch (error) {
-        console.log('Checking auth status...');
+      const result = await connectAccount(accountData);
+      
+      if (result) {
+        setIsOpen(false);
+        toast({
+          title: "Conta conectada!",
+          description: `Sua conta ${platform.name} foi conectada com sucesso.`,
+        });
       }
-    }, 1000);
-
-    // Clear interval after 5 minutes to prevent infinite checking
-    setTimeout(() => {
-      clearInterval(checkAuth);
-    }, 300000);
+    } catch (error) {
+      console.error('Error connecting account:', error);
+      toast({
+        title: "Erro na conexão",
+        description: "Não foi possível conectar a conta. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDisconnect = async (accountId: string, platform: string) => {
@@ -90,12 +86,6 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
 
   const isConnected = (platformName: string) => {
     return accounts.some(acc => 
-      acc.platform.toLowerCase() === platformName.toLowerCase() && acc.is_active
-    );
-  };
-
-  const getConnectedAccount = (platformName: string) => {
-    return accounts.find(acc => 
       acc.platform.toLowerCase() === platformName.toLowerCase() && acc.is_active
     );
   };
@@ -131,7 +121,6 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Connected Accounts Section */}
           {connectedAccounts.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-4">Contas Conectadas</h3>
@@ -170,7 +159,6 @@ const ConnectAccountDialog = ({ children }: ConnectAccountDialogProps) => {
             </div>
           )}
 
-          {/* Available Platforms Section */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Conectar Nova Conta</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

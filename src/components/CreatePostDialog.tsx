@@ -1,16 +1,15 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useSocialAccounts } from '@/hooks/useSocialAccounts';
 import { useScheduledPosts } from '@/hooks/useScheduledPosts';
-import { Upload, Calendar, Clock, Zap } from 'lucide-react';
+import { Upload, Zap, X } from 'lucide-react';
 
 interface CreatePostDialogProps {
   children: React.ReactNode;
@@ -22,6 +21,7 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
   const { toast } = useToast();
   const { accounts } = useSocialAccounts();
   const { createPost } = useScheduledPosts();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -57,12 +57,21 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
     }));
   };
 
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setFormData(prev => ({
       ...prev,
       mediaFiles: [...prev.mediaFiles, ...files]
     }));
+    
+    toast({
+      title: "Arquivos adicionados",
+      description: `${files.length} arquivo(s) selecionado(s)`,
+    });
   };
 
   const removeFile = (index: number) => {
@@ -87,12 +96,11 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
       }
 
       const scheduledDateTime = formData.isAutomatic 
-        ? new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() // 2 horas a partir de agora (horário de pico simulado)
+        ? new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
         : new Date(`${formData.scheduledFor}T${formData.scheduledTime}`).toISOString();
 
       const hashtags = formData.hashtags.split('#').filter(tag => tag.trim()).map(tag => tag.trim());
 
-      // Criar post para cada conta selecionada
       for (const accountId of formData.selectedAccounts) {
         const account = accounts.find(acc => acc.id === accountId);
         if (!account) continue;
@@ -104,7 +112,7 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
           hashtags: hashtags.length > 0 ? hashtags : undefined,
           scheduled_for: scheduledDateTime,
           platform: account.platform,
-          media_urls: [] // Por enquanto vazio, implementaremos upload depois
+          media_urls: []
         });
       }
 
@@ -113,7 +121,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
         description: `${formData.selectedAccounts.length} post(s) foram agendados com sucesso.`,
       });
 
-      // Reset form
       setFormData({
         title: '',
         content: '',
@@ -150,7 +157,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Título */}
           <div>
             <Label htmlFor="title">Título (opcional)</Label>
             <Input
@@ -161,7 +167,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
             />
           </div>
 
-          {/* Descrição */}
           <div>
             <Label htmlFor="content">Descrição *</Label>
             <Textarea
@@ -174,7 +179,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
             />
           </div>
 
-          {/* Hashtags */}
           <div>
             <Label htmlFor="hashtags">Hashtags</Label>
             <Input
@@ -185,7 +189,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
             />
           </div>
 
-          {/* Upload de arquivos */}
           <div>
             <Label>Arquivos de mídia</Label>
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
@@ -195,14 +198,14 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
                   Clique para fazer upload ou arraste arquivos aqui
                 </p>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   multiple
                   accept="image/*,video/*"
                   onChange={handleFileUpload}
                   className="hidden"
-                  id="media-upload"
                 />
-                <Button type="button" variant="outline" onClick={() => document.getElementById('media-upload')?.click()}>
+                <Button type="button" variant="outline" onClick={handleFileSelect}>
                   Selecionar Arquivos
                 </Button>
               </div>
@@ -213,7 +216,7 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
                     <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
                       <span className="text-sm">{file.name}</span>
                       <Button type="button" variant="ghost" size="sm" onClick={() => removeFile(index)}>
-                        Remover
+                        <X className="w-4 h-4" />
                       </Button>
                     </div>
                   ))}
@@ -222,7 +225,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
             </div>
           </div>
 
-          {/* Agendamento */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -262,7 +264,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
             )}
           </div>
 
-          {/* Seleção de plataformas */}
           <div>
             <Label>Redes Sociais</Label>
             <div className="space-y-2 mt-2">
@@ -285,7 +286,6 @@ const CreatePostDialog = ({ children }: CreatePostDialogProps) => {
             </div>
           </div>
 
-          {/* Seleção de contas */}
           <div>
             <Label>Contas para publicar</Label>
             <div className="space-y-2 mt-2 max-h-32 overflow-y-auto">

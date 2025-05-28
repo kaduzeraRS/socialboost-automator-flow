@@ -1,3 +1,4 @@
+
 import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,76 +10,64 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 const Planos = () => {
   const { t } = useLanguage();
-  const [currentPlan] = useState('Mensal'); // Simulate current plan
+  const [currentPlan] = useState('Mensal');
   const [daysRemaining] = useState(23);
   const [renewalDate] = useState('2025-02-15');
 
   const plans = [
     {
-      name: 'Quinzenal',
-      price: 'R$ 29',
-      period: '/15 dias',
-      description: 'Ideal para começar',
+      name: "Quinzenal",
+      price: "R$ 29,90",
+      period: "15 dias",
       features: [
-        '2 contas Instagram/TikTok',
-        '100 posts agendados',
-        '5.000 interações/15 dias',
-        'Suporte básico'
+        "2 contas Instagram/TikTok",
+        "100 posts agendados",
+        "5.000 interações/15 dias",
+        "Suporte básico"
       ],
-      icon: Clock,
-      color: 'from-gray-500 to-gray-600',
       popular: false
     },
     {
-      name: 'Mensal',
-      price: 'R$ 49',
-      period: '/mês',
-      description: 'Para criadores de conteúdo',
+      name: "Mensal",
+      price: "R$ 49,90",
+      period: "mês",
       features: [
-        '5 contas Instagram/TikTok',
-        '1.000 posts agendados',
-        '10.000 interações/mês',
-        'Analytics avançados',
-        'Suporte prioritário'
+        "5 contas Instagram/TikTok",
+        "1.000 posts agendados",
+        "10.000 interações/mês",
+        "Analytics avançados",
+        "Suporte prioritário"
       ],
-      icon: Star,
-      color: 'from-purple-500 to-pink-500',
+      popular: true
+    },
+    {
+      name: "Trimestral",
+      price: "R$ 149,90",
+      period: "3 meses",
+      originalPrice: "R$ 49,90/mês",
+      features: [
+        "10 contas Instagram/TikTok",
+        "2.000 posts agendados",
+        "15.000 interações/mês",
+        "Analytics avançados",
+        "Suporte VIP",
+        "API access"
+      ],
       popular: false
     },
     {
-      name: 'Trimestral',
-      price: 'R$ 147',
-      period: '/mês',
-      originalPrice: 'R$ 199',
-      description: 'Para crescimento acelerado',
+      name: "Anual",
+      price: "R$ 549,90",
+      period: "ano",
+      originalPrice: "R$ 588",
       features: [
-        '10 contas Instagram/TikTok',
-        '2.000 posts agendados',
-        '15.000 interações/mês',
-        'Analytics avançados',
-        'Suporte VIP',
-        'API access'
+        "Contas ilimitadas",
+        "Posts ilimitados",
+        "20.000 interações/mês",
+        "Tudo do plano anterior",
+        "Gerente dedicado",
+        "White label"
       ],
-      icon: Zap,
-      color: 'from-blue-500 to-cyan-500',
-      popular: false
-    },
-    {
-      name: 'Anual',
-      price: 'R$ 549,90',
-      period: '/ano',
-      originalPrice: 'R$ 588',
-      description: 'Para profissionais',
-      features: [
-        'Contas ilimitadas',
-        'Posts ilimitados',
-        '20.000 interações/mês',
-        'Tudo do plano anterior',
-        'Gerente dedicado',
-        'White label'
-      ],
-      icon: Star,
-      color: 'from-yellow-500 to-orange-500',
       popular: false
     }
   ];
@@ -102,9 +91,9 @@ const Planos = () => {
     }
   };
 
-  const handleUpgradePlan = (planName: string) => {
-    console.log('Upgrade para:', planName);
-    alert(`Iniciando upgrade para o plano ${planName}...`);
+  const handleChoosePlan = (planName: string) => {
+    console.log('Escolher plano:', planName);
+    alert(`Redirecionando para checkout do plano ${planName}`);
   };
 
   const handleBuyInteractions = (amount: number, price: string) => {
@@ -175,71 +164,65 @@ const Planos = () => {
 
         {/* Upgrade Plans */}
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-6">{t('upgrade')}</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Planos Disponíveis</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {plans.map((plan) => {
-              const Icon = plan.icon;
-              const isCurrentPlan = plan.name === currentPlan;
-              
-              return (
-                <Card 
-                  key={plan.name} 
-                  className={`relative transition-all hover:shadow-lg dark:bg-card bg-white border-2 ${
-                    isCurrentPlan ? 'ring-2 ring-purple-primary shadow-lg border-purple-primary bg-purple-50 dark:bg-purple-900/20' : 'border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  {isCurrentPlan && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-purple-primary text-white px-4 py-1">
-                        {t('your_plan')}
-                      </Badge>
-                    </div>
-                  )}
-                  
-                  <CardHeader className="text-center pb-4">
-                    <div className={`w-16 h-16 bg-gradient-to-br ${plan.color} rounded-lg flex items-center justify-center mx-auto mb-4`}>
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
-                    <CardTitle className="text-2xl text-foreground">{plan.name}</CardTitle>
-                    <p className="text-muted-foreground">{plan.description}</p>
-                    <div className="flex items-baseline justify-center mt-4">
-                      <span className={`font-bold text-foreground ${plan.name === 'Anual' ? 'text-2xl' : 'text-4xl'}`}>
+            {plans.map((plan, index) => (
+              <Card 
+                key={index}
+                className={`relative transition-all duration-300 hover:shadow-lg dark:bg-card bg-white ${
+                  plan.popular ? 'border-2 border-purple-primary scale-105 shadow-lg' : 'border-border'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-purple-primary text-white px-3 py-1 rounded-full text-sm font-medium">
+                      Mais Popular
+                    </span>
+                  </div>
+                )}
+                
+                <CardHeader className="text-center">
+                  <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
+                  <div className="mt-4">
+                    <div className="flex items-baseline justify-center">
+                      <span className={`font-bold text-foreground ${plan.name === 'Anual' ? 'text-2xl' : 'text-3xl'}`}>
                         {plan.price}
                       </span>
-                      <span className="text-muted-foreground ml-1">{plan.period}</span>
+                      <span className="text-muted-foreground ml-1">/{plan.period}</span>
                     </div>
                     {plan.originalPrice && (
-                      <div className="text-sm text-muted-foreground line-through">
-                        {plan.originalPrice}{plan.period}
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {plan.originalPrice}
                       </div>
                     )}
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <ul className="space-y-3">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center space-x-3">
-                          <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                          <span className="text-sm text-foreground">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    <Button 
-                      className={`w-full mt-6 ${
-                        isCurrentPlan 
-                          ? 'bg-gray-400 text-white cursor-not-allowed dark:bg-gray-600 border-2' 
-                          : 'bg-purple-primary hover:bg-purple-hover text-white border-2 border-purple-primary'
-                      }`}
-                      disabled={isCurrentPlan}
-                      onClick={() => !isCurrentPlan && handleUpgradePlan(plan.name)}
-                    >
-                      {isCurrentPlan ? t('current_plan') : t('choose_plan')}
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </div>
+                </CardHeader>
+
+                <CardContent>
+                  <ul className="space-y-3 mb-6">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center text-sm">
+                        <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button 
+                    className={`w-full ${
+                      plan.popular 
+                        ? 'bg-purple-primary hover:bg-purple-hover text-white' 
+                        : 'bg-foreground hover:bg-foreground/90 text-background'
+                    }`}
+                    onClick={() => handleChoosePlan(plan.name)}
+                  >
+                    {plan.popular ? 'Começar Agora' : 'Escolher Plano'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 
@@ -299,6 +282,26 @@ const Planos = () => {
             </div>
           </CardContent>
         </Card>
+
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">
+            Todos os planos incluem 3 dias de teste grátis
+          </p>
+          <div className="inline-flex items-center space-x-4 text-sm text-muted-foreground">
+            <span className="flex items-center">
+              <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Sem taxa de setup
+            </span>
+            <span className="flex items-center">
+              <svg className="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Cancele quando quiser
+            </span>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );

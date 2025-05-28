@@ -55,6 +55,8 @@ export const useSocialAccounts = () => {
     access_token?: string;
     refresh_token?: string;
     followers_count?: number;
+    following_count?: number;
+    posts_count?: number;
     profile_picture_url?: string;
   }) => {
     try {
@@ -165,7 +167,7 @@ export const useSocialAccounts = () => {
           action,
           status,
           error_message: errorMessage,
-          ip_address: null, // Could be populated from a service
+          ip_address: null,
           user_agent: navigator.userAgent,
           metadata: {
             timestamp: new Date().toISOString(),
@@ -177,6 +179,24 @@ export const useSocialAccounts = () => {
     }
   };
 
+  // Função para filtrar contas por período (útil para TikTok últimos 7 dias)
+  const getAccountsByPlatformAndPeriod = (platform: string, days?: number) => {
+    let filteredAccounts = accounts.filter(acc => 
+      acc.platform.toLowerCase() === platform.toLowerCase() && acc.is_active
+    );
+
+    if (days) {
+      const cutoffDate = new Date();
+      cutoffDate.setDate(cutoffDate.getDate() - days);
+      
+      filteredAccounts = filteredAccounts.filter(acc => 
+        new Date(acc.created_at) >= cutoffDate
+      );
+    }
+
+    return filteredAccounts;
+  };
+
   useEffect(() => {
     fetchAccounts();
   }, []);
@@ -186,6 +206,7 @@ export const useSocialAccounts = () => {
     loading,
     connectAccount,
     disconnectAccount,
-    refetch: fetchAccounts
+    refetch: fetchAccounts,
+    getAccountsByPlatformAndPeriod
   };
 };
