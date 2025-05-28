@@ -1,5 +1,4 @@
 
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
@@ -54,13 +53,11 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border transition-colors duration-200;
   }
   
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: Inter, sans-serif;
+    @apply bg-background text-foreground font-sans;
   }
 }
 
@@ -70,96 +67,54 @@
   }
   
   .card-hover {
-    transition: all 0.3s ease-in-out;
-  }
-  
-  .card-hover:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg;
   }
   
   .purple-gradient {
     background: linear-gradient(135deg, #6C5DD3 0%, #5A4CC7 100%);
   }
 
+  /* Transições globais */
   .smooth-transition {
-    transition: all 0.3s ease-in-out;
+    @apply transition-all duration-300 ease-in-out;
   }
 
   .hover-lift {
-    transition: transform 0.2s ease-in-out;
-  }
-  
-  .hover-lift:hover {
-    transform: scale(1.05);
+    @apply transition-transform duration-200 hover:scale-105;
   }
 
-  .fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/25;
   }
 
-  .slide-up {
-    animation: slideInFromBottom 0.5s ease-out;
+  /* Animações de entrada */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
   }
 }
-
-/* Animações personalizadas */
-@keyframes slideInFromBottom {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.animate-slide-up {
-  animation: slideInFromBottom 0.5s ease-out;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out;
-}
-
-/* Transições suaves para todos os botões */
-button {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Transições para cards */
-.card {
-  transition: all 0.3s ease-in-out;
-}
-
-/* Transições para inputs */
-input, textarea, select {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Hover effects globais */
-.hover-glow:hover {
-  box-shadow: 0 0 20px rgba(108, 93, 211, 0.3);
-}
-

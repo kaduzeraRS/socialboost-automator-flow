@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -82,7 +81,7 @@ const PricingSection = () => {
           {plans.map((plan, index) => (
             <Card 
               key={index}
-              className={`relative transition-all duration-300 hover:shadow-lg dark:bg-card bg-white hover:scale-105 ${
+              className={`relative transition-all duration-300 hover:shadow-lg dark:bg-card bg-white ${
                 plan.popular ? 'border-2 border-purple-primary scale-105 shadow-lg' : 'border-border'
               }`}
             >
@@ -98,13 +97,10 @@ const PricingSection = () => {
                 <CardTitle className="text-lg font-semibold text-foreground">{plan.name}</CardTitle>
                 <div className="mt-4">
                   <div className="flex items-baseline justify-center">
-                    <span className={`font-bold text-foreground ${
-                      plan.name === 'Trimestral' ? 'text-2xl' : 
-                      plan.name === 'Anual' ? 'text-2xl' : 'text-3xl'
-                    }`}>
+                    <span className={`font-bold text-foreground ${plan.name === 'Anual' ? 'text-2xl' : 'text-3xl'}`}>
                       {plan.price}
                     </span>
-                    <span className="text-muted-foreground ml-1 text-sm">/{plan.period}</span>
+                    <span className="text-muted-foreground ml-1">/{plan.period}</span>
                   </div>
                   {plan.originalPrice && (
                     <div className="text-sm text-muted-foreground mt-1">
@@ -127,10 +123,10 @@ const PricingSection = () => {
                 </ul>
 
                 <Button 
-                  className={`w-full transition-all duration-200 ${
+                  className={`w-full ${
                     plan.popular 
-                      ? 'bg-purple-primary hover:bg-purple-hover text-white hover:scale-105' 
-                      : 'bg-foreground hover:bg-foreground/90 text-background hover:scale-105'
+                      ? 'bg-purple-primary hover:bg-purple-hover text-white' 
+                      : 'bg-foreground hover:bg-foreground/90 text-background'
                   }`}
                   onClick={() => handleChoosePlan(plan.name)}
                 >
